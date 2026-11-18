@@ -484,7 +484,80 @@ window.CLASE_CONTENIDOS["clase-01"] = {
       { label: "1P 2024", text: "V/F sobre residuos; demostración de insesgamiento y varianza simple." },
       { label: "1P 2025", text: "Condiciones de primer orden; residuos como variables aleatorias." },
       { label: "1P 2026", text: "FOC; β̂₁ y β̂₀; modelo probabilístico." }
-    ]
+    ],
+    rLab: {
+      eyebrow: "Laboratorio de lectura",
+      title: "Cómo se lee una salida de RStudio",
+      intro: "Correr lm() es la mitad del trabajo. La otra mitad es leer la salida: qué se estimó, cuánta precisión hay, qué se puede concluir y qué no.",
+      dataNote: "La salida se calculó con los datos del TP 2, Ej. 1. Para la lectura económica suponemos X = años de educación e Y = ingreso mensual en miles de pesos. Es una convención didáctica: las unidades originales del ejercicio son genéricas.",
+      script: `Y <- c(21, 24, 26, 27, 29, 25, 25, 30, 21, 24, 26, 27)
+X <- c(2.8, 3.4, 3.0, 3.5, 3.6, 3.0, 2.7, 3.7, 2.8, 3.4, 3.0, 3.5)
+
+datos <- data.frame(Y, X)
+modelo <- lm(Y ~ X, data = datos)
+
+summary(modelo)
+confint(modelo)`,
+      output: `Call:
+lm(formula = Y ~ X, data = datos)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.5490 -2.1520  0.3002  1.7157  2.4142 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   7.2990     5.4712   1.334   0.2118    
+X             5.6618     1.7004   3.330   0.00762 **
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.983 on 10 degrees of freedom
+Multiple R-squared:  0.5258,    Adjusted R-squared:  0.4784 
+F-statistic: 11.09 on 1 and 10 DF,  p-value: 0.007621`,
+      confint: `                 2.5 %    97.5 %
+(Intercept) -4.891595 19.489634
+X            1.873106  9.450424`,
+      readingTable: [
+        { element: "Call", meaning: "Fórmula estimada y base de datos.", how: "Verificá que Y y X sean las variables correctas." },
+        { element: "Residuals", meaning: "Resumen de cinco números de los residuos.", how: "No son coeficientes: mirá simetría y valores extremos." },
+        { element: "Estimate", meaning: "Coeficiente estimado.", how: "Cambio esperado en Y ante una unidad más de X, ceteris paribus." },
+        { element: "Std. Error", meaning: "Error estándar del estimador.", how: "Mide precisión: más chico, estimación más precisa." },
+        { element: "t value", meaning: "Estimate / Std. Error.", how: "Bajo H0: βj = 0, se compara con t de n − 2 gl." },
+        { element: "Pr(>|t|)", meaning: "p-valor del contraste individual.", how: "Si es < 0,05, se rechaza H0 al 5%. No es la probabilidad de que H0 sea cierta." },
+        { element: "Residual standard error", meaning: "σ̂ en unidades de Y.", how: "Dispersión de Y alrededor de la recta." },
+        { element: "Multiple R-squared", meaning: "Proporción de variación muestral de Y explicada.", how: "Ajuste, no causalidad." },
+        { element: "Adjusted R-squared", meaning: "R² corregido por grados de libertad.", how: "Útil para comparar modelos; en regresión simple es menor que R²." },
+        { element: "F-statistic", meaning: "Contraste de significancia global.", how: "En regresión simple, H0: β1 = 0; además F = t²." }
+      ],
+      econometric: `
+        <p><strong>β̂₁ = 5,66.</strong> Es positivo y estadísticamente distinto de cero al 1% (t = 3,33; p = 0,0076). El IC del 95% va de 1,87 a 9,45 y no incluye el cero.</p>
+        <p><strong>β̂₀ = 7,30.</strong> No es significativamente distinto de cero (p = 0,212). Además, X = 0 puede estar fuera del rango observado: no lo interpretes como una predicción confiable.</p>
+        <p><strong>R² = 0,526.</strong> El modelo explica el 52,6% de la variación muestral de Y. El R² ajustado es 0,478.</p>
+        <p><strong>Error estándar residual = 1,98.</strong> Es la dispersión típica de Y alrededor de la recta, en unidades de Y.</p>
+        <p><strong>F = 11,09; p = 0,0076.</strong> En regresión simple contrasta lo mismo que t: H0: β1 = 0. Se cumple F = t².</p>
+      `,
+      economic: `
+        <p>Si X son años de educación e Y miles de pesos, un año adicional de educación se asocia con un aumento estimado de <strong>5,66 mil pesos mensuales</strong>, en promedio y ceteris paribus.</p>
+        <p>El signo es el esperado y la magnitud es económicamente relevante, pero el intervalo es amplio: la precisión es moderada. No se puede afirmar que la educación <em>cause</em> ese aumento sin discutir variables omitidas, endogeneidad y diseño.</p>
+      `,
+      errors: [
+        "Decir que p = 0,0076 es la probabilidad de que H0 sea verdadera. Es la probabilidad de observar un t al menos tan extremo si H0 fuera cierta.",
+        "Leer el intercepto como “el ingreso de alguien sin educación”. Solo tiene sentido si X = 0 está en el rango y el modelo es válido allí.",
+        "Decir que R² = 0,526 prueba causalidad. Mide ajuste lineal, no dirección ni causalidad.",
+        "Mirar solo el signo y el tamaño del coeficiente, ignorando el error estándar. Un coeficiente grande puede ser muy impreciso.",
+        "Comparar R² entre modelos que usan distintas transformaciones de Y. No son directamente comparables."
+      ],
+      checklist: [
+        "Escribí la fórmula estimada con números.",
+        "Interpretá β̂₁ en unidades y en una frase económica.",
+        "Reportá error estándar, t, p-valor e intervalo de confianza.",
+        "Interpretá R² y error estándar residual.",
+        "Aclará qué no podés concluir: causalidad, validez externa, etc.",
+        "Revisá si X = 0 tiene sentido antes de interpretar β̂₀."
+      ]
+    }
   },
 
   assessment: {
@@ -537,8 +610,41 @@ window.CLASE_CONTENIDOS["clase-01"] = {
 
   review: {
     eyebrow: "Cierre y consolidación",
-    title: "Una sesión de 90 minutos",
-    intro: "La estructura sigue el método de estudio: comprender, conectar, practicar y cerrar con una señal clara de qué quedó y qué no.",
+    title: "Kit de repaso y sesión de 90 minutos",
+    intro: "Empezá por el formulario, seguí con el drill y la sesión, y cerrá con el plan de 7 días. La idea es repasar sin volver a leer todo desde cero.",
+    formulas: [
+      { title: "Modelo poblacional", eq: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub> + u<sub>i</sub>", note: "Y es la variable dependiente; X, la explicativa; u, el error no observable." },
+      { title: "FRP", eq: "E(Y<sub>i</sub> | X<sub>i</sub>) = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub>", note: "Vale si E(u<sub>i</sub> | X<sub>i</sub>) = 0. Es el objeto poblacional que MCO intenta estimar." },
+      { title: "Restricciones de momentos", eq: "E(u<sub>i</sub>) = 0   ·   E(X<sub>i</sub>u<sub>i</sub>) = 0", note: "En la muestra: Σû<sub>i</sub> = 0 y ΣX<sub>i</sub>û<sub>i</sub> = 0." },
+      { title: "Pendiente MCO", eq: "β̂<sub>1</sub> = Σ(X<sub>i</sub> − X̄)(Y<sub>i</sub> − Ȳ) / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = Cov(X,Y) / Var(X)", note: "En desvíos: Σx<sub>i</sub>y<sub>i</sub> / Σx<sub>i</sub><sup>2</sup>." },
+      { title: "Intercepto MCO", eq: "β̂<sub>0</sub> = Ȳ − β̂<sub>1</sub>X̄", note: "La recta estimada pasa por el punto (X̄, Ȳ)." },
+      { title: "Propiedades algebraicas", eq: "Σû<sub>i</sub> = 0   ·   ΣX<sub>i</sub>û<sub>i</sub> = 0", note: "También Cov(X, û) = 0 y Cov(Ŷ, û) = 0 con constante." },
+      { title: "Descomposición", eq: "SCT = SCE + SCR", note: "SCT = Σ(Y<sub>i</sub> − Ȳ)<sup>2</sup>; SCE = Σ(Ŷ<sub>i</sub> − Ȳ)<sup>2</sup>; SCR = Σû<sub>i</sub><sup>2</sup>." },
+      { title: "Coeficiente de determinación", eq: "R<sup>2</sup> = SCE / SCT = 1 − SCR / SCT", note: "Está entre 0 y 1. Mide ajuste, no causalidad." },
+      { title: "Varianza de β̂1", eq: "Var(β̂<sub>1</sub>) = σ<sup>2</sup> / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = σ<sup>2</sup> / SCT<sub>x</sub>", note: "Más dispersión de X o menos ruido ⇒ menor varianza." },
+      { title: "Varianza de β̂0", eq: "Var(β̂<sub>0</sub>) = σ<sup>2</sup> [ 1/n + X̄<sup>2</sup> / SCT<sub>x</sub> ]", note: "Depende de n, de X̄ y de la dispersión de X." },
+      { title: "Varianza estimada del error", eq: "σ̂<sup>2</sup> = SCR / (n − 2)", note: "n − 2 grados de libertad en regresión simple." },
+      { title: "Gauss-Markov", eq: "RLS.1–RLS.5 ⇒ MCO es ELIO", note: "Lineal, insesgado y de mínima varianza entre los lineales insesgados." },
+      { title: "Modelo lineal clásico", eq: "u<sub>i</sub> ~ N(0, σ<sup>2</sup>) ⇒ t y F exactas", note: "La normalidad no es un supuesto de Gauss-Markov; se agrega para inferencia exacta." }
+    ],
+    drills: [
+      { q: "Escribí el modelo poblacional y la FRP.", a: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>i</sub> + u<sub>i</sub>; E(Y<sub>i</sub>|X<sub>i</sub>) = β<sub>0</sub> + β<sub>1</sub>X<sub>i</sub> si E(u<sub>i</sub>|X<sub>i</sub>) = 0." },
+      { q: "Escribí las dos restricciones de momentos en población y en muestra.", a: "Población: E(u<sub>i</sub>) = 0 y E(X<sub>i</sub>u<sub>i</sub>) = 0. Muestra: Σû<sub>i</sub> = 0 y ΣX<sub>i</sub>û<sub>i</sub> = 0." },
+      { q: "Derivá β̂1 en desvíos.", a: "β̂<sub>1</sub> = Σ(X<sub>i</sub>−X̄)(Y<sub>i</sub>−Ȳ) / Σ(X<sub>i</sub>−X̄)<sup>2</sup> = Σx<sub>i</sub>y<sub>i</sub> / Σx<sub>i</sub><sup>2</sup>." },
+      { q: "Escribí β̂0 y explicá por qué la recta pasa por (X̄, Ȳ).", a: "β̂<sub>0</sub> = Ȳ − β̂<sub>1</sub>X̄. Reemplazando X = X̄ se obtiene Ŷ = Ȳ." },
+      { q: "Enunciá los cinco supuestos de Gauss-Markov.", a: "Linealidad en parámetros; muestra aleatoria; E(u<sub>i</sub>|X<sub>i</sub>) = 0; variabilidad en X; homocedasticidad Var(u<sub>i</sub>|X<sub>i</sub>) = σ<sup>2</sup>." },
+      { q: "Escribí Var(β̂1), Var(β̂0) y σ̂².", a: "Var(β̂<sub>1</sub>) = σ<sup>2</sup>/SCT<sub>x</sub>; Var(β̂<sub>0</sub>) = σ<sup>2</sup>[1/n + X̄<sup>2</sup>/SCT<sub>x</sub>]; σ̂<sup>2</sup> = SCR/(n−2)." },
+      { q: "¿Qué agrega el modelo lineal clásico a Gauss-Markov?", a: "Normalidad de los errores: u<sub>i</sub> ~ N(0,σ<sup>2</sup>). Permite distribuciones t y F exactas en muestras pequeñas." },
+      { q: "¿Qué significa R² y qué no significa?", a: "Significa la proporción de variación muestral de Y explicada linealmente por el modelo. No significa causalidad ni validez de los supuestos." }
+    ],
+    sourceGuide: [
+      { stuck: "No puedo despejar β̂1 desde las CPO", source: "Clase 1, diap. 11–14; Wooldridge §2.2, pp. 27–35." },
+      { stuck: "No entiendo por qué E(β̂1) = β1", source: "Clase 1, diap. 30–32; Wooldridge §2.5, pp. 46–53." },
+      { stuck: "Confundo error con residuo", source: "Clase 1, diap. 11 y 16; Wooldridge §2.3, pp. 36–40." },
+      { stuck: "No entiendo la varianza de los estimadores", source: "Clase 1, diap. 36–39; Wooldridge §2.5, pp. 53–58." },
+      { stuck: "No sé qué propiedad se rompe si falla un supuesto", source: "Clase 1, diap. 28–35; Clase 3, diap. 5–7." },
+      { stuck: "No sé leer una salida de R", source: "Práctica, laboratorio de lectura; TP 2, Ej. 1." }
+    ],
     session: [
       { time: "0–10", title: "Pregunta guía", text: "¿Qué relación quiero describir? ¿Qué parte de Y queda en el error? Escribí una respuesta de tres líneas." },
       { time: "10–30", title: "FRP, FRM y error/residuo", text: "Explicá la diferencia con un ejemplo de salario y educación. Si te trabás, volvé a la clase 1, diap. 6–8 y 11–16." },

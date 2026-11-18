@@ -416,6 +416,63 @@
     `;
   }
 
+  function renderRLab(lab) {
+    return `
+      <section class="r-lab" id="r-lab">
+        <div class="r-lab-head">
+          <div>
+            <div class="eyebrow">${lab.eyebrow}</div>
+            <h3>${lab.title}</h3>
+            <p>${lab.intro}</p>
+          </div>
+          <span class="tag">TP 2 · Ej. 1</span>
+        </div>
+        <div class="r-note">${lab.dataNote}</div>
+        <div class="r-lab-grid">
+          <div class="r-pane">
+            <div class="r-pane-head"><span class="pane-dot"></span>Script de R</div>
+            <pre class="r-code">${lab.script}</pre>
+          </div>
+          <div class="r-pane">
+            <div class="r-pane-head"><span class="pane-dot console"></span>Salida de consola</div>
+            <pre class="r-console">${lab.output}</pre>
+          </div>
+        </div>
+        <div class="r-confint">
+          <div class="mini-label">Intervalos de confianza al 95%</div>
+          <pre class="r-console">${lab.confint}</pre>
+        </div>
+        <div class="r-reading">
+          <div class="mini-label">Cómo leer cada línea</div>
+          <div class="r-table">
+            <div class="r-row r-head"><span>Salida</span><span>Qué es</span><span>Cómo se lee</span></div>
+            ${lab.readingTable.map(row => `
+              <div class="r-row"><b>${row.element}</b><span>${row.meaning}</span><span>${row.how}</span></div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="interpret-pair">
+          <div class="interpret-card">
+            <span class="mini-label">Interpretación econométrica</span>
+            ${lab.econometric}
+          </div>
+          <div class="interpret-card">
+            <span class="mini-label">Interpretación económica</span>
+            ${lab.economic}
+          </div>
+        </div>
+        <div class="callout">
+          <span class="mini-label">Errores al leer la salida</span>
+          <ul class="check-list">${lab.errors.map(error => `<li>${error}</li>`).join("")}</ul>
+        </div>
+        <div class="checklist-card">
+          <span class="mini-label">Checklist para el parcial</span>
+          <ul class="check-list">${lab.checklist.map(item => `<li>${item}</li>`).join("")}</ul>
+        </div>
+      </section>
+    `;
+  }
+
   function renderPractice(content) {
     const practice = content.practice;
     return `
@@ -439,6 +496,7 @@
           </article>
         `).join("")}
       </div>
+      ${practice.rLab ? renderRLab(practice.rLab) : ""}
       <div class="practice-partials">
         <div class="mini-label">Preguntas de parcial relacionadas</div>
         <div class="partial-grid">
@@ -476,6 +534,54 @@
     `;
   }
 
+  function renderFormulaKit(review) {
+    return `
+      <section class="review-block">
+        <div class="review-block-head">
+          <div>
+            <div class="mini-label">Formulario</div>
+            <h3>Las fórmulas de la clase 1</h3>
+            <p>Si no podés escribir una fórmula sin mirar, volvé a la sección correspondiente antes de seguir.</p>
+          </div>
+          <div class="review-actions">
+            <button class="reset-chart" data-goto-tab="autoevaluacion" type="button">10 preguntas →</button>
+            <button class="reset-chart" data-goto-tab="practica" data-goto-anchor="r-lab" type="button">Leer salida de R →</button>
+          </div>
+        </div>
+        <div class="formula-kit">
+          ${review.formulas.map(formula => `
+            <article class="formula-card">
+              <span class="formula-title">${formula.title}</span>
+              <div class="eq">${formula.eq}</div>
+              <p>${formula.note}</p>
+            </article>
+          `).join("")}
+        </div>
+      </section>
+      <div class="review-grid-2">
+        <section class="review-block">
+          <div class="mini-label">Drill de fórmulas</div>
+          <h3>Escribilas sin mirar</h3>
+          <div class="qa-list">
+            ${review.drills.map((drill, index) => `
+              <details class="qa-card">
+                <summary><span class="qa-num">F${index + 1}</span><span>${drill.q}</span></summary>
+                <div class="qa-answer">${drill.a}</div>
+              </details>
+            `).join("")}
+          </div>
+        </section>
+        <section class="review-block">
+          <div class="mini-label">Si te trabás</div>
+          <h3>Volvé a la fuente correcta</h3>
+          <ul class="source-guide">
+            ${review.sourceGuide.map(item => `<li><b>${item.stuck}</b><span>${item.source}</span></li>`).join("")}
+          </ul>
+        </section>
+      </div>
+    `;
+  }
+
   function renderReview(content) {
     const review = content.review;
     return `
@@ -484,6 +590,7 @@
         <h2>${review.title}</h2>
         <p>${review.intro}</p>
       </div>
+      ${renderFormulaKit(review)}
       <div class="session">
         ${review.session.map(item => `
           <div class="session-block">
@@ -1054,6 +1161,20 @@
       els.app.addEventListener("click", event => {
         const tab = closestEl(event.target, ".tab");
         if (tab) { switchTab(tab.dataset.tab); return; }
+        const gotoTab = closestEl(event.target, "[data-goto-tab]");
+        if (gotoTab) {
+          switchTab(gotoTab.dataset.gotoTab);
+          const anchor = gotoTab.dataset.gotoAnchor;
+          if (anchor) {
+            setTimeout(() => {
+              const target = document.getElementById(anchor);
+              if (!target) return;
+              const top = target.getBoundingClientRect().top + window.scrollY - 120;
+              window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+            }, 420);
+          }
+          return;
+        }
         const check = closestEl(event.target, "[data-check]");
         if (check) { toggleCheck(check); return; }
         if (closestEl(event.target, "#toggleAllQA")) { toggleAllQA(); }
