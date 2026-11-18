@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Econometría I · Cuaderno de estudio</title>
+<script>
+  (() => {
+    let saved = null;
+    try { saved = localStorage.getItem("eco-theme"); } catch (e) {}
+    const theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<link rel="stylesheet" href="assets/styles.css?v=2">
+</head>
+<body>
+<div class="layout">
+  <aside class="side" aria-label="Recorrido de clases">
+    <div class="brand">econometría<span>Cuaderno de estudio</span></div>
+    <div class="course">
+      <div class="course-top"><b>Econometría I</b><span id="courseCount">1 / 10</span></div>
+      <div class="progress"><span id="courseProgress"></span></div>
+      <small id="courseStatus">Clase 1 en curso</small>
+    </div>
+    <div class="side-label">Mi recorrido</div>
+    <nav class="class-nav" id="classNav"></nav>
+    <div class="side-label">Herramientas</div>
+    <button class="side-tool" data-tool="guia" type="button">▤ &nbsp; Guía de ejercicios</button>
+    <button class="side-tool" data-tool="parciales" type="button">◇ &nbsp; Preparar parciales</button>
+    <button class="side-tool" data-tool="fuentes" type="button">⌘ &nbsp; Mapa de fuentes</button>
+    <div class="side-foot">
+      <b>Un camino posible</b>
+      Comprender, practicar y repasar.<br>Sin leer todo de nuevo.
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="crumbs"><span class="hide-mobile">Econometría I</span> <i class="hide-mobile">/</i> <span id="crumbClass">Clase 1</span> <i>/</i> <b id="crumbTab">Teoría</b> <span class="mock-badge">ESTUDIO</span></div>
+      <div class="top-actions">
+        <button class="annotations-btn" id="annotationsBtn" aria-haspopup="dialog" aria-expanded="false">
+          Anotaciones <span class="count" id="annotCount">0</span>
+        </button>
+        <button class="ghost-btn" id="focusBtn" type="button">Modo enfoque</button>
+        <button class="theme-btn" id="themeBtn" aria-label="Cambiar a modo noche" title="Modo noche" type="button">☾</button>
+        <button class="avatar" id="userBtn" type="button" title="Cuenta">ES</button>
+      </div>
+    </header>
+
+    <nav class="mobile-classbar" id="mobileClassbar" aria-label="Recorrido de clases"></nav>
+
+    <div class="content" id="app"></div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Panel de concepto o anotaciones">
+  <div class="drawer-head" id="drawerHead"></div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<div class="selection-toolbar" id="selectionToolbar" role="toolbar" aria-label="Acciones sobre la selección">
+  <button data-action="highlight" type="button">Subrayar</button>
+  <span class="sep"></span>
+  <button data-action="comment" type="button">Comentar</button>
+</div>
+
+<div class="comment-popover" id="commentPopover" role="dialog" aria-label="Nuevo comentario">
+  <div class="pop-label">Nuevo comentario</div>
+  <div class="pop-quote" id="popQuote"></div>
+  <textarea class="pop-textarea" id="popTextarea" placeholder="Escribí qué querés recordar de este fragmento…"></textarea>
+  <div class="pop-actions">
+    <button class="pop-btn" id="popCancel" type="button">Cancelar</button>
+    <button class="pop-btn primary" id="popSave" type="button">Guardar comentario</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="hint" id="hint">
+  <button class="close-hint" id="closeHint" aria-label="Cerrar ayuda" type="button">×</button>
+  <h4>Qué podés probar</h4>
+  <ul>
+    <li>Clic en un concepto punteado de la teoría.</li>
+    <li>Seleccioná una frase y elegí “Comentar”.</li>
+    <li>Abrí “Anotaciones” para volver al fragmento.</li>
+    <li>Mové los sliders del gráfico de MCO.</li>
+  </ul>
+</div>
+
+<script src="storage.js" data-app="econometria"></script>
+<script src="content/indice.js?v=2"></script>
+<script src="content/clase-01.js?v=2"></script>
+<script src="assets/store.js?v=2"></script>
+<script src="assets/app.js?v=2"></script>
+</body>
+</html>
