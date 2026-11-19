@@ -4,20 +4,23 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 
 ## Estado
 
-- **Clase 1 completa:** teoría, conceptos, práctica, autoevaluación, repaso y fuentes.
-- **Clases 2 a 10:** estructura y navegación listas, contenido pendiente.
+- **Clase 1 completa:** teoría, conceptos, práctica con laboratorio de R, autoevaluación y kit de repaso.
+- **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, multicolinealidad y álgebra matricial, con práctica, laboratorio de R y kit de repaso.
+- **Clases 3 a 10:** estructura y navegación listas, contenido pendiente.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Modo noche:** persistente y responsive.
 
 ## Funcionalidades
 
-- Navegación por las 10 clases.
+- Navegación por las clases del curso (clase 2 dividida en 2A y 2B).
 - Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
+- Laboratorios de lectura de salidas de R para las clases 1, 2A y 2B.
 - Selección de texto para subrayar o comentar.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
-- Autoevaluación con 10 preguntas de razonamiento.
-- Sesión de 90 minutos y plan de repaso de 7 días.
+- Autoevaluación con preguntas de razonamiento.
+- Formulario, drill de fórmulas, sesión de 90 minutos y plan de repaso de 7 días.
+- Guía de trabajos prácticos integrada con enlaces directos a cada ejercicio.
 - Modo claro/oscuro y diseño responsive.
 
 ## Stack
@@ -39,9 +42,18 @@ assets/
 content/
   indice.js             lista de clases
   clase-01.js           contenido de la clase 1
+  clase-02a.js          regresión múltiple, parte 1
+  clase-02b.js          regresión múltiple, parte 2
+guia/
+  Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada
 supabase/
   eco_annotations.sql   tabla, índices y políticas RLS
 ```
+
+La guía conserva sus pestañas y acepta enlaces profundos a cada actividad o
+ejercicio, por ejemplo `guia/Guía-TP-Eco-I-2026.html#ejercicio-nº-1-2`. Un script
+al final del archivo abre la pestaña correspondiente y hace scroll al ejercicio,
+incluso cuando el navegador codifica el `º`.
 
 ## Desarrollo local
 
@@ -66,7 +78,10 @@ La app usa el proyecto `fukuro`:
 
 ## Material bibliográfico
 
-El sitio **no incluye** PDFs, libros, guías ni parciales. Solo muestra referencias bibliográficas y consignas generales. Cada estudiante debe usar su propia copia de los materiales de la cátedra.
+La **guía de trabajos prácticos 2026** está integrada en `guia/` para que cada
+tarjeta de práctica abra el ejercicio exacto. Los PDFs de clase, el libro y las
+soluciones de parciales **no** se incluyen: quedan como referencias y cada
+estudiante debe usar su propia copia.
 
 ## Deploy
 

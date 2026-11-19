@@ -409,7 +409,7 @@
             <span class="card-num">${pad(index + 1)}</span>
             <h3>${concept.title}</h3>
             <p>${concept.sub}</p>
-            <span class="card-source">Clase 1 · ficha de concepto</span>
+            <span class="card-source">Clase ${content.num} · ficha de concepto</span>
           </button>
         `).join("")}
       </div>
@@ -425,7 +425,7 @@
             <h3>${lab.title}</h3>
             <p>${lab.intro}</p>
           </div>
-          <span class="tag">TP 2 · Ej. 1</span>
+          <span class="tag">${lab.tag || "Laboratorio"}</span>
         </div>
         <div class="r-note">${lab.dataNote}</div>
         <div class="r-lab-grid">
@@ -480,6 +480,9 @@
         <div class="eyebrow">${practice.eyebrow}</div>
         <h2>${practice.title}</h2>
         <p>${practice.intro}</p>
+        ${practice.guideHref
+          ? `<a class="open-btn" href="${practice.guideHref}" target="_blank" rel="noopener">Abrir guía completa</a>`
+          : ""}
       </div>
       <div class="exercise-list">
         ${practice.exercises.map(exercise => `
@@ -534,18 +537,21 @@
     `;
   }
 
-  function renderFormulaKit(review) {
+  function renderFormulaKit(content) {
+    const review = content.review;
+    const questionCount = content.assessment.questions.length;
+    const hasRLab = Boolean(content.practice.rLab);
     return `
       <section class="review-block">
         <div class="review-block-head">
           <div>
             <div class="mini-label">Formulario</div>
-            <h3>Las fórmulas de la clase 1</h3>
+            <h3>Las fórmulas de la clase ${content.num}</h3>
             <p>Si no podés escribir una fórmula sin mirar, volvé a la sección correspondiente antes de seguir.</p>
           </div>
           <div class="review-actions">
-            <button class="reset-chart" data-goto-tab="autoevaluacion" type="button">10 preguntas →</button>
-            <button class="reset-chart" data-goto-tab="practica" data-goto-anchor="r-lab" type="button">Leer salida de R →</button>
+            <button class="reset-chart" data-goto-tab="autoevaluacion" type="button">${questionCount} preguntas →</button>
+            ${hasRLab ? `<button class="reset-chart" data-goto-tab="practica" data-goto-anchor="r-lab" type="button">Leer salida de R →</button>` : ""}
           </div>
         </div>
         <div class="formula-kit">
@@ -590,7 +596,7 @@
         <h2>${review.title}</h2>
         <p>${review.intro}</p>
       </div>
-      ${renderFormulaKit(review)}
+      ${review.formulas && review.drills && review.sourceGuide ? renderFormulaKit(content) : ""}
       <div class="session">
         ${review.session.map(item => `
           <div class="session-block">
@@ -1258,7 +1264,7 @@
       button.addEventListener("click", () => {
         const tool = button.dataset.tool;
         if (tool === "guia") {
-          window.open("../fuentes/ejericios/Guía-TP-Eco-I-2026.html", "_blank", "noopener");
+          window.open("guia/Guía-TP-Eco-I-2026.html", "_blank", "noopener");
           return;
         }
         if (tool === "parciales") {

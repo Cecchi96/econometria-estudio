@@ -459,25 +459,29 @@ window.CLASE_CONTENIDOS["clase-01"] = {
   practice: {
     eyebrow: "De la teoría a la guía",
     title: "Práctica de la clase",
-    intro: "Los ejercicios de la cátedra están elegidos para poner a prueba una idea concreta. No hace falta resolver todo: empezá por el que expone la diferencia entre población y muestra. Los materiales originales no se incluyen en el sitio: usá tu copia de la guía.",
+    intro: "Los ejercicios de la cátedra están elegidos para poner a prueba una idea concreta. No hace falta resolver todo: empezá por el que expone la diferencia entre población y muestra. La guía está integrada al sitio: cada tarjeta abre el ejercicio exacto.",
+    guideHref: "guia/Guía-TP-Eco-I-2026.html#trabajo-práctico-nº-2",
     exercises: [
       {
         label: "TP 2 · Ej. 1",
         title: "Propiedades algebraicas de MCO",
         text: "Verificá numéricamente que Σû = 0, que ΣXû = 0 y cómo se relacionan los residuos con los valores ajustados.",
         tags: ["Verificar", "Datos propios"],
+        href: "guia/Guía-TP-Eco-I-2026.html#ejercicio-nº-1-1",
       },
       {
         label: "TP 2 · Ej. 2",
         title: "Salario y educación",
         text: "Estimá la recta, interpretá la pendiente y discutí si el coeficiente estimado puede leerse como un efecto causal.",
         tags: ["Interpretar", "Estimación"],
+        href: "guia/Guía-TP-Eco-I-2026.html#ejercicio-nº-2-1",
       },
       {
         label: "TP 2 · Ej. 5",
         title: "ENGHO 2012",
         text: "Aplicá el modelo a una base real y mirá qué cambia cuando se agregan controles. Es el puente natural hacia la clase 2.",
         tags: ["Aplicar", "Base real"],
+        href: "guia/Guía-TP-Eco-I-2026.html#ejercicio-nº-5-1",
       }
     ],
     partials: [
@@ -487,6 +491,7 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     ],
     rLab: {
       eyebrow: "Laboratorio de lectura",
+      tag: "TP 2 · Ej. 1",
       title: "Cómo se lee una salida de RStudio",
       intro: "Correr lm() es la mitad del trabajo. La otra mitad es leer la salida: qué se estimó, cuánta precisión hay, qué se puede concluir y qué no.",
       dataNote: "La salida se calculó con los datos del TP 2, Ej. 1. Para la lectura económica suponemos X = años de educación e Y = ingreso mensual en miles de pesos. Es una convención didáctica: las unidades originales del ejercicio son genéricas.",
@@ -673,7 +678,7 @@ X            1.873106  9.450424`,
   sources: {
     eyebrow: "Trazabilidad",
     title: "Fuentes de esta clase",
-    intro: "Primero la cátedra; el libro complementa y profundiza. Las páginas son las impresas en el libro; en el PDF de la 4.ª edición se suman 22. No se distribuyen los archivos originales: quedan solo las referencias bibliográficas.",
+    intro: "Primero la cátedra; el libro complementa y profundiza. Las páginas son las impresas en el libro; en el PDF de la 4.ª edición se suman 22. La guía de trabajos prácticos está integrada al sitio; los PDFs de clase y las soluciones de parciales quedan como referencias.",
     items: [
       {
         type: "Clase",
@@ -695,6 +700,7 @@ X            1.873106  9.450424`,
         title: "Guía de Trabajos Prácticos 2026 — TP 2",
         text: "Ejercicios 1–7. El TP 1 (matrices) es prerrequisito para la derivación matricial de la clase 2.",
         loc: "TP 2 · ejercicios 1–7",
+        href: "guia/Guía-TP-Eco-I-2026.html#trabajo-práctico-nº-2",
       },
       {
         type: "Parcial",

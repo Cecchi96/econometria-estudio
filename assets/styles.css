@@ -250,8 +250,16 @@
   .formula-main{
     font-family:var(--serif);font-size:31px;line-height:1.2;text-align:center;
     color:#173b37;padding:6px 0 18px;letter-spacing:.01em;
+    max-width:100%;overflow-x:auto;
   }
   .formula-main sub{font-size:.55em}
+  .formula-main sup{font-size:.55em}
+  .formula-main .matrix{
+    display:inline-table;border-collapse:collapse;margin:0 8px;vertical-align:middle;
+    font-size:.72em;border-left:2px solid currentColor;border-right:2px solid currentColor;
+    border-radius:2px;
+  }
+  .formula-main .matrix td{padding:3px 12px;text-align:right;white-space:nowrap}
   .formula-legend{
     display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
     border-top:1px solid #ece6d9;padding-top:16px;
@@ -388,6 +396,7 @@
   .panel-intro{max-width:720px;padding:34px 0 24px}
   .panel-intro h2{font-size:34px;margin-bottom:10px}
   .panel-intro p{color:var(--muted);font-size:16px;line-height:1.6;margin:0;max-width:650px}
+  .panel-intro .open-btn{margin-top:14px}
   .concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding-bottom:30px}
   .concept-card{
     text-align:left;background:var(--card);border:1px solid var(--line);border-radius:15px;
