@@ -535,7 +535,7 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés decir qué representa la raíz cuadrada de un elemento de la diagonal.</p></div>
       `,
       conexiones: `
-        <p>La matriz var-cov es la base de los errores estándar y de la inferencia de la clase 3. En la clase 6 se generaliza para errores no esféricos.</p>
+        <p>La matriz var-cov es la base de los errores estándar y de la inferencia de la clase 3A. En la clase 6 se generaliza para errores no esféricos.</p>
         <div><button class="concept-chip" data-concept="matricial">Regresión matricial →</button><button class="concept-chip" data-concept="insesgado-m">Insesgamiento →</button><button class="concept-chip" data-concept="multicol">Multicolinealidad →</button></div>
       `,
       fuentes: `
@@ -571,7 +571,7 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés reproducir los pasos β̂ = β + (X′X)<sup>−1</sup>X′u y E(β̂ | X) = β.</p></div>
       `,
       conexiones: `
-        <p>El insesgamiento matricial es la versión general de la demostración de la clase 1. La clase 3 usa este resultado para construir la inferencia.</p>
+        <p>El insesgamiento matricial es la versión general de la demostración de la clase 1. La clase 3A usa este resultado para construir la inferencia.</p>
         <div><button class="concept-chip" data-concept="matricial">Regresión matricial →</button><button class="concept-chip" data-concept="varcov">Var(β̂) →</button><button class="concept-chip" data-concept="multicol">Multicolinealidad →</button></div>
       `,
       fuentes: `

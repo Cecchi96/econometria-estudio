@@ -499,7 +499,7 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés explicar por qué el R² ajustado puede bajar al agregar una variable.</p></div>
       `,
       conexiones: `
-        <p>El R² ajustado se usa para comparar modelos anidados o no anidados con la misma Y. En la clase 3 se conecta con los contrastes F; en la clase 4, con la selección de modelos.</p>
+        <p>El R² ajustado se usa para comparar modelos anidados o no anidados con la misma Y. En la clase 3B se conecta con los contrastes F; en la clase 4, con la selección de modelos.</p>
         <div><button class="concept-chip" data-concept="fiv">FIV →</button><button class="concept-chip" data-concept="elio">Gauss-Markov →</button><button class="concept-chip" data-concept="parcial">Efecto parcial →</button></div>
       `,
       fuentes: `

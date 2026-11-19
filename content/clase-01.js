@@ -269,7 +269,7 @@ window.CLASE_CONTENIDOS["clase-01"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés explicar por qué los residuos siempre suman cero, pero los errores no.</p></div>
       `,
       conexiones: `
-        <p>Este concepto es la bisagra entre la FRP y MCO. También vuelve en la clase 3, cuando la inferencia necesita distinguir el error del residuo para construir estimadores de σ².</p>
+        <p>Este concepto es la bisagra entre la FRP y MCO. También vuelve en la clase 3A, cuando la inferencia necesita distinguir el error del residuo para construir estimadores de σ².</p>
         <div><button class="concept-chip" data-concept="frp">FRP y FRM →</button><button class="concept-chip" data-concept="mco">MCO →</button><button class="concept-chip" data-concept="insesgado">Insesgamiento →</button></div>
       `,
       fuentes: `
@@ -374,7 +374,7 @@ window.CLASE_CONTENIDOS["clase-01"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés distinguir “insesgado” de “preciso” ni de “consistente”.</p></div>
       `,
       conexiones: `
-        <p>El insesgamiento es la primera propiedad que se demuestra con Gauss-Markov. La clase 3 agrega la distribución y la inferencia; la clase 5, la evaluación de políticas.</p>
+        <p>El insesgamiento es la primera propiedad que se demuestra con Gauss-Markov. La clase 3A agrega la distribución y la inferencia; la clase 5, la evaluación de políticas.</p>
         <div><button class="concept-chip" data-concept="mco">MCO →</button><button class="concept-chip" data-concept="gm">Gauss-Markov →</button><button class="concept-chip" data-concept="r2">R² →</button></div>
       `,
       fuentes: `
@@ -445,11 +445,11 @@ window.CLASE_CONTENIDOS["clase-01"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés decir qué propiedad se rompe si falla cada supuesto.</p></div>
       `,
       conexiones: `
-        <p>Gauss-Markov es el puente entre la clase 1 y la clase 3. En la 6 se rompe la homocedasticidad; en la 7 y la 8, la independencia y la ausencia de correlación serial.</p>
+        <p>Gauss-Markov es el puente entre la clase 1 y la clase 3A. En la 6 se rompe la homocedasticidad; en la 7 y la 8, la independencia y la ausencia de correlación serial.</p>
         <div><button class="concept-chip" data-concept="insesgado">Insesgamiento →</button><button class="concept-chip" data-concept="mco">MCO →</button><button class="concept-chip" data-concept="r2">R² →</button></div>
       `,
       fuentes: `
-        <div class="source-mini"><span class="source-type">Clase</span><p>Clase 1, diap. 28–35; Clase 3, diap. 5–7.</p></div>
+        <div class="source-mini"><span class="source-type">Clase</span><p>Clase 1, diap. 28–35; Clase 3A, diap. 5–7.</p></div>
         <div class="source-mini"><span class="source-type book">Libro</span><p>Wooldridge 4ed, §2.5, pp. 46–58; §3.5, pp. 102–104.</p></div>
         <div class="source-mini"><span class="source-type exam">Parcial</span><p>1P 2025, supuestos de Gauss-Markov y del MLC.</p></div>
       `
@@ -647,7 +647,7 @@ X            1.873106  9.450424`,
       { stuck: "No entiendo por qué E(β̂1) = β1", source: "Clase 1, diap. 30–32; Wooldridge §2.5, pp. 46–53." },
       { stuck: "Confundo error con residuo", source: "Clase 1, diap. 11 y 16; Wooldridge §2.3, pp. 36–40." },
       { stuck: "No entiendo la varianza de los estimadores", source: "Clase 1, diap. 36–39; Wooldridge §2.5, pp. 53–58." },
-      { stuck: "No sé qué propiedad se rompe si falla un supuesto", source: "Clase 1, diap. 28–35; Clase 3, diap. 5–7." },
+      { stuck: "No sé qué propiedad se rompe si falla un supuesto", source: "Clase 1, diap. 28–35; Clase 3A, diap. 5–7." },
       { stuck: "No sé leer una salida de R", source: "Práctica, laboratorio de lectura; TP 2, Ej. 1." }
     ],
     session: [
