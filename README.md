@@ -7,16 +7,17 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Clase 1 completa:** teoría, conceptos, práctica con laboratorio de R, autoevaluación y kit de repaso.
 - **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, multicolinealidad y álgebra matricial, con práctica, laboratorio de R y kit de repaso.
 - **Clases 3A y 3B completas:** 3A cubre inferencia sobre un parámetro (MLC, t, valor p, potencia e intervalos); 3B cubre combinaciones lineales, F, LM, normalidad asintótica y consistencia. Ambas con práctica, laboratorio de R y kit de repaso.
-- **Clases 4 a 10:** estructura y navegación listas, contenido pendiente.
+- **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
+- **Clases 5 a 10:** estructura y navegación listas, contenido pendiente.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Modo noche:** persistente y responsive.
 
 ## Funcionalidades
 
-- Navegación por las clases del curso (clases 2 y 3 divididas en A y B).
+- Navegación por las clases del curso (clases 2, 3 y 4 divididas en A y B).
 - Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
-- Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A y 3B.
+- Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A, 3B, 4A y 4B.
 - Selección de texto para subrayar o comentar.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
 - Autoevaluación con preguntas de razonamiento.
@@ -47,6 +48,8 @@ content/
   clase-02b.js          regresión múltiple, parte 2
   clase-03a.js          inferencia sobre un parámetro
   clase-03b.js          restricciones, F y propiedades asintóticas
+  clase-04a.js          escala, formas funcionales y logaritmos
+  clase-04b.js          selección de modelos, sesgos y predicción
 guia/
   Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada
 supabase/
