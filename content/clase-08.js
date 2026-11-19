@@ -49,6 +49,14 @@ window.CLASE_CONTENIDOS["clase-08"] = {
           html: 'En el <span class="concept" data-concept="ar1" tabindex="0" role="button">modelo AR(1)</span>, el valor de ρ cambia la historia. Con ρ = 0,3, un shock de este mes casi desaparece en dos o tres períodos. Con ρ = 0,9, todavía queda un 35% del shock después de diez períodos. El signo también importa: un ρ negativo produce un patrón de zigzag, con errores que alternan de signo. Y un ρ cercano a cero no descarta otras formas de dependencia, como la estacionalidad o la autocorrelación de orden mayor.'
         },
         {
+          type: "interactive",
+          kind: "ar1",
+          label: "Laboratorio visual",
+          title: "El error de hoy arrastra el de ayer",
+          intro: "Movés ρ y ves la serie de residuos y el diagrama de dispersión contra su rezago. La recta ajustada tiene pendiente ρ.",
+          hint: "Con ρ positivo hay persistencia y DW < 2; con ρ negativo hay alternancia y DW > 2; con ρ = 0, DW ≈ 2. La autocorrelación no sesga MCO si X es estrictamente exógena, pero invalida los e.e. habituales."
+        },
+        {
           type: 'cards',
           items: [
             { sym: 'ρ &gt; 0', title: 'Rachas', text: 'Errores positivos seguidos de positivos y negativos seguidos de negativos. Es el patrón más común en series económicas.' },

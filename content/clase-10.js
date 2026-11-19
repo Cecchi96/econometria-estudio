@@ -263,6 +263,14 @@ window.CLASE_CONTENIDOS["clase-10"] = {
         { type: 'p', id: 'c10-s06-p02', html: 'El F de primera etapa mide cuánta información aportan los instrumentos sobre la endógena. Cuanto más información, mayor es su valor esperado. La regla de 10 es una convención: por debajo de ese umbral, el sesgo de MC2E puede ser una fracción importante del sesgo de MCO y los errores estándar convencionales quedan chicos. El F también depende de la cantidad de instrumentos: agregar uno irrelevante sube los grados de libertad del numerador y puede bajar el estadístico aunque el instrumento original siga siendo fuerte.' },
         { type: 'p', id: 'c10-s06-p03', html: 'La segunda amenaza es la validez. Con un solo instrumento y una sola endógena, el modelo está exactamente identificado y no hay forma de contrastar la exogeneidad. Con más instrumentos aparecen las <span class="concept" data-concept="sobreidentificacion" tabindex="0" role="button">restricciones de sobreidentificación</span>: q = m − k. La idea es preguntar si los instrumentos extra explican algo del error que el primero no explica. Si lo hacen, al menos uno es inválido.' },
         {
+          type: "interactive",
+          kind: "weak-iv",
+          label: "Laboratorio visual",
+          title: "Más instrumentos no siempre es mejor",
+          intro: "Cambiá la fuerza del segundo instrumento y la endogeneidad de X. Arriba comparás MCO con MC2E de uno y dos instrumentos; abajo, el F de la primera etapa.",
+          hint: "El F de los instrumentos excluidos es el diagnóstico de relevancia. Si cae por debajo de 10, el t de MC2E no es confiable. Agregar un instrumento débil puede bajar el F conjunto, no subirlo."
+        },
+        {
           type: 'formula',
           main: 'LM = n·R<sup>2</sup><sub>aux</sub> ~ χ<sup>2</sup><sub>q</sub> &nbsp;·&nbsp; q = m − k',
           legend: [

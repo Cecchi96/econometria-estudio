@@ -41,6 +41,14 @@ window.CLASE_CONTENIDOS["clase-05"] = {
         ] },
         { type: 'p', id: 'c05-s02-p02', html: 'Con D=0, la ecuación se reduce a β<sub>0</sub> + u: el intercepto es la media del grupo base. Con D=1, se suma δ<sub>0</sub>: la media del otro grupo es β<sub>0</sub>+δ<sub>0</sub>. Entonces δ<sub>0</sub> = E(Y|D=1) − E(Y|D=0). En la base de Profesores, el salario medio de los hombres es 115.090,4 y el de las mujeres, 101.002,4; la diferencia es −14.088. El modelo con solo sexo reproduce exactamente esos dos números.' },
         { type: 'p', id: 'c05-s02-p03', html: 'Ese coeficiente es un contraste de medias. El t que lo acompaña contrasta H<sub>0</sub>: δ<sub>0</sub> = 0, es decir, que los dos grupos tienen la misma media poblacional. Bajo homocedasticidad, ese t es el mismo que el de una prueba t de diferencia de medias con varianzas iguales. Si las varianzas difieren, conviene Welch; el MCO con errores robustos se acerca a esa corrección.' },
+        {
+          type: "interactive",
+          kind: "dummy-groups",
+          label: "Laboratorio visual",
+          title: "La brecha bruta no es la brecha condicional",
+          intro: "Movés la brecha condicional y la diferencia de experiencia entre grupos. La primera comparación es la diferencia de medias; la segunda, la que controla por experiencia.",
+          hint: "La diferencia bruta mezcla la brecha condicional con la composición. Al controlar por experiencia, queda el coeficiente de la dummy. Cambiar la base invierte el signo, no el tamaño."
+        },
         { type: 'callout', variant: 'teal', label: 'La categoría base no es un detalle de software', html: 'R elige como referencia el primer nivel del factor, que suele ser el alfabéticamente primero: Hombre antes que Mujer, Ayudante antes que JTP y Prof, A antes que B. Eso no es una decisión económica. Si la pregunta es la brecha de las mujeres, el coeficiente de Mujer con base Hombre es el que querés; si la pregunta es cuánto ganan los hombres de más, la base Mujer da el mismo número con el signo opuesto. La <span class="concept" data-concept="categoria-base" tabindex="0" role="button">categoría base</span> se declara siempre.' },
         { type: 'formula', main: 'Base Hombre: β̂<sub>0</sub> = Ȳ<sub>H</sub>, δ̂<sub>0</sub> = Ȳ<sub>M</sub> − Ȳ<sub>H</sub><br>Base Mujer: β̂<sub>0</sub> = Ȳ<sub>M</sub>, δ̂<sub>0</sub> = Ȳ<sub>H</sub> − Ȳ<sub>M</sub>', legend: [
           { key: 'Ajuste', text: 'Valores ajustados, residuos, SCR y R² no cambian al cambiar la base.' },

@@ -96,6 +96,14 @@ window.CLASE_CONTENIDOS["clase-09"] = {
           { title: 'Si falla la media condicional', text: 'Si X<sub>3</sub>* también depende de X<sub>1</sub> o X<sub>2</sub>, los coeficientes de X<sub>1</sub> y X<sub>2</sub> se contaminan y todos los estimadores son inconsistentes.' }
         ] },
         { type: 'p', id: 'c09-s03-p03', html: 'La proxy imperfecta no elimina el problema por arte de magia. Si la capacidad también se correlaciona con EDUC después de controlar IQ, el coeficiente de EDUC sigue sesgado. Una proxy reduce el sesgo, no lo garantiza. Tampoco es un método de estimación distinto: se sustituye la variable y se estima por MCO. Y una proxy binaria, como IQ alto o bajo, es válida: pierde información y su coeficiente cambia de escala, pero el procedimiento sigue en pie. La variable dependiente rezagada es otro control posible cuando no hay proxy; con errores autocorrelacionados, en cambio, puede volverse endógena. El TP 12, Ej. 2, usa la tasa de delito de 2003 para controlar factores urbanos no observables: es un rezago de Y en un corte transversal, no un panel largo.' },
+        {
+          type: "interactive",
+          kind: "proxy-bias",
+          label: "Laboratorio visual",
+          title: "Una proxy mejora, pero no hace magia",
+          intro: "Aumentá el efecto de la habilidad y la calidad de la proxy. Compará el coeficiente verdadero, MCO sin proxy y MCO con proxy.",
+          hint: "La proxy absorbe parte de la variable omitida; el sesgo baja si está correlacionada con ella. No la reemplaza: una proxy ruidosa deja sesgo y una proxy correlacionada con el error puede introducir otro."
+        },
         { type: 'errorTable', rows: [
           { error: 'El coeficiente de IQ estima β<sub>3</sub>.', why: 'Estima β<sub>3</sub>δ<sub>3</sub>: el efecto de la capacidad multiplicado por la relación entre IQ y capacidad.', fix: 'No interpretes el coeficiente de la proxy como el efecto estructural de la variable omitida.' },
           { error: 'Cualquier variable correlacionada con la variable omitida sirve.', why: 'También tiene que ser incorrelacionada con u y no depender de las otras X.', fix: 'Verificá las dos condiciones, no solo la correlación.' },

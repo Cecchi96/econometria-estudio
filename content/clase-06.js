@@ -134,6 +134,14 @@ window.CLASE_CONTENIDOS["clase-06"] = {
           html: "El estadístico <span class=\"concept\" data-concept=\"prueba-t-robusta\" tabindex=\"0\" role=\"button\">t robusto</span> reemplaza el error estándar MCO por el robusto: t<sub>rob</sub> = β̂<sub>j</sub> / ee<sub>rob</sub>(β̂<sub>j</sub>). Los coeficientes no cambian; solo cambia la estimación de su precisión. En muestras grandes, t<sub>rob</sub> se aproxima a una normal estándar y los contrastes son válidos aunque la forma de la heterocedasticidad sea desconocida. En muestras chicas la aproximación puede ser pobre, sobre todo si hay muchos regresores o observaciones influyentes. La corrección de White no es una varita mágica: es una aproximación asintótica.",
         },
         {
+          type: "interactive",
+          kind: "hetero-fan",
+          label: "Laboratorio visual",
+          title: "La dispersión cambia, los coeficientes no",
+          intro: "Aumentá la heterocedasticidad y mirá cómo se abre el abanico de residuos. Abajo, compará el error estándar MCO con el HC1.",
+          hint: "MCO sigue siendo insesgado: la pendiente no se mueve. Lo que cambia es la estimación de la precisión. HC1 corrige con los residuos al cuadrado; la dirección del cambio depende del patrón."
+        },
+        {
           type: "cards",
           items: [
             { sym: "HC0", title: "White original", text: "Usa los residuos al cuadrado sin corrección por grados de libertad. Es la base de las demás variantes." },

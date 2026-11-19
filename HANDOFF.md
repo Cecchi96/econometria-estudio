@@ -6,7 +6,7 @@
 - **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, Frisch-Waugh, sesgo por omisión, multicolinealidad, álgebra matricial, práctica con laboratorio de R, autoevaluación y kit de repaso.
 - **Clases 3A y 3B completas:** 3A cubre inferencia sobre un parámetro (MLC, t, valor p, potencia e intervalos); 3B cubre combinaciones lineales, F, LM, normalidad asintótica y consistencia. Ambas con práctica, laboratorio de R sobre WAGE2 y kit de repaso.
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
-- **Visualizaciones interactivas en clases 1 a 4:** curva de la SCR, sesgo por omisión, FIV y precisión, distribución t, distribución F, familia de formas funcionales, cuadrática y efecto marginal, y bandas de predicción promedio e individual.
+- **Visualizaciones interactivas en clases 1 a 10:** curva de la SCR, sesgo por omisión, FIV y precisión, distribuciones t y F, familia de formas funcionales, cuadrática y efecto marginal, bandas de predicción, dummies y composición, heterocedasticidad, tendencia y estacionalidad, AR(1), proxy y MC2E con instrumentos débiles.
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E. Cada una con práctica, laboratorio de R y kit de repaso.
 - **App live:** https://econometria-estudio.vercel.app
 - **Hub Fukuro:** https://fukuro-sable.vercel.app (tile “Econometría I”)
@@ -50,7 +50,7 @@
 2. Definir política de registros:
    - dejar “Allow new users to sign up” abierto, o
    - cerrarlo y crear cuentas manualmente / usar allowlist.
-3. Sumar visualizaciones interactivas a las clases 5 a 10 con el mismo sistema de `assets/viz.js`; revisar la consistencia global y las capturas del README.
+3. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
 4. Opcional: dominio propio, capturas para el README, licencia.
 
 ## Cómo trabajar

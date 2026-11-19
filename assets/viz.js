@@ -200,6 +200,57 @@
     return ticks;
   }
 
+  function meanOf(values) {
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  function varianceOf(values) {
+    const center = meanOf(values);
+    return values.reduce((sum, value) => sum + (value - center) ** 2, 0) / values.length;
+  }
+
+  function covarianceOf(a, b) {
+    const meanA = meanOf(a);
+    const meanB = meanOf(b);
+    return a.reduce((sum, value, index) => sum + (value - meanA) * (b[index] - meanB), 0) / a.length;
+  }
+
+  function solveLinear(matrix, vector) {
+    const size = vector.length;
+    const augmented = matrix.map((row, index) => [...row, vector[index]]);
+    for (let col = 0; col < size; col += 1) {
+      let pivot = col;
+      for (let row = col + 1; row < size; row += 1) {
+        if (Math.abs(augmented[row][col]) > Math.abs(augmented[pivot][col])) pivot = row;
+      }
+      [augmented[col], augmented[pivot]] = [augmented[pivot], augmented[col]];
+      const divisor = Math.abs(augmented[col][col]) < 1e-12 ? 1e-12 : augmented[col][col];
+      for (let j = col; j <= size; j += 1) augmented[col][j] /= divisor;
+      for (let row = 0; row < size; row += 1) {
+        if (row === col) continue;
+        const factor = augmented[row][col];
+        for (let j = col; j <= size; j += 1) {
+          augmented[row][j] -= factor * augmented[col][j];
+        }
+      }
+    }
+    return augmented.map(row => row[size]);
+  }
+
+  function fitOLS(rows, yKey, xKeys) {
+    const k = xKeys.length;
+    const xtx = Array.from({ length: k + 1 }, () => Array(k + 1).fill(0));
+    const xty = Array(k + 1).fill(0);
+    rows.forEach(row => {
+      const values = [1, ...xKeys.map(key => row[key])];
+      for (let i = 0; i <= k; i += 1) {
+        xty[i] += values[i] * row[yKey];
+        for (let j = 0; j <= k; j += 1) xtx[i][j] += values[i] * values[j];
+      }
+    });
+    return solveLinear(xtx, xty);
+  }
+
   // ---------- Clase 1: curva de la SCR ----------
 
   function mountScr(body) {
@@ -1276,6 +1327,795 @@
     draw();
   }
 
+  // ---------- Clase 5: dummy, composición y categoría base ----------
+
+  function mountDummyGroups(body) {
+    const state = { gap: -9, comp: 2.5, base: "Hombre" };
+    const N = 18;
+    const menX = Array.from({ length: N }, (_, index) => 8 + index * 1.4);
+    const womenX = menX.map(value => value - 1.2);
+    const noise = index => ((index * 37) % 13 - 6) * 1.4;
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Brecha condicional δ <output data-output="gap">—</output></span>
+          <input type="range" data-param="gap" min="-15" max="15" step="1" value="-9" aria-label="Brecha condicional entre grupos">
+        </label>
+        <label class="range-control">
+          <span>Diferencia de experiencia <output data-output="comp">—</output></span>
+          <input type="range" data-param="comp" min="0" max="4" step="0.5" value="2.5" aria-label="Diferencia de composición entre grupos">
+        </label>
+      </div>
+      <div class="viz-seg" data-base-group role="group" aria-label="Categoría base">
+        <button type="button" data-base="Hombre" class="active">Base Hombre</button>
+        <button type="button" data-base="Mujer">Base Mujer</button>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Hombres</span>
+        <span><i class="viz-swatch ochre"></i> Mujeres</span>
+        <span><i class="viz-swatch hollow"></i> Brecha condicional</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const baseGroup = body.querySelector("[data-base-group]");
+    const gapInput = body.querySelector('[data-param="gap"]');
+    const compInput = body.querySelector('[data-param="comp"]');
+    const gapOutput = body.querySelector('[data-output="gap"]');
+    const compOutput = body.querySelector('[data-output="comp"]');
+
+    function draw() {
+      state.gap = Number(gapInput.value);
+      state.comp = Number(compInput.value);
+      const rows = [];
+      menX.forEach((x, index) => {
+        rows.push({ x, d: 0, y: 100 + 2 * x + noise(index) });
+      });
+      womenX.forEach((x, index) => {
+        const shifted = x - state.comp;
+        rows.push({ x: shifted, d: 1, y: 100 + 2 * shifted + state.gap + noise(index + 7) });
+      });
+
+      const fit = fitOLS(rows, "y", ["x", "d"]);
+      const men = rows.filter(row => row.d === 0);
+      const women = rows.filter(row => row.d === 1);
+      const raw = meanOf(women.map(row => row.y)) - meanOf(men.map(row => row.y));
+      const conditional = fit[2];
+      const composition = raw - conditional;
+      const sign = state.base === "Hombre" ? 1 : -1;
+      const rawShown = sign * raw;
+      const conditionalShown = sign * conditional;
+      const compositionShown = sign * composition;
+
+      const yValues = rows.map(row => row.y);
+      const yMin = Math.min(...yValues) - 4;
+      const yMax = Math.max(...yValues) + 4;
+      const chart = frame({
+        w: 560, h: 300, l: 52, r: 18, t: 18, b: 36,
+        xd: [2, 36],
+        yd: [yMin, yMax],
+        xt: [2, 6, 10, 14, 18, 22, 26, 30, 34],
+        yt: niceTicks(yMin, yMax, 5),
+        yfmt: value => fmt0(value),
+        aria: "Dispersión de salario y experiencia por grupo, con rectas paralelas estimadas"
+      });
+
+      rows.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x),
+          cy: chart.sy(row.y),
+          r: 3.4,
+          class: row.d === 1 ? "viz-dot-ochre" : "viz-dot"
+        }));
+      });
+
+      [0, 1].forEach(d => {
+        const yLeft = fit[0] + fit[1] * 2 + fit[2] * d;
+        const yRight = fit[0] + fit[1] * 36 + fit[2] * d;
+        chart.svg.appendChild(make("line", {
+          x1: chart.sx(2), y1: chart.sy(yLeft),
+          x2: chart.sx(36), y2: chart.sy(yRight),
+          class: d === 1 ? "viz-line-2" : "viz-line"
+        }));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(36) - 4,
+          y: chart.sy(yRight) - 8,
+          class: "viz-text",
+          "text-anchor": "end"
+        }, d === 1 ? "Mujeres" : "Hombres"));
+      });
+
+      addAxisLabels(chart, "experiencia (X)", "salario (Y)");
+      stage.replaceChildren(chart.svg);
+
+      gapOutput.textContent = fmtSigned(state.gap, 0);
+      compOutput.textContent = fmt(state.comp, 1);
+      metrics.innerHTML = [
+        metric("Brecha bruta", fmtSigned(rawShown)),
+        metric("Brecha condicional", fmtSigned(conditionalShown), "is-good"),
+        metric("Composición", fmtSigned(compositionShown), "is-warn"),
+        metric("Base", state.base)
+      ].join("");
+
+      const signText = state.base === "Hombre" ? "mujeres − hombres" : "hombres − mujeres";
+      readout.innerHTML = `La diferencia bruta (${signText}) es <b>${fmtSigned(rawShown)}</b>. Al comparar personas con la misma experiencia, la diferencia condicional es <b>${fmtSigned(conditionalShown)}</b>; la parte que se explica por la distinta composición de experiencia es <b>${fmtSigned(compositionShown)}</b>. Cambiar la categoría base invierte el signo, no el tamaño.`;
+    }
+
+    gapInput.addEventListener("input", draw);
+    compInput.addEventListener("input", draw);
+    baseGroup.addEventListener("click", event => {
+      const button = event.target.closest("[data-base]");
+      if (!button || button.dataset.base === state.base) return;
+      state.base = button.dataset.base;
+      setActive(baseGroup, "data-base", state.base);
+      draw();
+    });
+    draw();
+  }
+
+  // ---------- Clase 6: heterocedasticidad y errores robustos ----------
+
+  function mountHeteroFan(body) {
+    const state = { hetero: 1.2 };
+    const X = Array.from({ length: 40 }, (_, index) => 2 + index * 0.9);
+    const pattern = index => (((index * 13) % 17) - 8) / 4;
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Intensidad de la heterocedasticidad <output data-output="hetero">—</output></span>
+          <input type="range" data-param="hetero" min="0" max="2.5" step="0.1" value="1.2" aria-label="Intensidad de la heterocedasticidad">
+        </label>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Observaciones</span>
+        <span><i class="viz-swatch ochre"></i> Recta MCO</span>
+        <span><i class="viz-swatch hollow"></i> Error estándar</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('input[type="range"]');
+    const output = body.querySelector('[data-output="hetero"]');
+
+    function draw() {
+      state.hetero = Number(input.value);
+      const scale = x => 0.6 + state.hetero * (x / 40);
+      const rows = X.map((x, index) => ({
+        x,
+        y: 5 + 1.2 * x + scale(x) * pattern(index)
+      }));
+      const fit = fitOLS(rows, "y", ["x"]);
+      const residuals = rows.map(row => row.y - (fit[0] + fit[1] * row.x));
+      const n = rows.length;
+      const xbar = meanOf(X);
+      const sxx = rows.reduce((sum, row) => sum + (row.x - xbar) ** 2, 0);
+      const ssr = residuals.reduce((sum, value) => sum + value ** 2, 0);
+      const sigma2 = ssr / (n - 2);
+      const seMCO = Math.sqrt(sigma2 / sxx);
+      const hc1 = rows.reduce((sum, row, index) => sum + (row.x - xbar) ** 2 * residuals[index] ** 2, 0)
+        / (sxx ** 2) * (n / (n - 2));
+      const seHC1 = Math.sqrt(hc1);
+
+      const yValues = rows.map(row => row.y);
+      const yMin = Math.min(...yValues) - 3;
+      const yMax = Math.max(...yValues) + 3;
+      const chart = frame({
+        w: 560, h: 250, l: 52, r: 18, t: 18, b: 36,
+        xd: [0, 39],
+        yd: [yMin, yMax],
+        xt: [0, 5, 10, 15, 20, 25, 30, 35],
+        yt: niceTicks(yMin, yMax, 5),
+        yfmt: value => fmt0(value),
+        aria: "Dispersión con varianza creciente y recta de mínimos cuadrados ordinarios"
+      });
+
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(fit[0]),
+        x2: chart.sx(39), y2: chart.sy(fit[0] + fit[1] * 39),
+        class: "viz-line-2"
+      }));
+      rows.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x),
+          cy: chart.sy(row.y),
+          r: 3.2,
+          class: "viz-dot"
+        }));
+      });
+      addAxisLabels(chart, "X", "Y");
+
+      const maxSE = Math.max(seMCO, seHC1) * 1.35;
+      const bars = frame({
+        w: 560, h: 160, l: 52, r: 18, t: 18, b: 38,
+        xd: [0, 2],
+        yd: [0, maxSE],
+        xt: [0.5, 1.5],
+        yt: niceTicks(0, maxSE, 4),
+        xfmt: value => value < 1 ? "MCO" : "HC1",
+        yfmt: value => fmt(value, 3),
+        aria: "Comparación entre el error estándar MCO y el error estándar robusto HC1"
+      });
+
+      [{ x: 0.5, value: seMCO, klass: "viz-bar", label: "MCO" },
+       { x: 1.5, value: seHC1, klass: "viz-bar-ochre", label: "HC1" }].forEach(item => {
+        const width = bars.sx(0.72) - bars.sx(0.28);
+        bars.svg.appendChild(make("rect", {
+          x: bars.sx(item.x) - width / 2,
+          y: bars.sy(item.value),
+          width,
+          height: bars.bottom - bars.sy(item.value),
+          rx: 4,
+          class: item.klass
+        }));
+        bars.svg.appendChild(make("text", {
+          x: bars.sx(item.x),
+          y: bars.sy(item.value) - 6,
+          class: "viz-value",
+          "text-anchor": "middle"
+        }, fmt(item.value, 4)));
+      });
+      bars.svg.appendChild(make("text", {
+        x: bars.sx(1),
+        y: bars.t + 2,
+        class: "viz-axis-title",
+        "text-anchor": "middle"
+      }, "error estándar de la pendiente"));
+
+      stage.replaceChildren(chart.svg, bars.svg);
+
+      output.textContent = fmt(state.hetero, 1);
+      const ratio = seHC1 / seMCO;
+      metrics.innerHTML = [
+        metric("Pendiente MCO", fmt(fit[1], 3)),
+        metric("ee MCO", fmt(seMCO, 4)),
+        metric("ee HC1", fmt(seHC1, 4), ratio > 1.25 || ratio < 0.8 ? "is-warn" : "is-good"),
+        metric("HC1 / MCO", `×${fmt(ratio, 2)}`)
+      ].join("");
+
+      if (state.hetero < 0.15) {
+        readout.innerHTML = "Con heterocedasticidad casi nula, MCO y HC1 producen errores estándar parecidos. Los coeficientes son los mismos en todos los casos: la heterocedasticidad no sesga la pendiente, afecta la estimación de su precisión.";
+      } else {
+        readout.innerHTML = `La pendiente estimada es <b>${fmt(fit[1], 3)}</b> en ambos casos: lo que cambia es el error estándar. MCO supone una sola varianza y reporta <b>${fmt(seMCO, 4)}</b>; HC1 usa los residuos al cuadrado y reporta <b>${fmt(seHC1, 4)}</b>, <b>${fmt(ratio, 2)} veces</b> el anterior. La dirección del cambio depende del patrón: no hay una regla de que HC1 siempre sea mayor.`;
+      }
+    }
+
+    input.addEventListener("input", draw);
+    draw();
+  }
+
+  // ---------- Clase 7: tendencia y estacionalidad ----------
+
+  function mountTrendSeason(body) {
+    const state = { slope: 1.2, amp: 6 };
+    const N = 48;
+    const noise = t => Math.sin(t * 1.7) * 0.7 + Math.cos(t * 0.6) * 0.4;
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Tendencia mensual <output data-output="slope">—</output></span>
+          <input type="range" data-param="slope" min="0" max="3" step="0.1" value="1.2" aria-label="Tendencia mensual">
+        </label>
+        <label class="range-control">
+          <span>Amplitud estacional <output data-output="amp">—</output></span>
+          <input type="range" data-param="amp" min="0" max="8" step="0.5" value="6" aria-label="Amplitud estacional">
+        </label>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Serie observada</span>
+        <span><i class="viz-swatch ochre"></i> Tendencia</span>
+        <span><i class="viz-swatch hollow"></i> Componente estacional</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const slopeInput = body.querySelector('[data-param="slope"]');
+    const ampInput = body.querySelector('[data-param="amp"]');
+    const slopeOutput = body.querySelector('[data-output="slope"]');
+    const ampOutput = body.querySelector('[data-output="amp"]');
+
+    function draw() {
+      state.slope = Number(slopeInput.value);
+      state.amp = Number(ampInput.value);
+      const rows = Array.from({ length: N }, (_, t) => {
+        const trend = 50 + state.slope * t;
+        const seasonal = state.amp * Math.sin((2 * Math.PI * t) / 12);
+        return { t, trend, seasonal, obs: trend + seasonal + noise(t) };
+      });
+
+      const observed = rows.map(row => row.obs);
+      const trends = rows.map(row => row.trend);
+      const yMin = Math.min(...observed, ...trends) - 4;
+      const yMax = Math.max(...observed, ...trends) + 4;
+      const top = frame({
+        w: 560, h: 230, l: 52, r: 18, t: 18, b: 36,
+        xd: [0, N - 1],
+        yd: [yMin, yMax],
+        xt: [0, 12, 24, 36, 47],
+        yt: niceTicks(yMin, yMax, 5),
+        yfmt: value => fmt0(value),
+        aria: "Serie observada con tendencia lineal superpuesta"
+      });
+
+      [12, 24, 36].forEach(t => {
+        top.svg.appendChild(make("line", {
+          x1: top.sx(t), y1: top.t, x2: top.sx(t), y2: top.bottom, class: "viz-guide"
+        }));
+      });
+      top.svg.appendChild(make("path", {
+        d: linePath(rows.map(row => ({ x: top.sx(row.t), y: top.sy(row.obs) }))),
+        class: "viz-line"
+      }));
+      top.svg.appendChild(make("line", {
+        x1: top.sx(0), y1: top.sy(trends[0]),
+        x2: top.sx(N - 1), y2: top.sy(trends[N - 1]),
+        class: "viz-line-2"
+      }));
+      addAxisLabels(top, "mes", "Y");
+
+      const seasonalLimit = Math.max(1, state.amp * 1.3);
+      const bottom = frame({
+        w: 560, h: 170, l: 52, r: 18, t: 16, b: 34,
+        xd: [0, N - 1],
+        yd: [-seasonalLimit, seasonalLimit],
+        xt: [0, 12, 24, 36, 47],
+        yt: niceTicks(-seasonalLimit, seasonalLimit, 4),
+        yfmt: value => fmt0(value),
+        aria: "Componente estacional de la serie"
+      });
+      bottom.svg.appendChild(make("line", {
+        x1: bottom.l, y1: bottom.sy(0), x2: bottom.w - bottom.r, y2: bottom.sy(0), class: "viz-zero"
+      }));
+      bottom.svg.appendChild(make("path", {
+        d: linePath(rows.map(row => ({ x: bottom.sx(row.t), y: bottom.sy(row.seasonal) }))),
+        class: "viz-line-2"
+      }));
+      addAxisLabels(bottom, "mes", "estacional");
+
+      stage.replaceChildren(top.svg, bottom.svg);
+
+      slopeOutput.textContent = fmt(state.slope, 1);
+      ampOutput.textContent = fmt(state.amp, 1);
+      metrics.innerHTML = [
+        metric("Tendencia por mes", fmt(state.slope, 1)),
+        metric("Tendencia por año", fmt(state.slope * 12, 1)),
+        metric("Amplitud", fmt(state.amp, 1)),
+        metric("Pico a valle", fmt(state.amp * 2, 1))
+      ].join("");
+
+      readout.innerHTML = `La serie observada tiene dos componentes: una tendencia de <b>${fmt(state.slope, 1)} por mes</b> y un ciclo estacional de amplitud <b>${fmt(state.amp, 1)}</b>. La recta no reproduce los picos; el componente estacional se repite cada 12 meses. Si modelás solo la tendencia, ese patrón queda en el residuo y suele aparecer como autocorrelación.`;
+    }
+
+    slopeInput.addEventListener("input", draw);
+    ampInput.addEventListener("input", draw);
+    draw();
+  }
+
+  // ---------- Clase 8: autocorrelación AR(1) ----------
+
+  function mountAR1(body) {
+    const state = { rho: 0.6 };
+    const N = 64;
+    let seed = 1234567;
+    const random = () => {
+      seed = (1103515245 * seed + 12345) % 2147483648;
+      return seed / 2147483648 - 0.5;
+    };
+    const rawInnovations = Array.from({ length: N }, () => random() * 2);
+    const innovationMean = meanOf(rawInnovations);
+    const innovations = rawInnovations.map(value => value - innovationMean);
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Autocorrelación ρ <output data-output="rho">—</output></span>
+          <input type="range" data-param="rho" min="-0.9" max="0.9" step="0.05" value="0.6" aria-label="Coeficiente de autocorrelación AR uno">
+        </label>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Residuos en el tiempo</span>
+        <span><i class="viz-swatch ochre"></i> Ajuste AR(1)</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('input[type="range"]');
+    const output = body.querySelector('[data-output="rho"]');
+
+    function draw() {
+      state.rho = Number(input.value);
+      const values = [];
+      values[0] = innovations[0];
+      for (let t = 1; t < N; t += 1) values[t] = state.rho * values[t - 1] + innovations[t];
+      const rhoHat = covarianceOf(values.slice(1), values.slice(0, -1)) / varianceOf(values.slice(0, -1));
+      const dw = values.slice(1).reduce((sum, value, index) => sum + (value - values[index]) ** 2, 0)
+        / values.reduce((sum, value) => sum + value ** 2, 0);
+      const maxAbs = Math.max(0.2, ...values.map(value => Math.abs(value))) * 1.12;
+
+      const top = frame({
+        w: 560, h: 220, l: 52, r: 18, t: 18, b: 36,
+        xd: [1, N],
+        yd: [-maxAbs, maxAbs],
+        xt: [1, 12, 24, 36, 48, 64],
+        yt: niceTicks(-maxAbs, maxAbs, 5),
+        yfmt: value => fmt(value, 1),
+        aria: "Residuos de un proceso AR uno a lo largo del tiempo"
+      });
+      top.svg.appendChild(make("line", {
+        x1: top.l, y1: top.sy(0), x2: top.w - top.r, y2: top.sy(0), class: "viz-zero"
+      }));
+      top.svg.appendChild(make("path", {
+        d: linePath(values.map((value, index) => ({ x: top.sx(index + 1), y: top.sy(value) }))),
+        class: "viz-line"
+      }));
+      addAxisLabels(top, "t", "uₜ");
+
+      const bottom = frame({
+        w: 560, h: 260, l: 52, r: 18, t: 18, b: 36,
+        xd: [-maxAbs, maxAbs],
+        yd: [-maxAbs, maxAbs],
+        xt: niceTicks(-maxAbs, maxAbs, 5),
+        yt: niceTicks(-maxAbs, maxAbs, 5),
+        yfmt: value => fmt(value, 1),
+        aria: "Diagrama de dispersión de los residuos contra su rezago"
+      });
+      bottom.svg.appendChild(make("line", {
+        x1: bottom.l, y1: bottom.sy(0), x2: bottom.w - bottom.r, y2: bottom.sy(0), class: "viz-zero"
+      }));
+      bottom.svg.appendChild(make("line", {
+        x1: bottom.sx(0), y1: bottom.t, x2: bottom.sx(0), y2: bottom.bottom, class: "viz-zero"
+      }));
+      for (let index = 0; index < values.length - 1; index += 1) {
+        bottom.svg.appendChild(make("circle", {
+          cx: bottom.sx(values[index]),
+          cy: bottom.sy(values[index + 1]),
+          r: 3,
+          class: "viz-dot"
+        }));
+      }
+      bottom.svg.appendChild(make("line", {
+        x1: bottom.sx(-maxAbs), y1: bottom.sy(state.rho * -maxAbs),
+        x2: bottom.sx(maxAbs), y2: bottom.sy(state.rho * maxAbs),
+        class: "viz-line-2"
+      }));
+      addAxisLabels(bottom, "uₜ₋₁", "uₜ");
+
+      stage.replaceChildren(top.svg, bottom.svg);
+
+      output.textContent = fmt(state.rho, 2);
+      metrics.innerHTML = [
+        metric("ρ elegido", fmt(state.rho, 2)),
+        metric("ρ̂ muestral", fmt(rhoHat, 2)),
+        metric("Durbin-Watson", fmt(dw, 2), dw < 1.5 || dw > 2.5 ? "is-warn" : "is-good"),
+        metric("2(1 − ρ)", fmt(2 * (1 - state.rho), 2))
+      ].join("");
+
+      const direction = state.rho > 0.1
+        ? "persistencia: un residuo positivo tiende a seguir positivo"
+        : state.rho < -0.1
+          ? "alternancia: un residuo positivo tiende a seguir negativo"
+          : "ausencia de autocorrelación lineal de primer orden";
+      readout.innerHTML = `El proceso tiene <b>ρ = ${fmt(state.rho, 2)}</b>: ${direction}. La autocorrelación muestral es <b>${fmt(rhoHat, 2)}</b> y Durbin-Watson es <b>${fmt(dw, 2)}</b>. La aproximación DW ≈ 2(1 − ρ) da <b>${fmt(2 * (1 - state.rho), 2)}</b>. Con ρ positivo, DW cae por debajo de 2; con ρ negativo, sube por encima.`;
+    }
+
+    input.addEventListener("input", draw);
+    draw();
+  }
+
+  // ---------- Clase 9: proxy de una variable omitida ----------
+
+  function mountProxyBias(body) {
+    const state = { gamma: 1.2, quality: 0.6 };
+    const N = 60;
+    const ability = Array.from({ length: N }, (_, index) =>
+      -1.5 + (3 * index) / (N - 1) + Math.sin(index * 1.7) * 0.25
+    );
+    const v = index => Math.cos(index * 1.3) * 0.7 + (((index * 7) % 5) - 2) * 0.08;
+    const u = index => Math.sin(index * 0.9) * 0.5;
+    const e = index => Math.cos(index * 2.1) * 0.6;
+    const trueBeta = 1;
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Efecto de la habilidad (γ) <output data-output="gamma">—</output></span>
+          <input type="range" data-param="gamma" min="0" max="2" step="0.1" value="1.2" aria-label="Efecto de la habilidad sobre el salario">
+        </label>
+        <label class="range-control">
+          <span>Calidad de la proxy <output data-output="quality">—</output></span>
+          <input type="range" data-param="quality" min="0" max="1" step="0.05" value="0.6" aria-label="Correlación de la proxy con la habilidad">
+        </label>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch hollow"></i> β verdadero</span>
+        <span><i class="viz-swatch ochre"></i> MCO sin proxy</span>
+        <span><i class="viz-swatch"></i> MCO con proxy</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const gammaInput = body.querySelector('[data-param="gamma"]');
+    const qualityInput = body.querySelector('[data-param="quality"]');
+    const gammaOutput = body.querySelector('[data-output="gamma"]');
+    const qualityOutput = body.querySelector('[data-output="quality"]');
+
+    function draw() {
+      state.gamma = Number(gammaInput.value);
+      state.quality = Number(qualityInput.value);
+      const rows = ability.map((level, index) => {
+        const x = 0.8 * level + v(index);
+        return {
+          x,
+          q: state.quality * level + e(index),
+          y: 10 + x + state.gamma * level + u(index)
+        };
+      });
+      const naive = fitOLS(rows, "y", ["x"]);
+      const proxy = fitOLS(rows, "y", ["x", "q"]);
+      const biasNaive = naive[1] - trueBeta;
+      const biasProxy = proxy[1] - trueBeta;
+      const reduction = Math.abs(biasNaive) < 0.005
+        ? 0
+        : 1 - Math.abs(biasProxy) / Math.abs(biasNaive);
+
+      const xMin = Math.min(0, trueBeta, naive[1], proxy[1]) - 0.35;
+      const xMax = Math.max(2.5, trueBeta, naive[1], proxy[1]) + 0.35;
+      const chart = frame({
+        w: 560, h: 230, l: 158, r: 24, t: 18, b: 32,
+        xd: [xMin, xMax],
+        yd: [0, 1],
+        xt: niceTicks(xMin, xMax, 5),
+        yt: [],
+        aria: "Comparación entre el coeficiente verdadero, MCO sin proxy y MCO con proxy"
+      });
+
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: 20, x2: chart.sx(0), y2: chart.bottom - 6, class: "viz-zero"
+      }));
+
+      const rowsToDraw = [
+        { label: "β verdadero", value: trueBeta, y: 44, swatch: "hollow" },
+        { label: "Sin proxy", value: naive[1], y: 104, swatch: "ochre" },
+        { label: "Con proxy", value: proxy[1], y: 164, swatch: "teal" }
+      ];
+      rowsToDraw.forEach(row => {
+        chart.svg.appendChild(make("text", {
+          x: 8, y: row.y + 4, class: "viz-text"
+        }, row.label));
+        chart.svg.appendChild(make("line", {
+          x1: chart.sx(0), y1: row.y, x2: chart.sx(row.value), y2: row.y,
+          class: row.swatch === "ochre" ? "viz-line-2" : "viz-line"
+        }));
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.value), cy: row.y, r: 5.6,
+          class: row.swatch === "teal" ? "viz-dot" : row.swatch === "ochre" ? "viz-dot-ochre" : "viz-dot-hollow"
+        }));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(row.value) + (row.value < 0 ? -10 : 10),
+          y: row.y - 9,
+          class: "viz-value",
+          "text-anchor": row.value < 0 ? "end" : "start"
+        }, fmt(row.value)));
+      });
+      addAxisLabels(chart, "coeficiente de X", "");
+      stage.replaceChildren(chart.svg);
+
+      gammaOutput.textContent = fmt(state.gamma, 1);
+      qualityOutput.textContent = fmt(state.quality, 2);
+      metrics.innerHTML = [
+        metric("Sesgo sin proxy", fmtSigned(biasNaive), Math.abs(biasNaive) > 0.15 ? "is-warn" : "is-good"),
+        metric("Sesgo con proxy", fmtSigned(biasProxy), Math.abs(biasProxy) > 0.15 ? "is-warn" : "is-good"),
+        metric("Reducción", reduction < 0 ? "empeora" : `${fmt(reduction * 100, 0)}%`, reduction < 0 ? "is-warn" : "is-good"),
+        metric("Calidad", fmt(state.quality, 2))
+      ].join("");
+
+      if (Math.abs(biasNaive) < 0.005) {
+        readout.innerHTML = "Sin efecto de la habilidad (γ = 0) no hay sesgo por omisión: MCO ya estima el coeficiente verdadero y la proxy no tiene nada que corregir. La proxy solo importa cuando la variable omitida afecta a Y y está correlacionada con X.";
+      } else if (reduction < 0) {
+        readout.innerHTML = `El coeficiente verdadero es <b>1</b>. Sin proxy, MCO estima <b>${fmt(naive[1])}</b>; con proxy, <b>${fmt(proxy[1])}</b>. En este caso la proxy <b>empeora</b> el sesgo: no alcanza con que esté correlacionada con la omitida; también tiene que estar incorrelacionada con el error y no reemplazar mal la variable.`;
+      } else {
+        readout.innerHTML = `El coeficiente verdadero es <b>1</b>. Sin proxy, MCO estima <b>${fmt(naive[1])}</b>: el sesgo es <b>${fmtSigned(biasNaive)}</b>. Al incluir la proxy, estima <b>${fmt(proxy[1])}</b> y el sesgo queda en <b>${fmtSigned(biasProxy)}</b>. La proxy ayuda porque absorbe parte de la habilidad no observada, pero no la reemplaza: si la calidad es baja, la reducción es chica; si la proxy está correlacionada con el error, puede introducir otro sesgo.`;
+      }
+    }
+
+    gammaInput.addEventListener("input", draw);
+    qualityInput.addEventListener("input", draw);
+    draw();
+  }
+
+  // ---------- Clase 10: MC2E, primera etapa e instrumentos débiles ----------
+
+  function mountWeakIV(body) {
+    const state = { pi2: 0.2, rho: 0.5 };
+    const N = 80;
+    const z1 = index => -1 + (2 * index) / (N - 1);
+    const z2 = index => Math.sin(index * 0.9);
+    const v = index => Math.cos(index * 1.7) * 0.8;
+    const w = index => Math.sin(index * 1.1) * 0.6;
+
+    body.innerHTML = `
+      <div class="viz-stage"></div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Fuerza del segundo instrumento <output data-output="pi2">—</output></span>
+          <input type="range" data-param="pi2" min="0" max="1.2" step="0.05" value="0.2" aria-label="Fuerza del segundo instrumento">
+        </label>
+        <label class="range-control">
+          <span>Endogeneidad de X <output data-output="rho">—</output></span>
+          <input type="range" data-param="rho" min="0" max="0.9" step="0.05" value="0.5" aria-label="Correlación entre X y el error">
+        </label>
+      </div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch hollow"></i> β verdadero</span>
+        <span><i class="viz-swatch ochre"></i> MCO</span>
+        <span><i class="viz-swatch"></i> MC2E</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const pi2Input = body.querySelector('[data-param="pi2"]');
+    const rhoInput = body.querySelector('[data-param="rho"]');
+    const pi2Output = body.querySelector('[data-output="pi2"]');
+    const rhoOutput = body.querySelector('[data-output="rho"]');
+
+    function draw() {
+      state.pi2 = Number(pi2Input.value);
+      state.rho = Number(rhoInput.value);
+      const rows = Array.from({ length: N }, (_, index) => {
+        const instrument1 = z1(index);
+        const instrument2 = z2(index);
+        const shock = v(index);
+        const x = 0.45 * instrument1 + state.pi2 * instrument2 + shock;
+        const u = state.rho * shock + w(index);
+        return { z1: instrument1, z2: instrument2, x, y: 2 + x + u };
+      });
+      const ys = rows.map(row => row.y);
+      const ols = fitOLS(rows, "y", ["x"]);
+      const first1 = fitOLS(rows, "x", ["z1"]);
+      const first2 = fitOLS(rows, "x", ["z1", "z2"]);
+      const meanX = meanOf(rows.map(row => row.x));
+      const tssX = rows.reduce((sum, row) => sum + (row.x - meanX) ** 2, 0);
+      const rss1 = rows.reduce((sum, row) => sum + (row.x - (first1[0] + first1[1] * row.z1)) ** 2, 0);
+      const rss2 = rows.reduce((sum, row) => sum + (row.x - (first2[0] + first2[1] * row.z1 + first2[2] * row.z2)) ** 2, 0);
+      const r2First1 = 1 - rss1 / tssX;
+      const r2First2 = 1 - rss2 / tssX;
+      const fFirst1 = (r2First1 / 1) / ((1 - r2First1) / (N - 2));
+      const fFirst2 = (r2First2 / 2) / ((1 - r2First2) / (N - 3));
+      const iv1 = covarianceOf(rows.map(row => row.z1), ys) / covarianceOf(rows.map(row => row.z1), rows.map(row => row.x));
+      const xHat = rows.map(row => first2[0] + first2[1] * row.z1 + first2[2] * row.z2);
+      const iv2 = covarianceOf(xHat, ys) / varianceOf(xHat);
+      const trueBeta = 1;
+      const values = [trueBeta, ols[1], iv1, iv2];
+      const xMin = Math.min(0, ...values) - 0.3;
+      const xMax = Math.max(2.2, ...values) + 0.3;
+
+      const chart = frame({
+        w: 560, h: 230, l: 138, r: 24, t: 18, b: 32,
+        xd: [xMin, xMax],
+        yd: [0, 1],
+        xt: niceTicks(xMin, xMax, 5),
+        yt: [],
+        aria: "Comparación entre el coeficiente verdadero, MCO y las estimaciones de MC2E con uno y dos instrumentos"
+      });
+
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: 20, x2: chart.sx(0), y2: chart.bottom - 6, class: "viz-zero"
+      }));
+      const rowsToDraw = [
+        { label: "β verdadero", value: trueBeta, y: 38, swatch: "hollow" },
+        { label: "MCO", value: ols[1], y: 88, swatch: "ochre" },
+        { label: "MC2E · 1 inst.", value: iv1, y: 138, swatch: "teal" },
+        { label: "MC2E · 2 inst.", value: iv2, y: 188, swatch: "teal" }
+      ];
+      rowsToDraw.forEach(row => {
+        chart.svg.appendChild(make("text", { x: 8, y: row.y + 4, class: "viz-text" }, row.label));
+        chart.svg.appendChild(make("line", {
+          x1: chart.sx(0), y1: row.y, x2: chart.sx(row.value), y2: row.y,
+          class: row.swatch === "ochre" ? "viz-line-2" : "viz-line"
+        }));
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.value), cy: row.y, r: 5.6,
+          class: row.swatch === "ochre" ? "viz-dot-ochre" : row.swatch === "teal" ? "viz-dot" : "viz-dot-hollow"
+        }));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(row.value) + (row.value < 0 ? -10 : 10),
+          y: row.y - 9,
+          class: "viz-value",
+          "text-anchor": row.value < 0 ? "end" : "start"
+        }, fmt(row.value)));
+      });
+      addAxisLabels(chart, "coeficiente de X", "");
+
+      const maxF = Math.max(12, fFirst1, fFirst2) * 1.15;
+      const bars = frame({
+        w: 560, h: 170, l: 52, r: 18, t: 18, b: 38,
+        xd: [0, 2],
+        yd: [0, maxF],
+        xt: [0.5, 1.5],
+        yt: niceTicks(0, maxF, 4),
+        xfmt: value => value < 1 ? "1 instrumento" : "2 instrumentos",
+        yfmt: value => fmt(value, 0),
+        aria: "Estadístico F de la primera etapa con uno y con dos instrumentos"
+      });
+      [{ x: 0.5, value: fFirst1, klass: "viz-bar", label: "1" },
+       { x: 1.5, value: fFirst2, klass: "viz-bar-ochre", label: "2" }].forEach(item => {
+        const width = bars.sx(0.72) - bars.sx(0.28);
+        bars.svg.appendChild(make("rect", {
+          x: bars.sx(item.x) - width / 2,
+          y: bars.sy(item.value),
+          width,
+          height: bars.bottom - bars.sy(item.value),
+          rx: 4,
+          class: item.klass
+        }));
+        bars.svg.appendChild(make("text", {
+          x: bars.sx(item.x),
+          y: bars.sy(item.value) - 6,
+          class: "viz-value",
+          "text-anchor": "middle"
+        }, fmt(item.value, 1)));
+      });
+      const thresholdY = bars.sy(10);
+      bars.svg.appendChild(make("line", {
+        x1: bars.l, y1: thresholdY, x2: bars.w - bars.r, y2: thresholdY, class: "viz-threshold"
+      }));
+      bars.svg.appendChild(make("text", {
+        x: bars.w - bars.r, y: thresholdY - 5, class: "viz-text-muted", "text-anchor": "end"
+      }, "regla 10"));
+      bars.svg.appendChild(make("text", {
+        x: bars.sx(1), y: bars.t + 2, class: "viz-axis-title", "text-anchor": "middle"
+      }, "F de los instrumentos excluidos"));
+
+      stage.replaceChildren(chart.svg, bars.svg);
+
+      pi2Output.textContent = fmt(state.pi2, 2);
+      rhoOutput.textContent = fmt(state.rho, 2);
+      metrics.innerHTML = [
+        metric("MCO", fmt(ols[1], 3), Math.abs(ols[1] - trueBeta) > 0.2 ? "is-warn" : "is-good"),
+        metric("MC2E 1", fmt(iv1, 3)),
+        metric("MC2E 2", fmt(iv2, 3)),
+        metric("F 1ª etapa", `${fmt(fFirst1, 1)} / ${fmt(fFirst2, 1)}`, fFirst2 < 10 ? "is-warn" : "is-good")
+      ].join("");
+
+      readout.innerHTML = `El coeficiente verdadero es <b>1</b>. MCO estima <b>${fmt(ols[1], 3)}</b>; MC2E con un instrumento, <b>${fmt(iv1, 3)}</b>; con dos, <b>${fmt(iv2, 3)}</b>. La primera etapa tiene F = <b>${fmt(fFirst1, 2)}</b> con un instrumento y <b>${fmt(fFirst2, 2)}</b> con dos. ${fFirst2 < 10 ? "El segundo instrumento es débil: el F conjunto cae por debajo de 10 y el t de MC2E deja de ser confiable." : "El F conjunto supera la regla de 10, pero eso no prueba que los instrumentos sean exógenos."} Más instrumentos no siempre mejoran la identificación.`;
+    }
+
+    pi2Input.addEventListener("input", draw);
+    rhoInput.addEventListener("input", draw);
+    draw();
+  }
+
   window.ECO_VIZ = {
     mounts: {
       "ols-scr": mountScr,
@@ -1285,7 +2125,13 @@
       "f-dist": mountFDist,
       "forms": mountForms,
       "quadratic": mountQuadratic,
-      "prediction": mountPrediction
+      "prediction": mountPrediction,
+      "dummy-groups": mountDummyGroups,
+      "hetero-fan": mountHeteroFan,
+      "trend-season": mountTrendSeason,
+      "ar1": mountAR1,
+      "proxy-bias": mountProxyBias,
+      "weak-iv": mountWeakIV
     }
   };
 })();

@@ -57,6 +57,9 @@
 
 .viz-area{fill:var(--teal);opacity:.18}
 .viz-area-ochre{fill:var(--ochre);opacity:.18}
+.viz-bar{fill:var(--teal);opacity:.78}
+.viz-bar-ochre{fill:var(--ochre);opacity:.82}
+.viz-threshold{stroke:var(--ochre);stroke-width:1.2;stroke-dasharray:4 4;opacity:.9}
 .viz-tail{fill:var(--ochre);opacity:.48}
 
 .viz-text{

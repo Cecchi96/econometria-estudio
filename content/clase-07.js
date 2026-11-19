@@ -121,6 +121,14 @@ window.CLASE_CONTENIDOS["clase-07"] = {
         ] },
         { type: 'p', id: 'c07-s05-p02',
           html: 'La interpretación de δ<sub>m</sub> es la diferencia de nivel respecto de la categoría base, manteniendo X constante. Si enero es la base, el intercepto es el nivel esperado de enero y δ<sub>m</sub> dice cuánto más o menos se espera en el mes m. No se incluyen las 12 dummies con intercepto: sería colinealidad perfecta. Si querés los 12 niveles, estimá sin intercepto y cambiá la lectura. El contraste relevante es conjunto: que ningún mes sea significativo al 5% no prueba que no haya estacionalidad.' },
+        {
+          type: "interactive",
+          kind: "trend-season",
+          label: "Laboratorio visual",
+          title: "Tendencia y estacionalidad: dos componentes",
+          intro: "Cambiá la pendiente y la amplitud estacional. La serie observada se separa en una tendencia lineal y un ciclo que se repite cada 12 meses.",
+          hint: "La tendencia explica el nivel de largo plazo; la estacionalidad, el patrón dentro del año. Si omitís la estacionalidad, el residuo conserva ese ciclo y aparece autocorrelación."
+        },
         { type: 'compare',
           left: { tag: 'En el modelo', title: 'Dummies junto con X', text: 'β<sub>1</sub> se estima condicionando en el mes y los efectos estacionales se reportan. Es la forma directa de controlar sin perder información.', eq: 'Y<sub>t</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>t</sub> + Σδ<sub>m</sub>M<sub>mt</sub> + u<sub>t</sub>' },
           right: { tag: 'Por residuos', title: 'Desestacionalizar primero', text: 'Se regresa cada variable sobre constante y dummies, y se modelan los residuos. El β<sub>1</sub> es el mismo, pero se pierde la lectura de los efectos estacionales y el R² no es comparable.', eq: 'Y<sub>t</sub>* = β<sub>1</sub>X<sub>t</sub>* + e<sub>t</sub>' } },

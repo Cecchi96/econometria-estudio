@@ -17,7 +17,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - Navegación por las clases del curso (clases 2, 3 y 4 divididas en A y B).
 - Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
-- Visualizaciones interactivas en las clases 1 a 4: curva de la SCR, sesgo por omisión, FIV y ancho de intervalos, distribución t y F, formas funcionales, cuadrática y bandas de predicción.
+- Visualizaciones interactivas en las clases 1 a 10: curva de la SCR, sesgo por omisión, FIV y ancho de intervalos, distribuciones t y F, formas funcionales, cuadrática, predicción, dummies, heterocedasticidad, tendencia y estacionalidad, AR(1), proxy y MC2E con instrumentos débiles.
 - Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A, 3B, 4A, 4B, 5, 6, 7, 8, 9 y 10.
 - Selección de texto para subrayar o comentar.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
