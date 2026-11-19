@@ -6,7 +6,8 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 
 - **Clase 1 completa:** teoría, conceptos, práctica con laboratorio de R, autoevaluación y kit de repaso.
 - **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, multicolinealidad y álgebra matricial, con práctica, laboratorio de R y kit de repaso.
-- **Clases 3 a 10:** estructura y navegación listas, contenido pendiente.
+- **Clase 3 completa:** inferencia, MLC, t, F, intervalos, LM y consistencia, con práctica, laboratorio de R y kit de repaso.
+- **Clases 4 a 10:** estructura y navegación listas, contenido pendiente.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Modo noche:** persistente y responsive.
 
@@ -15,7 +16,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - Navegación por las clases del curso (clase 2 dividida en 2A y 2B).
 - Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
-- Laboratorios de lectura de salidas de R para las clases 1, 2A y 2B.
+- Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B y 3.
 - Selección de texto para subrayar o comentar.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
 - Autoevaluación con preguntas de razonamiento.
@@ -44,6 +45,7 @@ content/
   clase-01.js           contenido de la clase 1
   clase-02a.js          regresión múltiple, parte 1
   clase-02b.js          regresión múltiple, parte 2
+  clase-03.js           inferencia
 guia/
   Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada
 supabase/
