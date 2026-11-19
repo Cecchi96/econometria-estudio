@@ -100,6 +100,14 @@ window.CLASE_CONTENIDOS["clase-01"] = {
         },
         { type: "chart" },
         {
+          type: "interactive",
+          kind: "ols-scr",
+          label: "Laboratorio visual",
+          title: "La SCR tiene un solo mínimo",
+          intro: "Con los mismos datos ilustrativos del gráfico anterior, fijamos el intercepto en el valor de MCO y movemos solo la pendiente: la curva muestra la suma de residuos al cuadrado para cada β₁ posible.",
+          hint: "El mínimo de la curva coincide con el β̂₁ de MCO. Alejar la pendiente en cualquier dirección aumenta la SCR y hace caer el R². Eso es lo que significa que MCO minimice."
+        },
+        {
           type: "p",
           id: "c01-s03-p02",
           html: "La solución tiene una forma muy intuitiva: la pendiente estimada es la covarianza entre X e Y dividida por la varianza de X. Si X varía poco, la pendiente se estima con menos precisión."

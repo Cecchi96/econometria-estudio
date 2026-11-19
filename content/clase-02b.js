@@ -30,6 +30,14 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
           ]
         },
         {
+          type: "interactive",
+          kind: "vif",
+          label: "Laboratorio visual",
+          title: "Cuánto cuesta la colinealidad",
+          intro: "El FIV resume cuánto se infla la varianza de un coeficiente cuando su regresor se explica por los demás. Mové el R² de la regresión auxiliar y mirá qué pasa con el error estándar y con el ancho del intervalo, sin que el coeficiente se mueva.",
+          hint: "La estimación puntual no cambia: lo que cambia es la precisión. Con FIV = 4 el error estándar se duplica; con FIV = 10 se multiplica por 3,16. La regla de FIV > 10 es una señal, no un test."
+        },
+        {
           type: "cards",
           items: [
             { sym: "≠ 1", title: "Imperfecta", text: "Los regresores están correlacionados, pero X′X sigue siendo invertible. No viola Gauss-Markov." },

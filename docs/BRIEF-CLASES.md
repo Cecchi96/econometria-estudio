@@ -102,6 +102,7 @@ Tipos de bloque disponibles y sus campos:
 - `errorTable`: `{ type: "errorTable", rows: [{ error, why, fix }] }`
 - `map`: `{ type: "map", steps: [{ n, title, text }] }`
 - `sourceStrip`: `{ type: "sourceStrip", chips: [{ label, text }] }`
+- `interactive`: `{ type: "interactive", kind, label, title, intro, hint }`. Visualización dinámica con controles y lectura guiada. `kind` debe ser una de las claves registradas en `assets/viz.js`; `label` es opcional.
 - `chart`: solo clase 1; **no usar** en clases nuevas.
 
 Reglas:
@@ -113,6 +114,34 @@ Reglas:
 - Los `data-concept` deben existir en `concepts` de la misma clase.
 - HTML válido dentro de los strings; cuidar `<sub>`, `<sup>` y entidades.
 - No usar `backticks` dentro de los strings HTML (rompen el template literal).
+
+## Visualizaciones interactivas
+
+Las clases 1 a 4 usan el bloque `interactive` para explicar un mecanismo con
+controles. El motor vive en `assets/viz.js` y los estilos en `assets/viz.css`.
+La sesión de contenido solo declara el bloque; no edita esos archivos.
+
+Kinds disponibles:
+
+| `kind` | Qué muestra | Clase donde se usa |
+| --- | --- | --- |
+| `ols-scr` | Curva SCR(β₁) y mínimo de MCO | 01 |
+| `ovb` | Sesgo por omisión como β₂·δ₁ | 02A |
+| `vif` | FIV, error estándar y ancho del intervalo | 02B |
+| `t-dist` | Densidad t, colas del valor p y decisión | 03A |
+| `f-dist` | Densidad F, cola derecha y F crítico | 03B |
+| `forms` | Niveles, log-log, log-lin, lin-log y cuadrática | 04A |
+| `quadratic` | Parábola y efecto marginal en dos escalas | 04A |
+| `prediction` | Bandas promedio e individual | 04B |
+
+Reglas para usarlo:
+
+- Un bloque por idea; no reemplaza al `miniCheck` ni al laboratorio de R.
+- `intro` explica qué mover y qué mirar; `hint` cierra la interpretación.
+- Las visualizaciones son ilustrativas: no inventar salidas de R ni presentar
+  los datos dibujados como estimaciones de una base real.
+- Si hace falta un `kind` nuevo, lo implementa el coordinador en `assets/viz.js`
+  y `assets/viz.css`; la sesión de contenido no los modifica.
 
 ## Fichas de concepto
 
@@ -340,9 +369,25 @@ Antes de entregar, verificar:
 - Clase 4B: especificación II y predicción (diaps. 20–34). Lab: ENGEL
   (TP 6, Ej. 5) con formas funcionales, AIC, RESET y predicción promedio vs
   individual a `income = 1500`.
-- Clase 5: variables ficticias (TP 8).
-- Clase 6: heterocedasticidad (TP 9).
-- Clase 7: series de tiempo (TP 10).
-- Clase 8: autocorrelación (TP 11).
-- Clase 9: endogeneidad y VI (TP 12, primera parte).
-- Clase 10: MC2E (TP 12, segunda parte).
+- Clase 5: variables ficticias (TP 8). Lab: `Profesores.rda` (TP 8, Ej. 1–3):
+  medias por sexo, modelo con sexo, rango, universidad y antigüedad, categoría
+  base e interacción sexo × antigüedad. Salida real de R.
+- Clase 6: heterocedasticidad (TP 9). Lab: `WAGE1.rda` (TP 9, Ej. 4):
+  `wage ~ educ + exper + tenure`, Breusch-Pagan, errores robustos HC1 y
+  comparación con `log(wage)`. Salida real de R.
+- Clase 7: series de tiempo (TP 10). Lab: `barium.rda` (TP 10, Ej. 3):
+  `log(chnimp)` con tendencia, dummies de evento y dummies mensuales; contraste
+  conjunto de estacionalidad y Chow en `t = 100`. Base R + `car`; no usar
+  `dynlm` ni `strucchange` (no están instalados).
+- Clase 8: autocorrelación (TP 11). Lab: `TRAFICO.rda` (TP 11, Ej. 1):
+  `prcfat` con tendencia y dummies mensuales; Durbin-Watson, Breusch-Godfrey,
+  Prais-Winsten (`prais_winsten(..., index = "tiempo")`) y Newey-West.
+  `prais`, `lmtest` y `sandwich` están instalados; `orcutt` no.
+- Clase 9: endogeneidad y VI (TP 12, primera parte). Lab: `Card.rda` (TP 12,
+  Ej. 8): MCO vs VI con `CERCANIA4` como instrumento de `EDUC`; `ivreg` de
+  `AER` (instalado), comparación de coeficientes y diagnóstico de instrumento
+  débil. Salida real de R.
+- Clase 10: MC2E (TP 12, segunda parte). Lab: `Card.rda` (TP 12, Ej. 6 y 8):
+  MC2E con `CERCANIA4` y `CERCANIA2`; comparar uno y dos instrumentos;
+  `summary(..., diagnostics = TRUE)` para instrumento débil, Wu-Hausman y
+  Sargan. Salida real de R.

@@ -8,7 +8,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, multicolinealidad y álgebra matricial, con práctica, laboratorio de R y kit de repaso.
 - **Clases 3A y 3B completas:** 3A cubre inferencia sobre un parámetro (MLC, t, valor p, potencia e intervalos); 3B cubre combinaciones lineales, F, LM, normalidad asintótica y consistencia. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
-- **Clases 5 a 10:** estructura y navegación listas, contenido pendiente.
+- **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E, cada una con práctica, laboratorio de R y kit de repaso.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Modo noche:** persistente y responsive.
 
@@ -17,7 +17,8 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - Navegación por las clases del curso (clases 2, 3 y 4 divididas en A y B).
 - Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
-- Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A, 3B, 4A y 4B.
+- Visualizaciones interactivas en las clases 1 a 4: curva de la SCR, sesgo por omisión, FIV y ancho de intervalos, distribución t y F, formas funcionales, cuadrática y bandas de predicción.
+- Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A, 3B, 4A, 4B, 5, 6, 7, 8, 9 y 10.
 - Selección de texto para subrayar o comentar.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
 - Autoevaluación con preguntas de razonamiento.
@@ -39,7 +40,9 @@ index.html              shell de la aplicación
 storage.js              login y cliente de Supabase
 assets/
   styles.css            design system y modo noche
+  viz.css               estilos de las visualizaciones interactivas
   app.js                render, navegación, conceptos, anotaciones y gráfico
+  viz.js                motor de visualizaciones interactivas
   store.js              adaptador Supabase + fallback local
 content/
   indice.js             lista de clases
@@ -50,6 +53,12 @@ content/
   clase-03b.js          restricciones, F y propiedades asintóticas
   clase-04a.js          escala, formas funcionales y logaritmos
   clase-04b.js          selección de modelos, sesgos y predicción
+  clase-05.js           variables ficticias
+  clase-06.js           heterocedasticidad
+  clase-07.js           series de tiempo
+  clase-08.js           autocorrelación
+  clase-09.js           endogeneidad y variables instrumentales
+  clase-10.js           mínimos cuadrados en dos etapas
 guia/
   Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada
 supabase/

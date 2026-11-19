@@ -109,6 +109,14 @@ window.CLASE_CONTENIDOS["clase-03b"] = {
           ]
         },
         {
+          type: 'interactive',
+          kind: 'f-dist',
+          label: 'Laboratorio visual',
+          title: 'La F y su cola derecha',
+          intro: 'El contraste F nunca es bilateral: la evidencia en contra de H₀ está en la cola derecha. Mové el número de restricciones, los grados de libertad y el F observado para ver cómo cambia el valor crítico y la decisión.',
+          hint: 'Más restricciones (q) o menos grados de libertad mueven el umbral. Rechazar exige que la pérdida de ajuste al imponer H₀ sea grande frente al ruido del modelo no restringido. El F no dice cuál restricción falla.'
+        },
+        {
           type: 'p',
           id: 'c03b-s02-p02',
           html: 'El modelo restringido impone H<sub>0</sub>; el no restringido incluye todas las variables. La SCR del restringido nunca puede ser menor que la del no restringido: al imponer restricciones se pierde ajuste. El F mide si esa pérdida es demasiado grande para atribuirla solo al azar. Los grados de libertad del denominador son los del modelo no restringido.'

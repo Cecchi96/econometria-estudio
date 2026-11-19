@@ -174,6 +174,14 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
           html: "El signo del sesgo es el signo del producto <strong>δ̃₁β̂₂</strong>: positivo si los dos términos tienen el mismo signo, negativo si tienen signos opuestos. No hay una regla universal de “subestima” o “sobreestima”: importan la magnitud y el signo del coeficiente múltiple."
         },
         {
+          type: "interactive",
+          kind: "ovb",
+          label: "Laboratorio visual",
+          title: "Sesgo por omisión en vivo",
+          intro: "Fijamos una relación verdadera con β₁ = 1 y una variable omitida X₂. Mové el efecto de X₂ sobre Y (β₂) y su relación con X₁ (δ₁): el gráfico muestra qué estimaría en promedio la regresión simple y qué estimaría la múltiple.",
+          hint: "El sesgo es el producto β₂·δ₁. Si cualquiera de los dos es cero, simple y múltiple coinciden. Si tienen el mismo signo, la simple exagera el efecto; si tienen signos opuestos, lo atenúa o lo invierte."
+        },
+        {
           type: "p",
           id: "c02a-s04-p02",
           html: 'Cuando las variables explicativas son ortogonales, los coeficientes de la regresión múltiple coinciden con los de las regresiones simples, incluido el intercepto. Es un caso especial: en datos económicos, los regresores suelen estar correlacionados en alguna medida.'

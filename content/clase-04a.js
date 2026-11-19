@@ -308,6 +308,14 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
           ]
         },
         {
+          type: 'interactive',
+          kind: 'forms',
+          label: 'Laboratorio visual',
+          title: 'La misma predicción, cinco formas',
+          intro: 'Todas las curvas pasan por el mismo punto ilustrativo: X = 10, Y = 100. Cambiá la forma funcional y los parámetros para ver cómo se separan al alejarte de ese punto. La recta punteada es la tangente en X₀: su pendiente es el efecto marginal.',
+          hint: 'Elegir la forma no es elegir la curva que más se pega a los puntos: es elegir qué efecto tiene sentido económico. En niveles el efecto es constante; en log-log la elasticidad es constante; en lin-log cada 1% de X mueve Y en unidades; en cuadrática el efecto cambia de signo en el vértice.'
+        },
+        {
           type: 'formula',
           main: 'log Y = β<sub>0</sub> + β<sub>1</sub> log X + u &nbsp;→&nbsp; β<sub>1</sub> = Δ%Y / Δ%X',
           legend: [
@@ -584,6 +592,14 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
           type: 'p',
           id: 'c04a-s06-p03',
           html: 'Ejemplo numérico ilustrativo. Si β̂<sub>1</sub> = 10 y β̂<sub>2</sub> = −0,5, el punto de giro es X* = −10/(2·−0,5) = 10. El efecto marginal en X = 4 es 10 + 2(−0,5)·4 = 6; en X = 12 es 10 − 12 = −2; en X = 10 es cero. La variable mejora el resultado hasta 10 y lo empeora después. Si la muestra solo va de 0 a 6, el máximo es una extrapolación: la parábola sugiere un patrón que los datos no observaron.'
+        },
+        {
+          type: 'interactive',
+          kind: 'quadratic',
+          label: 'Laboratorio visual',
+          title: 'El efecto marginal no es β₁',
+          intro: 'En una cuadrática, β₁ es la pendiente en X = 0, no el efecto de X. Mové los coeficientes y mirá las dos escalas: arriba la parábola, abajo el efecto marginal β₁ + 2β₂X evaluado en cada X.',
+          hint: 'El efecto marginal es una recta. Cruza cero exactamente en el vértice X* = −β₁/(2β₂). Antes del vértice tiene un signo; después, el contrario. Si X* queda fuera del rango observado, el cambio de signo es una extrapolación.'
         },
         {
           type: 'errorTable',

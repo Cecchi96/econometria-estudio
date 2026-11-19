@@ -6,7 +6,8 @@
 - **Clases 2A y 2B completas:** regresión múltiple, efectos parciales, Frisch-Waugh, sesgo por omisión, multicolinealidad, álgebra matricial, práctica con laboratorio de R, autoevaluación y kit de repaso.
 - **Clases 3A y 3B completas:** 3A cubre inferencia sobre un parámetro (MLC, t, valor p, potencia e intervalos); 3B cubre combinaciones lineales, F, LM, normalidad asintótica y consistencia. Ambas con práctica, laboratorio de R sobre WAGE2 y kit de repaso.
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
-- **Clases 5 a 10:** navegación y placeholders listos, contenido pendiente.
+- **Visualizaciones interactivas en clases 1 a 4:** curva de la SCR, sesgo por omisión, FIV y precisión, distribución t, distribución F, familia de formas funcionales, cuadrática y efecto marginal, y bandas de predicción promedio e individual.
+- **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E. Cada una con práctica, laboratorio de R y kit de repaso.
 - **App live:** https://econometria-estudio.vercel.app
 - **Hub Fukuro:** https://fukuro-sable.vercel.app (tile “Econometría I”)
 - **Repo público:** https://github.com/Cecchi96/econometria-estudio
@@ -16,9 +17,10 @@
 - Sitio estático: HTML + CSS + JavaScript, sin framework.
 - `storage.js` reutiliza el login y el cliente Supabase de Fukuro.
 - `assets/store.js` usa Supabase si existe `window.storage`; si no, IndexedDB/localStorage.
-- `content/clase-01.js`, `content/clase-02a.js`, `content/clase-02b.js`, `content/clase-03a.js`, `content/clase-03b.js`, `content/clase-04a.js` y `content/clase-04b.js` contienen el contenido de las clases disponibles.
+- `content/clase-01.js`, `content/clase-02a.js`, `content/clase-02b.js`, `content/clase-03a.js`, `content/clase-03b.js`, `content/clase-04a.js`, `content/clase-04b.js`, `content/clase-05.js`, `content/clase-06.js`, `content/clase-07.js`, `content/clase-08.js`, `content/clase-09.js` y `content/clase-10.js` contienen el contenido de las clases disponibles.
 - `guia/Guía-TP-Eco-I-2026.html` es la guía de TP integrada, con enlaces profundos por ejercicio.
 - `assets/app.js` renderiza, navega y maneja conceptos, anotaciones, gráfico, laboratorios de R y kit de fórmulas.
+- `assets/viz.js` monta las visualizaciones interactivas; `assets/viz.css` contiene sus estilos. El contenido las invoca con bloques `{ type: "interactive", kind, title, intro, hint }`.
 - `supabase/eco_annotations.sql` documenta la tabla y las políticas RLS.
 
 ## Supabase
@@ -48,7 +50,7 @@
 2. Definir política de registros:
    - dejar “Allow new users to sign up” abierto, o
    - cerrarlo y crear cuentas manualmente / usar allowlist.
-3. Continuar con **clase 5: variables ficticias**.
+3. Sumar visualizaciones interactivas a las clases 5 a 10 con el mismo sistema de `assets/viz.js`; revisar la consistencia global y las capturas del README.
 4. Opcional: dominio propio, capturas para el README, licencia.
 
 ## Cómo trabajar

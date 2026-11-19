@@ -198,6 +198,7 @@
     `;
     updateAnnotationCount();
     initChart();
+    initVisuals();
     loadAnnotations(content.id);
   }
 
@@ -308,6 +309,8 @@
         `;
       case "chart":
         return chartLabHTML();
+      case "interactive":
+        return renderInteractive(block);
       case "assumptions":
         return `
           <div class="assumption-table">
@@ -365,6 +368,20 @@
       default:
         return "";
     }
+  }
+
+  function renderInteractive(block) {
+    return `
+      <figure class="viz" data-viz="${block.kind}">
+        <figcaption class="viz-head">
+          <span class="mini-label">${block.label || "Visualización interactiva"}</span>
+          <h3>${block.title}</h3>
+          <p>${block.intro}</p>
+        </figcaption>
+        <div class="viz-body"></div>
+        ${block.hint ? `<p class="viz-hint">${block.hint}</p>` : ""}
+      </figure>
+    `;
   }
 
   function chartLabHTML() {
@@ -817,6 +834,25 @@
     $("#showResiduals").addEventListener("change", render);
     $("#resetChart").addEventListener("click", resetToOLS);
     resetToOLS();
+  }
+
+  // ---------- Visualizaciones interactivas ----------
+
+  function initVisuals() {
+    if (!window.ECO_VIZ || !window.ECO_VIZ.mounts) return;
+    $$("[data-viz]").forEach(figure => {
+      if (figure.dataset.vizReady) return;
+      const body = $(".viz-body", figure);
+      const mount = window.ECO_VIZ.mounts[figure.dataset.viz];
+      if (!body || !mount) return;
+      try {
+        mount(body);
+        figure.dataset.vizReady = "true";
+      } catch (error) {
+        console.error(`No se pudo montar la visualización "${figure.dataset.viz}"`, error);
+        body.innerHTML = '<p class="viz-error">No se pudo cargar esta visualización.</p>';
+      }
+    });
   }
 
   // ---------- Annotations ----------

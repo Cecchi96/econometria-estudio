@@ -286,6 +286,14 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
           ]
         },
         {
+          type: 'interactive',
+          kind: 't-dist',
+          label: 'Laboratorio visual',
+          title: 'La t, el valor p y la decisión',
+          intro: 'La curva es la distribución del estadístico bajo H₀. Mové los grados de libertad y el t observado: el área sombreada es el valor p bilateral. Cambiá α para ver cómo se mueve el umbral de decisión.',
+          hint: 'Con pocos grados de libertad la t tiene colas más gruesas que la normal y el valor crítico supera 1,96. El valor p no es la probabilidad de que H₀ sea cierta: es el área que queda más allá del estadístico observado, suponiendo que H₀ vale.'
+        },
+        {
           type: 'cards',
           items: [
             {

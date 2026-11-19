@@ -559,6 +559,14 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
           html: 'En notación matricial, la predicción promedio es Ŷ<sub>0</sub> = X<sub>0</sub>′β̂, insesgada bajo Gauss-Markov, con varianza σ<sup>2</sup>X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>. La individual agrega σ<sup>2</sup> porque el error de predicción incluye u<sub>0</sub>; bajo homocedasticidad y con u<sub>0</sub> independiente de la muestra, Var(ê<sub>0</sub>) = σ<sup>2</sup>[1 + X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>]. En ambos casos se usa el mismo σ̂<sup>2</sup> y los mismos grados de libertad. La diferencia entre los intervalos no es un detalle de software: es la diferencia entre hablar de una subpoblación y hablar de un caso. El <span class="concept" data-concept="intervalo-prediccion" tabindex="0" role="button">intervalo de predicción</span> resume esa diferencia.'
         },
         {
+          type: 'interactive',
+          kind: 'prediction',
+          label: 'Laboratorio visual',
+          title: 'Dos intervalos, dos preguntas',
+          intro: 'Con datos ilustrativos, la misma predicción puntual tiene dos intervalos distintos. La banda interna es para la media de la subpoblación; la externa, para una unidad concreta. Mové X₀ y cambiá el nivel de confianza para ver cómo se abren cerca de los extremos.',
+          hint: 'La banda individual no se cierra aunque n crezca: siempre queda la varianza del error de la nueva unidad. La promedio sí se angosta con más datos. Cerca de X̄ ambas son más precisas; lejos, la distancia al centro castiga la predicción.'
+        },
+        {
           type: 'errorTable',
           rows: [
             {
