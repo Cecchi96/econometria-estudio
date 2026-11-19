@@ -132,6 +132,14 @@
     window.addEventListener("load", setHeight);
   }
 
+  function syncTabsStuck() {
+    const tabs = $(".tabs");
+    if (!tabs) return;
+    const stickyTop = parseFloat(getComputedStyle(tabs).top) || 0;
+    const stuck = tabs.getBoundingClientRect().top <= stickyTop + 1 && window.scrollY > 0;
+    tabs.classList.toggle("stuck", stuck);
+  }
+
   function initTheme() {
     if (!els.themeBtn) return;
     setTheme(document.documentElement.getAttribute("data-theme") || "light");
@@ -243,6 +251,7 @@
     initChart();
     initVisuals();
     loadAnnotations(content.id);
+    syncTabsStuck();
   }
 
   function renderPlaceholder(meta) {
@@ -1505,7 +1514,39 @@
     const mobile = isCoarsePointer() || window.innerWidth <= 820;
     els.toolbar.classList.toggle("mobile", mobile);
     els.toolbar.classList.add("show");
-    if (mobile || !rect) {
+
+    if (mobile) {
+      // En móvil la barra nativa de Chrome/Android vive en el borde inferior:
+      // anclamos la nuestra junto a la selección para que no la tape.
+      els.toolbar.style.left = "";
+      els.toolbar.style.right = "";
+      if (!rect) {
+        els.toolbar.style.top = "";
+        els.toolbar.style.bottom = "";
+        return;
+      }
+      const height = els.toolbar.offsetHeight || 50;
+      const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const topbar = $(".topbar");
+      const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 56;
+      const tabs = $(".tabs");
+      const tabsRect = tabs ? tabs.getBoundingClientRect() : null;
+      const stickyTop = tabs ? (parseFloat(getComputedStyle(tabs).top) || 0) : 0;
+      const tabsStuck = tabsRect && tabsRect.top <= stickyTop + 1;
+      const minTop = (tabsStuck ? tabsRect.bottom : topbarHeight) + 8;
+      const bottomGuard = viewportHeight - 96;
+      let top = rect.top - height - 12;
+      if (top < minTop) {
+        top = rect.bottom + 12;
+        if (top + height > bottomGuard) top = Math.max(minTop, bottomGuard - height);
+      }
+      top = Math.max(minTop, Math.min(top, viewportHeight - height - 8));
+      els.toolbar.style.top = `${Math.round(top)}px`;
+      els.toolbar.style.bottom = "auto";
+      return;
+    }
+
+    if (!rect) {
       els.toolbar.style.left = "";
       els.toolbar.style.top = "";
       return;
@@ -1854,6 +1895,9 @@
           els.popQuote.textContent = `“${truncate(normalize(state.commentRange.toString()), 150)}”`;
           els.popTextarea.value = "";
           els.toolbar.classList.remove("show");
+          // Cerrar la selección nativa también cierra el menú flotante de
+          // Chrome/Android que tapaba el formulario en celulares.
+          window.getSelection()?.removeAllRanges();
           positionPopover(state.commentRange.getBoundingClientRect());
           setTimeout(() => els.popTextarea.focus({ preventScroll: true }), 40);
         }
@@ -1907,6 +1951,8 @@
     }, 12000);
 
     window.addEventListener("hashchange", route);
+    window.addEventListener("scroll", syncTabsStuck, { passive: true });
+    window.addEventListener("resize", syncTabsStuck);
   }
 
   // ---------- Toast ----------

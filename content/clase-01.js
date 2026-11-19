@@ -7,7 +7,7 @@ window.CLASE_CONTENIDOS["clase-01"] = {
   title: "Regresión lineal simple",
   lead: "Antes de estimar, entendé qué pregunta responde el modelo, qué supone y qué no promete.",
   question: "¿Cómo describimos la relación entre dos variables sin confundir asociación con causalidad?",
-  pills: ["43 diapositivas", "TP 2", "1P 2024–2026", "6 conceptos clave"],
+  pills: ["43 diapositivas", "TP 2", "1P 2024–2026", "7 conceptos clave"],
 
   sections: [
     {
@@ -122,6 +122,26 @@ window.CLASE_CONTENIDOS["clase-01"] = {
           ]
         },
         {
+          type: "p",
+          id: "c01-s03-p03",
+          html: 'MCO también se deriva por el <strong>método de los momentos</strong>: se imponen en la muestra las dos restricciones poblacionales E(u) = 0 y E(Xu) = 0, y se resuelve para β̂₀ y β̂₁. Es el mismo estimador que minimiza la SCR; el método de los momentos muestra de dónde salen las dos condiciones de primer orden. Además, el modelo se puede reescribir en <span class="concept" data-concept="desvios" tabindex="0" role="button">desvíos respecto de las medias</span>, una reparametrización que conviene tener vista.'
+        },
+        {
+          type: "formula",
+          main: "Y<sub>i</sub> − Ȳ = β<sub>1</sub>(X<sub>i</sub> − X̄) + (u<sub>i</sub> − ū)",
+          legend: [
+            { key: "En desvíos", text: "Al restar la media a ambos lados, el intercepto se cancela porque Σ(X<sub>i</sub> − X̄) = 0." },
+            { key: "Pendiente", text: "β₁ no cambia: es una reparametrización, no otro modelo." },
+            { key: "Intercepto", text: "La recta pasa por el origen de las variables centradas, no por el origen de X e Y." }
+          ]
+        },
+        {
+          type: "callout",
+          variant: "teal",
+          label: "Modelo en desvíos no es regresión por el origen",
+          html: "En el modelo en desvíos el intercepto se cancela porque las variables están centradas; la pendiente es la misma. En una regresión a través del origen se impone β₀ = 0 sobre las variables originales. Si el verdadero modelo tiene intercepto, esa imposición sesga la pendiente. No son la misma operación."
+        },
+        {
           type: "callout",
           variant: "ochre",
           label: "Error frecuente",
@@ -171,6 +191,30 @@ window.CLASE_CONTENIDOS["clase-01"] = {
           question: "Si β̂₁ = 0,8, ¿podés decir que un año más de educación causa $0,8 más de salario?",
           intro: "Antes de responder, separá tres cosas: qué estima el modelo, qué supone y qué haría falta para defender una interpretación causal.",
           answer: "<strong>No, no directamente.</strong> β̂₁ describe una asociación muestral condicional al modelo. Para interpretarlo causalmente necesitás supuestos adicionales —por ejemplo, exogeneidad y ausencia de variables omitidas relevantes— y un diseño que los sostenga. La clase 9 va a profundizar en qué ocurre cuando X está correlacionada con el error."
+        },
+        {
+          type: "p",
+          id: "c01-s04-p04",
+          html: "Si el parcial pide demostrar el insesgamiento, no alcanza con enunciar E(β̂) = β. Estos son los cinco pasos que conectan los supuestos con la propiedad."
+        },
+        {
+          type: "map",
+          steps: [
+            { n: "1", title: "Partí de β̂₁ en desvíos", text: "β̂₁ = Σ(X<sub>i</sub> − X̄)(Y<sub>i</sub> − Ȳ) / Σ(X<sub>i</sub> − X̄)<sup>2</sup>." },
+            { n: "2", title: "Reemplazá Y por el modelo", text: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>i</sub> + u<sub>i</sub>. Los términos con β<sub>0</sub> y β<sub>1</sub> se simplifican porque Σ(X<sub>i</sub> − X̄) = 0." },
+            { n: "3", title: "Quedate con el error", text: "β̂₁ = β<sub>1</sub> + Σ(X<sub>i</sub> − X̄)u<sub>i</sub> / Σ(X<sub>i</sub> − X̄)<sup>2</sup>." },
+            { n: "4", title: "Tomá esperanza condicional", text: "E(β̂₁ | X) = β<sub>1</sub> + Σ(X<sub>i</sub> − X̄)E(u<sub>i</sub> | X) / Σ(X<sub>i</sub> − X̄)<sup>2</sup>." },
+            { n: "5", title: "Aplicá E(u | X) = 0", text: "El segundo término se anula: E(β̂₁ | X) = β<sub>1</sub>. Para β̂₀, usá β̂₀ = Ȳ − β̂₁X̄ y el mismo argumento." }
+          ]
+        },
+        {
+          type: "formula",
+          main: "E(β̂<sub>1</sub> | X) = β<sub>1</sub> &nbsp;·&nbsp; E(β̂<sub>0</sub> | X) = β<sub>0</sub>",
+          legend: [
+            { key: "β̂₁", text: "La aleatoriedad viene de los errores muestrales, no de β₁." },
+            { key: "β̂₀", text: "Se obtiene de β̂₀ = Ȳ − β̂₁X̄ y de la insesgadez de β̂₁." },
+            { key: "Condición", text: "E(u<sub>i</sub> | X) = 0. Sin exogeneidad, el segundo término no se anula." }
+          ]
         }
       ]
     },
@@ -272,6 +316,15 @@ window.CLASE_CONTENIDOS["clase-01"] = {
             { key: "σ̂²", text: "Varianza estimada del error; se calcula con la SCR." },
             { key: "Denominador", text: "Variación de X. Más variación, menor error estándar." },
             { key: "n − 2", text: "Grados de libertad que se usan para estimar σ²." }
+          ]
+        },
+        {
+          type: "formula",
+          main: "Var(β̂<sub>1</sub> | X) = σ<sup>2</sup> / Σ(X<sub>i</sub> − X̄)<sup>2</sup> &nbsp;·&nbsp; Var(β̂<sub>0</sub> | X) = σ<sup>2</sup>[1/n + X̄<sup>2</sup>/Σ(X<sub>i</sub> − X̄)<sup>2</sup>]",
+          legend: [
+            { key: "De dónde sale", text: "β̂<sub>1</sub> = β<sub>1</sub> + Σw<sub>i</sub>u<sub>i</sub>, con w<sub>i</sub> = (X<sub>i</sub> − X̄)/Σ(X<sub>i</sub> − X̄)<sup>2</sup>. Al aplicar Var, los pesos quedan al cuadrado y las covarianzas entre errores se anulan bajo muestra aleatoria y homocedasticidad." },
+            { key: "Lectura", text: "Más variación de X o menos ruido dan menor varianza. El intercepto depende además de X̄." },
+            { key: "n − 2", text: "σ² se estima con SCR/(n − 2)." }
           ]
         },
         {
@@ -403,13 +456,50 @@ window.CLASE_CONTENIDOS["clase-01"] = {
         <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés derivar β̂₁ ni explicar por qué se eleva al cuadrado.</p></div>
       `,
       conexiones: `
-        <p>MCO es la base de casi todo el curso. En la clase 2 se extiende a regresión múltiple; en la 6 y la 8 se discuten sus límites cuando fallan los supuestos.</p>
-        <div><button class="concept-chip" data-concept="error">Error y residuo →</button><button class="concept-chip" data-concept="insesgado">Insesgamiento →</button><button class="concept-chip" data-concept="gm">Gauss-Markov →</button></div>
+        <p>MCO es la base de casi todo el curso. En la clase 2 se extiende a regresión múltiple; en la 6 y la 8 se discuten sus límites cuando fallan los supuestos. La reparametrización en desvíos es otra forma de escribir el mismo estimador.</p>
+        <div><button class="concept-chip" data-concept="error">Error y residuo →</button><button class="concept-chip" data-concept="desvios">Modelo en desvíos →</button><button class="concept-chip" data-concept="insesgado">Insesgamiento →</button><button class="concept-chip" data-concept="gm">Gauss-Markov →</button></div>
       `,
       fuentes: `
         <div class="source-mini"><span class="source-type">Clase</span><p>Clase 1, diap. 9–15 y 20.</p></div>
         <div class="source-mini"><span class="source-type book">Libro</span><p>Wooldridge 4ed, §2.2, pp. 27–35; §2.3, pp. 36–40.</p></div>
         <div class="source-mini"><span class="source-type guía">Guía</span><p>TP 2, ejercicios 1–7.</p></div>
+      `
+    },
+    desvios: {
+      title: "Modelo en desvíos y regresión por el origen",
+      sub: "Centrar las variables no es lo mismo que sacar el intercepto.",
+      simple: `<p>Restar la media a X y a Y es como mover el eje al centro de la nube de puntos: la recta conserva la misma inclinación, pero ahora pasa por el origen de las variables centradas.</p><p>Otra cosa muy distinta es forzar que la recta pase por el origen de los datos originales. Si el modelo verdadero tiene intercepto, esa restricción te cambia la pendiente.</p>`,
+      esencia: `
+        <div class="definition">Si se resta la media a Y y a X, el modelo queda <em>Y<sub>i</sub> − Ȳ = β<sub>1</sub>(X<sub>i</sub> − X̄) + (u<sub>i</sub> − ū)</em>. El intercepto se cancela y la pendiente no cambia.</div>
+        <div class="mini-label">Qué tenés que entender</div>
+        <ul>
+          <li>Es una reparametrización: el ajuste, los residuos y β̂<sub>1</sub> son los mismos.</li>
+          <li>La recta pasa por el origen de las variables centradas, no por (0,0) de X e Y.</li>
+          <li>Una regresión a través del origen impone β<sub>0</sub> = 0 en los niveles; si el verdadero modelo tiene intercepto, β̂<sub>1</sub> queda sesgada.</li>
+        </ul>
+        <div class="formula small">Y<sub>i</sub> − Ȳ = β<sub>1</sub>(X<sub>i</sub> − X̄) + (u<sub>i</sub> − ū)<span>Modelo en desvíos</span></div>
+        <div class="badge-row"><span class="badge always">Siempre: misma pendiente</span><span class="badge optional">Según el caso: intercepto cero</span></div>
+      `,
+      ejemplo: `
+        <p>Si X es educación e Y salario, restar las medias no cambia el retorno estimado de la educación. Lo que cambia es la lectura del intercepto: en desvíos, el origen es una persona con educación media y salario medio.</p>
+        <div class="mini-card"><span class="mini-label">En la práctica</span><p>Si en cambio corrés salario = β<sub>1</sub>educación + u sin intercepto, imponés que alguien sin educación gana cero. Si en la población no es así, la pendiente absorbe ese nivel y queda sesgada.</p></div>
+      `,
+      errores: `
+        <ul>
+          <li><strong>Decir que el modelo en desvíos es una regresión sin intercepto.</strong> El intercepto se cancela por la centración; no se impone β<sub>0</sub> = 0 en los niveles.</li>
+          <li><strong>Creer que sacar el intercepto solo cambia la lectura.</strong> Si el verdadero intercepto no es cero, la pendiente se sesga.</li>
+          <li><strong>Pensar que centrar cambia la pendiente.</strong> Es la misma pendiente; cambian el intercepto y la escala de lectura.</li>
+        </ul>
+        <div class="mini-card"><span class="mini-label">Señal de que no lo entendiste</span><p>No podés explicar por qué la recta pasa por el origen en desvíos pero no necesariamente en niveles.</p></div>
+      `,
+      conexiones: `
+        <p>Se conecta con MCO, con la recta que pasa por las medias y con la interpretación del intercepto. También vuelve en la clase 4, cuando se reparametriza un modelo para leer un parámetro con su error estándar.</p>
+        <div><button class="concept-chip" data-concept="mco">MCO →</button><button class="concept-chip" data-concept="frp">FRP y FRM →</button><button class="concept-chip" data-concept="insesgado">Insesgamiento →</button></div>
+      `,
+      fuentes: `
+        <div class="source-mini"><span class="source-type">Clase</span><p>Clase 1, diap. 21. Reparametrización del modelo en desvíos y advertencia sobre la regresión a través del origen.</p></div>
+        <div class="source-mini"><span class="source-type book">Libro</span><p>Wooldridge 4ed, §2.3, pp. 36–40.</p></div>
+        <div class="source-mini"><span class="source-type guía">Guía</span><p>TP 2, Ej. 1: propiedades algebraicas y reparametrización.</p></div>
       `
     },
     insesgado: {

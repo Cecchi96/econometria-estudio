@@ -9,6 +9,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Clases 3A y 3B completas:** 3A cubre inferencia sobre un parámetro (MLC, t, valor p, potencia e intervalos); 3B cubre combinaciones lineales, F, LM, normalidad asintótica y consistencia. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E, cada una con práctica, laboratorio de R y kit de repaso.
+- **Mapa de cobertura:** `docs/COBERTURA-PDFS.md` traza cada PDF de la cátedra a la sección, ficha o fórmula que lo cubre.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Buscador global:** busca conceptos y palabras en las 13 clases, muestra la ficha si ya existe, enlaza cada mención y permite guardar notas propias por término.
 - **Comentarios:** botón flotante para enviar sugerencias y una bandeja privada para el administrador.
@@ -77,6 +78,7 @@ content/
   clase-10.js           mínimos cuadrados en dos etapas
 docs/
   BRIEF-CLASES.md       especificación de contenido de las clases
+  COBERTURA-PDFS.md     mapa de cobertura de cada PDF a las unidades
   MEJORAS-CONTENIDO.md  campos simple, viz, more y sección de profundización
 guia/
   Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada

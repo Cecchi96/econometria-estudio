@@ -30,6 +30,7 @@
 - `assets/termstore.js` guarda las notas del buscador reutilizando `eco_annotations` con el `class_id` reservado `__notas_del_buscador__`, sin tabla nueva.
 - `feedback.html` + `assets/feedback-admin.js` son la bandeja privada del administrador.
 - `docs/MEJORAS-CONTENIDO.md` documenta los campos `simple`, `viz`, `vizIntro`, `vizHint`, `more` y la sección de profundización.
+- `docs/COBERTURA-PDFS.md` mapea cada PDF de la cátedra a la sección, ficha o fórmula que lo cubre.
 - `supabase/eco_annotations.sql` documenta la tabla y las políticas RLS. La migración de colores está al final del archivo.
 - `supabase/eco_feedback.sql` define `eco_feedback`, `eco_admins`, `eco_is_admin()` y sus políticas RLS.
 

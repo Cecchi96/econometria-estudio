@@ -302,7 +302,7 @@ window.CLASE_CONTENIDOS["clase-06"] = {
         {
           type: "p",
           id: "c06-s06-p02",
-          html: "Las propiedades cambian respecto de MCP con h conocida. Como los ponderadores se estiman con los mismos datos, el estimador MCGF no es insesgado en muestras finitas. Sí es consistente y, si la función de varianza está correctamente especificada, es asintóticamente más eficiente que MCO. La matriz de varianza-covarianza se estima con la misma lógica: Var(β̂<sub>MCGF</sub>) ≈ σ̂<sup>2</sup>(X′Ω̂<sup>−1</sup>X)<sup>−1</sup>. Esa expresión solo es válida si el modelo de varianza es el correcto.",
+          html: "Las propiedades cambian respecto de MCP con h conocida. Como los ponderadores se estiman con los mismos datos, el estimador MCGF no es insesgado en muestras finitas. Sí es consistente y, si la función de varianza está correctamente especificada, es asintóticamente más eficiente que MCO. La matriz de varianza-covarianza se estima con la misma lógica: Var(β̂<sub>MCGF</sub>) ≈ σ̂<sup>2</sup>(X′Ω̂<sup>−1</sup>X)<sup>−1</sup>. Esa expresión solo es válida si el modelo de varianza es el correcto. Cuando se contrasta una restricción con MCP, los ponderadores se calculan con el modelo no restringido y se usan también en el restringido; recalcularlos con el restringido invalida el F.",
         },
         {
           type: "callout",
