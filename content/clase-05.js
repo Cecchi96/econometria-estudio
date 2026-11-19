@@ -204,12 +204,41 @@ window.CLASE_CONTENIDOS["clase-05"] = {
           { label: 'Parciales', text: '1P 2024–2025; 2P 2024' }
         ] }
       ]
+    },
+    {
+      id: 'c05-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        { type: 'cards', items: [
+          { sym: 'Y 0/1', title: 'Dummy al lado izquierdo', text: 'El modelo de probabilidad lineal estima una diferencia de probabilidades, no de pesos.' },
+          { sym: 'F', title: 'El bloque, no el t suelto', text: 'Que una categoría importe se contrasta con q restricciones conjuntas.' },
+          { sym: 'k₁×k₂', title: 'Interacciones completas', text: 'Con dos factores, el número de productos es (k₁−1)(k₂−1), no el producto de todas las dummies.' },
+          { sym: 'Control', title: 'Confundir con mediar', text: 'Si la variable está en el camino entre el grupo y Y, controlarla cambia la pregunta.' }
+        ] },
+        { type: 'p', id: 'c05-s08-p02', html: 'La primera idea queda abierta desde la diapositiva 3: qué cambia si lo que se quiere modelar es si el hogar gasta o no en salud. Cuando Y es binaria, el mismo MCO se usa como <strong>modelo de probabilidad lineal</strong>. El coeficiente de la dummy deja de ser una diferencia de gasto y pasa a ser una diferencia de probabilidad. Si δ̂ = 0,08, el grupo D=1 tiene 8 puntos porcentuales más de probabilidad de gastar, siempre que el resto esté constante. Dos consecuencias prácticas: la varianza del error depende de las X, así que conviene reportar errores robustos; y la predicción lineal puede caer fuera de [0,1], sobre todo en los extremos. Eso no lo invalida como descripción, pero impide presentar probabilidades imposibles como si fueran válidas. Los modelos logit y probit resuelven el problema de forma no lineal y se ven en otro curso.' },
+        { type: 'p', id: 'c05-s08-p03', html: 'Segundo punto. Con k categorías, la pregunta “¿la región importa?” no se responde mirando si cada δ es significativa por separado. Los t individuales dependen de la base y de la correlación entre dummies; un bloque puede explicar en conjunto y no tener ningún coeficiente significativo por separado. El contraste correcto es H<sub>0</sub>: δ<sub>1</sub> = … = δ<sub>k−1</sub> = 0, con un F de q = k−1 restricciones que compara la SCR del modelo sin el bloque con la del modelo completo. Es el mismo formato de Chow, aplicado a un solo factor. Y hay dos preguntas distintas: el F dice si el factor importa; para saber qué categoría difiere hay que mirar los contrastes individuales o las diferencias entre coeficientes con su error estándar.' },
+        { type: 'formula', main: 'F = [(SCR<sub>R</sub> − SCR<sub>NR</sub>)/q] / [SCR<sub>NR</sub>/(n − p)] ~ F<sub>q, n−p</sub>', legend: [
+          { key: 'q', text: 'Restricciones contrastadas: k−1 para un factor de k categorías.' },
+          { key: 'SCR<sub>R</sub>', text: 'Modelo restringido, sin el bloque de dummies.' },
+          { key: 'SCR<sub>NR</sub>', text: 'Modelo completo, con las k−1 dummies y el resto de los regresores.' },
+          { key: 'p', text: 'Cantidad de parámetros del modelo no restringido, incluida la constante.' },
+          { key: 'Lectura', text: 'Rechazar dice que el factor importa en conjunto; no dice qué categoría difiere.' }
+        ] },
+        { type: 'p', id: 'c05-s08-p04', html: 'Tercer punto, sobre interacciones. La clase trabaja el caso 2×2, donde hay un solo producto y cuatro celdas. Con dos factores de k<sub>1</sub> y k<sub>2</sub> niveles, el modelo saturado tiene k<sub>1</sub>·k<sub>2</sub> celdas y necesita (k<sub>1</sub>−1)(k<sub>2</sub>−1) interacciones, además de los efectos principales. Por ejemplo, rango con tres niveles y sexo con dos: seis medias y dos productos. Si se multiplican todas las dummies entre sí, se agregan términos redundantes y aparece colinealidad. La regla práctica es elegir qué comparaciones responden a la pregunta y contrastar ese bloque; no interactuar todo con todo. Además, cuando hay interacción, cada efecto principal se lee en el nivel base del otro factor, no como un efecto promedio.' },
+        { type: 'callout', variant: 'ochre', label: 'Controlar no siempre es aclarar', html: 'Agregar rango y universidad reduce la brecha de 14.088 a 4.771. ¿Eso es bueno? Depende del diagrama causal. Si rango y universidad son factores que confunden —están asociados al sexo y también afectan el salario—, controlarlos acerca a una comparación válida. Si son canales por los que opera una desventaja —las mujeres acceden menos a las categorías altas—, controlarlos borra parte del fenómeno que se quiere medir. La misma dummy puede ser tratamiento en un modelo y control en otro. Antes de agregar una variable, preguntate si está antes o después de la categoría que estás comparando. La fórmula del sesgo por omisión de la clase 2 ayuda a ver cuánto se mueve el coeficiente, pero no decide qué se quiere estimar: eso lo decide la pregunta. En el parcial, esta discusión aparece cuando piden interpretar una brecha y justificar por qué se incluyó cada control.' },
+        { type: 'miniCheck', id: 'c05-check-09', question: 'Un modelo de probabilidad lineal para la decisión de gastar en salud da δ̂ = 0,08 para tener obra social, con un intervalo de [0,02; 0,14]. ¿Cómo lo interpretás y qué advertís?', intro: 'Volvé a la primera idea: es una Y binaria, no un gasto en pesos.', answer: 'El coeficiente es una diferencia de probabilidades: los hogares con obra social tienen 8 puntos porcentuales más de probabilidad de gastar en salud, con un intervalo de 2 a 14 puntos. No es un 8% más de gasto ni un efecto causal, salvo que la obra social sea exógena, algo poco plausible. Además, el modelo lineal puede predecir probabilidades fuera de [0,1], y la varianza del error cambia con las X, así que conviene usar errores robustos. Para reportar probabilidades válidas o efectos marginales haría falta un modelo no lineal.' }
+      ]
     }
   ],
   concepts: {
     dummy: {
       title: 'Variable ficticia',
       sub: 'Una categoría convertida en 0 y 1.',
+      simple: `<p>Pensá en una planilla donde cada persona tiene una columna que dice “con obra social” o “sin obra social”. Para que la regresión la entienda, la convertís en 1 y 0. Es una etiqueta de pertenencia: no dice cuánto vale la persona, solo a qué grupo pertenece.</p><p>Cuando mirás el coeficiente, estás comparando el grupo del 1 contra el del 0. Por eso, antes de interpretarlo, necesitás saber cuál es el grupo del 0.</p>`,
+      viz: "dummy-groups",
+      vizIntro: "Movés la brecha condicional y la diferencia de experiencia entre grupos. Mirá cómo la diferencia bruta se separa de la que queda al comparar grupos con la misma X.",
+      vizHint: "La brecha bruta mezcla el coeficiente de la dummy con la composición de los grupos. Cambiar la base invierte el signo, no el tamaño.",
       esencia: `
         <div class="definition">Una variable ficticia (dummy) es binaria: vale 1 si la observación pertenece a una categoría y 0 si no. No mide una cantidad; identifica pertenencia. Cuando entra sola, su coeficiente se interpreta como una diferencia respecto de la categoría base.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -246,6 +275,7 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     'categoria-base': {
       title: 'Categoría base',
       sub: 'El grupo contra el que se comparan todos los demás.',
+      simple: `<p>Si te pregunto cuánto más alto es Pedro, la respuesta necesita un punto de comparación: más alto que Juan, que el promedio, que el curso. La categoría base es ese punto: el grupo que queda en cero y contra el que se miden los demás.</p><p>Si cambiás de referencia, los números cambian, pero las distancias entre los grupos siguen siendo las mismas. Es como mover el cero de una regla: cambia el número que leés, no la distancia entre dos marcas.</p>`,
       esencia: `
         <div class="definition">La categoría base es la que tiene todas las dummies iguales a cero. En el modelo sin otros regresores, su media es el intercepto; con más variables, el intercepto es la celda base evaluada en X = 0. Todos los coeficientes de las dummies se leen como diferencias respecto de ella.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -282,6 +312,7 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     'trampa-dummy': {
       title: 'Trampa de la dummy',
       sub: 'Incluir todas las categorías y la constante a la vez.',
+      simple: `<p>Imaginá que querés ubicar a alguien diciendo “está en el norte, en el sur y en el centro” al mismo tiempo. Si cada persona pertenece a una sola categoría, con decir cuál es alcanza: las otras dos etiquetas no agregan nada.</p><p>Agregar la tercera dummy además de la constante no suma información: repite la misma columna y el modelo no puede resolver el sistema. Por eso con tres categorías van dos dummies y una base.</p>`,
       esencia: `
         <div class="definition">Si se incluye una constante y una dummy por cada una de las k categorías, las dummies suman 1 en cada fila, igual que la columna del intercepto. Hay colinealidad perfecta y el modelo no se puede estimar por MCO.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -318,6 +349,10 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     'esperanza-condicional': {
       title: 'Esperanza condicional',
       sub: 'La media de Y en cada celda del modelo.',
+      simple: `<p>Imaginá que separás a los profesores en dos grupos y calculás el salario medio de cada uno. Esos dos promedios son las esperanzas condicionales: el promedio de Y dentro de cada celda, no el promedio general.</p><p>La regresión con dummies no hace otra cosa que poner esos promedios en una ecuación. Si no podés nombrar la celda de cada coeficiente, todavía no entendiste la salida.</p>`,
+      viz: "dummy-groups",
+      vizIntro: "Cada recta del gráfico es una esperanza condicional: la media de Y para un grupo, dado X. Cambiá la brecha y la composición y mirá las dos alturas.",
+      vizHint: "El intercepto y el coeficiente de la dummy son las piezas que arman esas dos medias. No hay una media general escondida: hay una por celda.",
       esencia: `
         <div class="definition">E(Y|D=d) es el valor esperado de Y en la subpoblación que tiene D=d. Con una o varias dummies y sin otras variables, el modelo es un conjunto de medias condicionales: una por celda. Los coeficientes son diferencias entre esas medias.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -355,6 +390,10 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     interaccion: {
       title: 'Interacción',
       sub: 'El efecto de una variable depende del valor de otra.',
+      simple: `<p>Pensá en el precio del estacionamiento: quizás sube con cada hora, pero sube más rápido los fines de semana. La interacción es eso: el efecto de una cosa cambia según el contexto.</p><p>En vez de una sola pendiente para todos, el modelo te deja dibujar una pendiente distinta para cada grupo. La brecha entre grupos deja de ser un número fijo y pasa a depender de dónde estés parado.</p>`,
+      viz: "interaction",
+      vizIntro: "Movés la brecha base y la diferencia de pendientes. La recta de un grupo gira y la brecha deja de ser constante.",
+      vizHint: "Con interacción, δ₀ es la brecha en X=0 y la brecha en otro X se calcula como δ₀+δ₁X. Las rectas solo son paralelas cuando δ₁=0.",
       esencia: `
         <div class="definition">Una interacción es el producto de dos regresores. Permite que el efecto de una variable cambie con el nivel de la otra: la pendiente de X difiere entre grupos, o el premio de una dummy difiere entre categorías.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -391,6 +430,7 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     'log-dummy': {
       title: 'Dummy en logaritmos',
       sub: 'Diferencia porcentual, no elasticidad.',
+      simple: `<p>Si el salario está en logaritmos, el coeficiente de una dummy se parece a decir “gana 5% menos”, no “gana 5 pesos menos”. Es una comparación porcentual entre dos grupos.</p><p>La trampa es leerlo como elasticidad, cuando la dummy solo salta de 0 a 1. Y si el número es grande, la aproximación se queda corta: ahí conviene hacer la cuenta exacta.</p>`,
       esencia: `
         <div class="definition">En un modelo con log Y, el coeficiente de una dummy mide la diferencia en log Y entre el grupo D=1 y la base. Multiplicado por 100 es una diferencia porcentual aproximada; el valor exacto es 100(e<sup>δ</sup>−1).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -428,6 +468,10 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     chow: {
       title: 'Prueba de Chow',
       sub: '¿Los dos grupos tienen la misma función de regresión?',
+      simple: `<p>¿La relación entre salario y educación es la misma para casados y solteros? Chow es un control de calidad de esa idea: compara la regresión hecha con todos juntos contra una regresión separada para cada grupo.</p><p>Si las dos versiones ajustan muy distinto, hay evidencia de que la función no es la misma. Lo que no te dice es cuál de las diferencias —el nivel o alguna pendiente— es la responsable.</p>`,
+      viz: "chow",
+      vizIntro: "Cambiá la diferencia de intercepto y de pendiente entre los dos grupos. La recta gris es la función única que impone la hipótesis nula.",
+      vizHint: "Chow mide cuánto pierde el ajuste al imponer una sola recta. Un F grande indica que alguna diferencia existe; no dice si está en el nivel o en la pendiente.",
       esencia: `
         <div class="definition">La prueba de Chow contrasta H<sub>0</sub>: misma función de regresión para dos grupos. Es un F de k+1 restricciones —el intercepto y las k pendientes— que compara la SCR del modelo restringido con la suma de las SCR de dos regresiones separadas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -465,6 +509,7 @@ window.CLASE_CONTENIDOS["clase-05"] = {
     'evaluacion-politicas': {
       title: 'Evaluación de políticas',
       sub: 'La dummy de participación y el problema de la selección.',
+      simple: `<p>Si comparás las notas de quienes fueron al taller con las de quienes no fueron, no sabés si la diferencia es el taller o las ganas que ya tenían. La dummy de participación marca quién estuvo, pero no borra esas diferencias previas.</p><p>Para hablar de efecto hace falta un diseño que separe el programa de la selección. Más datos no arreglan ese problema: lo repiten con más precisión.</p>`,
       esencia: `
         <div class="definition">En una evaluación de política, la dummy indica participación en el programa. Su coeficiente es la diferencia media entre participantes y no participantes. Solo se interpreta como efecto causal si la participación no está correlacionada con los factores no observados que afectan Y.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -748,18 +793,18 @@ antig         -308.2669   130.7083`,
     title: 'Kit de repaso y sesión de 90 minutos',
     intro: 'Doce fórmulas, doce drills y una sesión corta para llegar al parcial con las ideas ordenadas. Si una fórmula no se puede explicar con una esperanza condicional, todavía no está aprendida.',
     formulas: [
-      { title: 'Diferencia de medias', eq: 'δ<sub>0</sub> = E(Y|D=1) − E(Y|D=0)', note: 'Vale como esperanza condicional si E(u|D)=0. Si no, es una diferencia descriptiva.' },
-      { title: 'Modelo con una dummy', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + u', note: 'β₀ es la media del grupo base; β₀+δ₀, la del grupo D=1.' },
-      { title: 'k categorías', eq: 'Y = β<sub>0</sub> + δ<sub>1</sub>D<sub>1</sub> + … + δ<sub>k−1</sub>D<sub>k−1</sub> + u', note: 'k−1 dummies con intercepto. Ordinal: H₀ δ₂=2δ₁, δ₃=3δ₁, q=2.' },
-      { title: 'Trampa de la dummy', eq: 'D<sub>1</sub> + D<sub>2</sub> + … + D<sub>k</sub> = 1', note: 'Colinealidad perfecta con el intercepto. R elimina una categoría o devuelve NA.' },
-      { title: 'Rectas paralelas', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + β<sub>1</sub>X + u', note: 'δ₀ es la brecha en cualquier X. Una pendiente común.' },
-      { title: 'Interacción', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + β<sub>1</sub>X + δ<sub>1</sub>D·X + u', note: 'Brecha = δ₀+δ₁X; δ₁ = diferencia de pendientes.' },
-      { title: 'Dummy × dummy', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>M + β<sub>2</sub>P + β<sub>3</sub>M·P + u', note: 'β₃ es una diferencia de diferencias; los efectos principales son condicionales.' },
-      { title: 'Regresión por tramos', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>X + β<sub>2</sub>(X−X*)D + u', note: 'Pendientes β₁ y β₁+β₂; el modelo es continuo en X*.' },
-      { title: 'Tramos con salto', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>X + δ<sub>0</sub>D + β<sub>2</sub>(X−X*)D + u', note: 'H₀: δ₀=0 prueba continuidad en X*.' },
-      { title: 'Log-dummy', eq: '100δ<sub>0</sub> ≈ Δ% &nbsp;·&nbsp; 100(e<sup>δ<sub>0</sub></sup>−1) = Δ% exacto', note: 'Es una diferencia porcentual entre grupos, no una elasticidad.' },
-      { title: 'Prueba de Chow', eq: 'F = [(SCR<sub>R</sub>−(SCR<sub>1</sub>+SCR<sub>2</sub>))/(k+1)] / [(SCR<sub>1</sub>+SCR<sub>2</sub>)/(n−2k−2)]', note: 'H₀: misma función de regresión. Requiere homocedasticidad.' },
-      { title: 'Sesgo de selección', eq: 'plim δ̂<sub>0</sub> = δ<sub>0</sub> + [E(u|P=1) − E(u|P=0)]', note: 'Si la participación depende del error, el coeficiente no es causal.' }
+      { title: 'Diferencia de medias', eq: 'δ<sub>0</sub> = E(Y|D=1) − E(Y|D=0)', note: 'Vale como esperanza condicional si E(u|D)=0. Si no, es una diferencia descriptiva.', more: "<p>Es la resta de dos medias poblacionales, una por grupo. El signo depende de qué grupo se pone en D=1: si cambiás la codificación, el número cambia de signo y el tamaño queda igual.</p><ul><li><b>Cuándo se usa:</b> como punto de partida descriptivo y para verificar que el modelo con una sola dummy reproduce las medias muestrales.</li><li><b>Error típico:</b> llamarla “efecto” de la categoría. Sin aleatorización, es una diferencia de grupos, no un efecto.</li><li><b>Conexión:</b> el sesgo por composición que la separa de la diferencia condicional se estudia con la fórmula de omisión de variable de la clase 2.</li></ul>" },
+      { title: 'Modelo con una dummy', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + u', note: 'β₀ es la media del grupo base; β₀+δ₀, la del grupo D=1.', more: "<p>La dummy solo mueve la altura de la recta: hay dos interceptos y ninguna pendiente porque no hay X continua. El intercepto pertenece al grupo que tiene D=0; el otro grupo se obtiene sumando δ₀.</p><ul><li><b>Cuándo se usa:</b> para contrastar medias y para presentar la lógica mínima de una ficticia.</li><li><b>Error típico:</b> suponer que β₀ es la media de toda la muestra. Es la media del grupo base.</li><li><b>Conexión:</b> al agregar controles, el mismo δ₀ deja de ser una diferencia de medias y pasa a ser una diferencia condicional.</li></ul>" },
+      { title: 'k categorías', eq: 'Y = β<sub>0</sub> + δ<sub>1</sub>D<sub>1</sub> + … + δ<sub>k−1</sub>D<sub>k−1</sub> + u', note: 'k−1 dummies con intercepto. Ordinal: H₀ δ₂=2δ₁, δ₃=3δ₁, q=2.', more: "<p>Cada δ compara su categoría con la base, no con la categoría anterior. Por eso dos coeficientes pueden ser positivos y la diferencia entre esas dos categorías seguir siendo cero o negativa.</p><ul><li><b>Cuándo se usa:</b> con variables nominales de pocas categorías, como región, rango o sector.</li><li><b>Error típico:</b> restar los errores estándar para comparar dos coeficientes. La diferencia tiene su propio error, que depende de la covarianza.</li><li><b>Conexión:</b> el contraste conjunto de que todas las δ son cero es un F con q=k−1, el mismo formato que usa Chow.</li></ul>" },
+      { title: 'Trampa de la dummy', eq: 'D<sub>1</sub> + D<sub>2</sub> + … + D<sub>k</sub> = 1', note: 'Colinealidad perfecta con el intercepto. R elimina una categoría o devuelve NA.', more: "<p>La suma de las k dummies da exactamente la columna de unos del intercepto. No es que falte información: es que está duplicada, y la matriz X′X pierde rango.</p><ul><li><b>Cuándo se usa:</b> para diagnosticar un NA o una categoría eliminada en la salida de R.</li><li><b>Error típico:</b> sacar la constante para “arreglarlo” sin avisar que los coeficientes pasan a ser medias de grupo y el R² deja de estar centrado.</li><li><b>Conexión:</b> es el caso extremo de la colinealidad perfecta de la clase 2B; con colinealidad imperfecta el problema es la precisión, no la identificación.</li></ul>" },
+      { title: 'Rectas paralelas', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + β<sub>1</sub>X + u', note: 'δ₀ es la brecha en cualquier X. Una pendiente común.', more: "<p>La dummy desplaza la recta sin torcerla. δ₀ es la misma diferencia en todo X, así que no hace falta elegir un punto para informar la brecha.</p><ul><li><b>Cuándo se usa:</b> cuando la teoría dice que el retorno de X es común y solo cambia el nivel entre grupos.</li><li><b>Error típico:</b> agregar la interacción y seguir leyendo δ₀ como la brecha general. Con interacción, δ₀ es solo la brecha en X=0.</li><li><b>Conexión:</b> es el modelo restringido que se compara con el de pendientes distintas mediante un F de una restricción.</li></ul>" },
+      { title: 'Interacción', eq: 'Y = β<sub>0</sub> + δ<sub>0</sub>D + β<sub>1</sub>X + δ<sub>1</sub>D·X + u', note: 'Brecha = δ₀+δ₁X; δ₁ = diferencia de pendientes.', more: "<p>El producto permite que la pendiente de X dependa del grupo. La brecha deja de ser un número fijo: es una función lineal de X y puede cambiar de signo dentro del rango observado.</p><ul><li><b>Cuándo se usa:</b> cuando la pregunta es si el retorno o el premio de X difiere entre grupos.</li><li><b>Error típico:</b> interpretar δ₁ como la brecha. δ₁ es un cambio de pendiente y está en unidades de Y por unidad de X.</li><li><b>Conexión:</b> los efectos principales se mantienen por jerarquía; sacarlos impone restricciones que el modelo no contrastó.</li></ul>" },
+      { title: 'Dummy × dummy', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>M + β<sub>2</sub>P + β<sub>3</sub>M·P + u', note: 'β₃ es una diferencia de diferencias; los efectos principales son condicionales.', more: "<p>Con dos binarias hay cuatro celdas y cuatro parámetros: el modelo es saturado. β₃ es la diferencia de diferencias y mide cuánto se aparta el premio de P entre los dos valores de M.</p><ul><li><b>Cuándo se usa:</b> para comparar el efecto de una categoría en dos grupos, por ejemplo el premio profesional por sexo.</li><li><b>Error típico:</b> leer β₁ como “el efecto de M” para toda la población; vale solo cuando P=0.</li><li><b>Conexión:</b> con más categorías, la cantidad de interacciones crece y hay que elegir cuáles tienen sentido; no se multiplican todas las dummies entre sí.</li></ul>" },
+      { title: 'Regresión por tramos', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>X + β<sub>2</sub>(X−X*)D + u', note: 'Pendientes β₁ y β₁+β₂; el modelo es continuo en X*.', more: "<p>El término (X−X*)D hace que la pendiente cambie justo en X* sin romper la continuidad. β₂ es el cambio de pendiente, no la pendiente del tramo alto.</p><ul><li><b>Cuándo se usa:</b> cuando una regla económica cambia a partir de un umbral, como comisiones, tarifas o impuestos.</li><li><b>Error típico:</b> interpretar β₁+β₂ como si fuera el nivel de Y en X*. Es una pendiente.</li><li><b>Conexión:</b> si además hay salto, se agrega δ₀D; el contraste δ₀=0 es el test de continuidad.</li></ul>" },
+      { title: 'Tramos con salto', eq: 'Y = β<sub>0</sub> + β<sub>1</sub>X + δ<sub>0</sub>D + β<sub>2</sub>(X−X*)D + u', note: 'H₀: δ₀=0 prueba continuidad en X*.', more: "<p>Agregar δ₀D permite que la función salte en X*. El modelo deja de ser continuo por construcción y la discontinuidad se estima como un parámetro.</p><ul><li><b>Cuándo se usa:</b> cuando el umbral cambia el nivel además de la pendiente, por ejemplo un bono fijo al superar una meta.</li><li><b>Error típico:</b> contrastar δ₀ con un t y concluir que no hay salto cuando el intervalo es amplio.</li><li><b>Conexión:</b> el test conjunto δ₀=0 y β₂=0 equivale a comparar dos rectas completas, como en Chow.</li></ul>" },
+      { title: 'Log-dummy', eq: '100δ<sub>0</sub> ≈ Δ% &nbsp;·&nbsp; 100(e<sup>δ<sub>0</sub></sup>−1) = Δ% exacto', note: 'Es una diferencia porcentual entre grupos, no una elasticidad.', more: "<p>El coeficiente está en log puntos. Multiplicar por 100 da una aproximación; la exponencial da el cambio porcentual exacto, que siempre es menor en valor absoluto cuando δ es negativo y mayor cuando es positivo.</p><ul><li><b>Cuándo se usa:</b> cuando Y está en logaritmos y el regresor es binario.</li><li><b>Error típico:</b> escribir “0,05%” en lugar de “5%” o llamarlo elasticidad.</li><li><b>Conexión:</b> para predecir Y en niveles hace falta el factor de retransformación; el coeficiente no alcanza.</li></ul>" },
+      { title: 'Prueba de Chow', eq: 'F = [(SCR<sub>R</sub>−(SCR<sub>1</sub>+SCR<sub>2</sub>))/(k+1)] / [(SCR<sub>1</sub>+SCR<sub>2</sub>)/(n−2k−2)]', note: 'H₀: misma función de regresión. Requiere homocedasticidad.', more: "<p>Compara el ajuste de una sola función con el de dos funciones separadas. El numerador mide cuánto empeora la SCR al imponer la igualdad; el denominador, el ruido que queda en el modelo libre.</p><ul><li><b>Cuándo se usa:</b> para estabilidad entre períodos o para comparar dos poblaciones con la misma especificación.</li><li><b>Error típico:</b> rechazar y afirmar cuál coeficiente cambió. El F es conjunto y no identifica la fuente.</li><li><b>Conexión:</b> equivale al F de exclusión conjunta de D y todas las D·X; también exige homocedasticidad.</li></ul>" },
+      { title: 'Sesgo de selección', eq: 'plim δ̂<sub>0</sub> = δ<sub>0</sub> + [E(u|P=1) − E(u|P=0)]', note: 'Si la participación depende del error, el coeficiente no es causal.', more: "<p>El término entre corchetes es la diferencia de errores medios entre participantes y controles. Si quienes participan tienen, en promedio, características no observadas que suben Y, ese término es positivo y el coeficiente exagera el efecto.</p><ul><li><b>Cuándo se usa:</b> para diagnosticar evaluaciones de programas con participación voluntaria o por elegibilidad.</li><li><b>Error típico:</b> creer que más controles observables eliminan el sesgo; solo actúan sobre la parte observada.</li><li><b>Conexión:</b> es la misma lógica de la variable omitida de la clase 2, aplicada a una dummy de tratamiento.</li></ul>" }
     ],
     drills: [
       { q: 'D=1 mujer, δ̂=−14.088. ¿Cómo lo leés?', a: 'Las mujeres ganan 14.088 menos que los hombres en la muestra; 12,2% del salario medio masculino. Es una diferencia bruta, sin controles.' },

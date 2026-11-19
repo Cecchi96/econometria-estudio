@@ -10,21 +10,28 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E, cada una con práctica, laboratorio de R y kit de repaso.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
+- **Comentarios:** botón flotante para enviar sugerencias y una bandeja privada para el administrador.
 - **Modo noche:** persistente y responsive.
 
 ## Funcionalidades
 
 - Navegación por las clases del curso (clases 2, 3 y 4 divididas en A y B).
-- Barra lateral de conceptos con definición, ejemplo, errores, conexiones y fuentes.
+- Barra lateral de conceptos con explicación simple, definición, ejemplo, errores, conexiones y fuentes.
+- Visualización interactiva dentro de las fichas de concepto que la admiten.
 - Gráfico interactivo de MCO con sliders de β₀ y β₁, residuos, SCR y R² en vivo.
-- Visualizaciones interactivas en las clases 1 a 10: curva de la SCR, sesgo por omisión, FIV y ancho de intervalos, distribuciones t y F, formas funcionales, cuadrática, predicción, dummies, heterocedasticidad, tendencia y estacionalidad, AR(1), proxy y MC2E con instrumentos débiles.
+- Visualizaciones interactivas en las clases 1 a 10: curva de la SCR, sesgo por omisión, FIV y ancho de intervalos, distribuciones t y F, formas funcionales, cuadrática, predicción, dummies, heterocedasticidad, tendencia y estacionalidad, AR(1), proxy y MC2E con instrumentos débiles. Se suman visualizaciones para FRP/FRM, muestreo e insesgamiento, descomposición del R², efecto parcial, Frisch-Waugh, potencia, interacción, AIC/BIC, Chow, WLS y rezagos distribuidos.
 - Laboratorios de lectura de salidas de R para las clases 1, 2A, 2B, 3A, 3B, 4A, 4B, 5, 6, 7, 8, 9 y 10.
-- Selección de texto para subrayar o comentar.
+- Selección de texto en cualquier sección, incluidos títulos, fórmulas, tarjetas, tablas y fuentes, para subrayar o comentar.
+- Cuatro colores de subrayado y cambio de color posterior desde el panel de anotaciones.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
+- Sección de profundización al final de la teoría de cada clase.
+- Formulario de repaso con fórmulas desplegables, información ampliada y comentario directo.
 - Autoevaluación con preguntas de razonamiento.
 - Formulario, drill de fórmulas, sesión de 90 minutos y plan de repaso de 7 días.
 - Guía de trabajos prácticos integrada con enlaces directos a cada ejercicio.
-- Modo claro/oscuro y diseño responsive.
+- Botón flotante “Comentarios” en cada clase, con contexto automático de clase y pestaña.
+- Bandeja privada de comentarios con filtros, búsqueda, estado resuelto y borrado.
+- Modo claro/oscuro, diseño responsive y selección táctil en tablet y celular.
 
 ## Stack
 
@@ -37,13 +44,17 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 
 ```text
 index.html              shell de la aplicación
+feedback.html           bandeja privada de comentarios
 storage.js              login y cliente de Supabase
 assets/
   styles.css            design system y modo noche
   viz.css               estilos de las visualizaciones interactivas
+  feedback.css          estilos del botón flotante y de la bandeja
   app.js                render, navegación, conceptos, anotaciones y gráfico
   viz.js                motor de visualizaciones interactivas
   store.js              adaptador Supabase + fallback local
+  feedback.js           botón flotante y formulario de comentarios
+  feedback-admin.js     bandeja de comentarios del administrador
 content/
   indice.js             lista de clases
   clase-01.js           contenido de la clase 1
@@ -59,10 +70,14 @@ content/
   clase-08.js           autocorrelación
   clase-09.js           endogeneidad y variables instrumentales
   clase-10.js           mínimos cuadrados en dos etapas
+docs/
+  BRIEF-CLASES.md       especificación de contenido de las clases
+  MEJORAS-CONTENIDO.md  campos simple, viz, more y sección de profundización
 guia/
   Guía-TP-Eco-I-2026.html   guía de trabajos prácticos integrada
 supabase/
   eco_annotations.sql   tabla, índices y políticas RLS
+  eco_feedback.sql      comentarios y tabla privada de administradores
 ```
 
 La guía conserva sus pestañas y acepta enlaces profundos a cada actividad o
@@ -88,7 +103,18 @@ La app usa el proyecto `fukuro`:
 
 - URL y publishable key en `storage.js`. La publishable key es pública por diseño.
 - La tabla `eco_annotations` se crea con `supabase/eco_annotations.sql`.
+- Si la tabla ya existía con los colores anteriores, ejecutá de nuevo el bloque de
+  migración del final del archivo para habilitar `blue` y `rose`.
 - RLS: cada usuario solo puede leer, crear, editar y borrar sus propias anotaciones.
+- La tabla `eco_feedback` y la tabla privada `eco_admins` se crean con
+  `supabase/eco_feedback.sql`. Cualquier usuario autenticado puede enviar
+  comentarios; solo las cuentas listadas en `eco_admins` pueden leerlos.
+- Para habilitar la bandeja, después de ejecutar el SQL agregá tu cuenta:
+  ```sql
+  insert into public.eco_admins (user_id)
+  select id from auth.users where email = 'tu-correo@gmail.com'
+  on conflict (user_id) do nothing;
+  ```
 - **Nunca** subir la `service_role key` ni tokens personales al repositorio.
 
 ## Material bibliográfico

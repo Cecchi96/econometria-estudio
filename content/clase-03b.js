@@ -466,12 +466,94 @@ window.CLASE_CONTENIDOS["clase-03b"] = {
           ]
         }
       ]
+    },
+    {
+      id: 'c03b-s07',
+      number: '07',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        {
+          type: 'p',
+          id: 'c03b-s07-p01',
+          html: 'Esta sección cierra tres piezas que la clase usa pero no desarrolla del todo: el F sirve para cualquier restricción lineal, no solo para excluir variables; la multicolinealidad explica por qué un F puede ser significativo con t individuales que no lo son; y en muestras grandes la significancia estadística deja de ser una buena medida de importancia económica. Las tres aparecen en el parcial y en el TP 4.'
+        },
+        {
+          type: 'p',
+          id: 'c03b-s07-p02',
+          html: 'Hasta acá el F apareció como un contraste de exclusiones: β<sub>3</sub> = β<sub>4</sub> = 0. Pero la fórmula acepta cualquier restricción lineal sobre los parámetros. Por ejemplo, β<sub>1</sub> + β<sub>2</sub> = 1, β<sub>1</sub> = 2β<sub>2</sub> o β<sub>1</sub> + β<sub>2</sub> + β<sub>3</sub> = 0. En todos los casos se estima el modelo que impone la restricción y se compara su SCR con la del modelo libre.'
+        },
+        {
+          type: 'formula',
+          main: 'H<sub>0</sub>: Rβ = r &nbsp;→&nbsp; F = [(SCR<sub>R</sub> − SCR<sub>NR</sub>)/q] / [SCR<sub>NR</sub>/(n − k − 1)] &nbsp;·&nbsp; con q = 1: F = t<sup>2</sup>',
+          legend: [
+            {
+              key: 'Rβ = r',
+              text: 'Forma general de q restricciones lineales. Incluye exclusiones, igualdades entre coeficientes y valores fijados.'
+            },
+            {
+              key: 'q = 1',
+              text: 'Con una sola restricción, el F y el t contrastan lo mismo y se cumple F = t².'
+            },
+            {
+              key: 'Modelo restringido',
+              text: 'Debe imponer exactamente la restricción que se quiere contrastar. Si impone otra, el contraste no responde la pregunta.'
+            }
+          ]
+        },
+        {
+          type: 'p',
+          id: 'c03b-s07-p03',
+          html: 'La multicolinealidad es la relación lineal fuerte entre regresores. No viola Gauss-Markov y no sesga los coeficientes, pero infla sus errores estándar. Por eso los t individuales pueden quedar no significativos mientras el F conjunto rechaza: cada coeficiente se estima con mucha imprecisión, aunque el grupo aporte en bloque. El caso extremo es la colinealidad perfecta: una variable es combinación exacta de otras y la matriz X<sup>T</sup>X no se puede invertir. Ahí el software directamente no estima. La colinealidad imperfecta es un problema de precisión, no de identificación. Como referencia, un FIV mayor a 10 suele tomarse como señal de colinealidad alta, aunque el corte no es una regla absoluta.'
+        },
+        {
+          type: 'cards',
+          items: [
+            {
+              sym: 'No',
+              title: 'No viola supuestos',
+              text: 'Los coeficientes siguen siendo insesgados bajo Gauss-Markov. Lo que cambia es la precisión con la que se estiman.'
+            },
+            {
+              sym: 'Sí',
+              title: 'Infla las varianzas',
+              text: 'Cuanto más se parece un regresor a una combinación de los otros, más ancho es su intervalo y menos claro su efecto parcial.'
+            },
+            {
+              sym: 'FIV',
+              title: 'Cómo se detecta',
+              text: 'El factor de inflación de varianza resume esa relación. Un valor alto es una señal de alerta, no una prueba de que el modelo esté mal.'
+            },
+            {
+              sym: 'Predicción',
+              title: 'No impide pronosticar',
+              text: 'Si el objetivo es predecir y las relaciones se mantienen, la colinealidad molesta menos que cuando se quiere separar efectos.'
+            }
+          ]
+        },
+        {
+          type: 'callout',
+          variant: 'teal',
+          label: 'Significativo no es grande',
+          html: 'Con n grande, casi cualquier coeficiente distinto de cero aparece como significativo. El error estándar se reduce con la raíz de n, así que un efecto pequeño puede tener un t enorme. Antes de celebrar el p, mirá la magnitud, las unidades y el intervalo. En el laboratorio, el coeficiente de sibs es significativo, pero haría falta un aumento de casi once hermanos para mover la educación predicha un año. La consistencia tampoco vuelve relevante un efecto: con más datos el estimador se acerca al parámetro, pero el parámetro puede ser pequeño.'
+        },
+        {
+          type: 'miniCheck',
+          id: 'c03b-check-08',
+          question: 'Un modelo con diez regresores da un F conjunto significativo, pero ningún t individual lo es. ¿El modelo sirve? ¿Qué explicación es compatible con ese resultado?',
+          intro: 'Pensá en la relación entre los regresores y en lo que cada contraste mide.',
+          answer: 'Es un resultado compatible con multicolinealidad alta: los regresores están muy relacionados entre sí, el grupo aporta en conjunto, pero cuesta separar el efecto de cada uno. El F rechaza que todas las pendientes sean cero; los t no logran identificar cuál aporta. El modelo puede servir para predecir y para describir el grupo, pero no para afirmar el efecto parcial de una variable en particular. Antes de sacar conclusiones, mirá la matriz de correlaciones, el FIV y los intervalos.'
+        }
+      ]
     }
   ],
   concepts: {
     combinacion: {
       title: 'Combinación lineal de parámetros',
       sub: 'Contrastar diferencias y sumas, no solo coeficientes individuales.',
+      simple: `<p>Imaginá que dos compañeros rinden el mismo examen y querés saber si uno es mejor que el otro. Las notas de los dos suben o bajan juntas según lo difícil que fue el examen, así que comparar la diferencia es más informativo que mirar cada nota por separado.</p><p>Con los coeficientes pasa algo parecido: se mueven juntos porque salen de la misma muestra. Por eso la comparación tiene que hacerse con la diferencia y con su propia medida de precisión.</p>`,
+      viz: 't-dist',
+      vizIntro: 'Fijate en los grados de libertad y en el valor crítico. El t de una combinación usa n − k − 1, los mismos grados de libertad del modelo.',
+      vizHint: 'Con pocos grados de libertad, la t tiene colas más gordas y exige un valor crítico más alto. Cuando n crece, la t se acerca a la normal.',
       esencia: `
         <div class="definition">Una combinación lineal es θ = a<sub>1</sub>β<sub>1</sub> + … + a<sub>k</sub>β<sub>k</sub>. Se estima con θ̂ y se contrasta con t = (θ̂ − θ<sub>0</sub>) / ee(θ̂), que se distribuye t con n − k − 1 grados de libertad.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -506,6 +588,10 @@ window.CLASE_CONTENIDOS["clase-03b"] = {
     f: {
       title: 'Estadístico F',
       sub: 'El contraste conjunto de varias restricciones lineales.',
+      simple: `<p>Pensá en un equipo de trabajo: para saber si el grupo aporta, no alcanza con evaluar a cada persona por separado. Mirás cuánto se pierde si el equipo completo no está. El F hace esa cuenta con un modelo: compara el ajuste con el grupo de variables y sin él. Si la caída de ajuste es grande frente al ruido de los datos, rechazás que el grupo entero no sirva, aunque eso no te dice cuál de las variables aporta.</p>`,
+      viz: 'f-dist',
+      vizIntro: 'Movés q, los grados de libertad del denominador y el F observado. Mirá cómo se corre el valor crítico y cómo cambia la cola derecha.',
+      vizHint: 'El umbral depende de q y de los grados de libertad, no de un número fijo. Un F grande frente a ese umbral indica que la pérdida de ajuste al imponer H₀ no se explica solo por azar.',
       esencia: `
         <div class="definition">El F compara la SCR del modelo restringido con la del no restringido: F = [(SCR<sub>R</sub> − SCR<sub>NR</sub>)/q] / [SCR<sub>NR</sub>/(n − k − 1)]. Bajo H<sub>0</sub> y el MLC se distribuye F<sub>q, n−k−1</sub>.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -540,6 +626,7 @@ window.CLASE_CONTENIDOS["clase-03b"] = {
     lm: {
       title: 'Multiplicador de Lagrange',
       sub: 'Un contraste asintótico de restricciones de exclusión.',
+      simple: `<p>Supongamos que limpiás una habitación y dejás una esquina sin barrer: después mirás el polvo que quedó y te preguntás si viene de ahí. El LM hace algo así: estima el modelo sin las variables que querés descartar y mira si lo que quedó sin explicar se relaciona con ellas. Si el residuo no tiene nada que ver con las variables excluidas, no hay motivo para sospechar que importan. Si las explica, la restricción de excluirlas pierde fuerza.</p>`,
       esencia: `
         <div class="definition">Se estima el modelo restringido, se guardan sus residuos ũ y se regresan sobre todas las X. El estadístico es LM = n R²<sub>ũ</sub>, que bajo H<sub>0</sub> se distribuye asintóticamente χ²<sub>q</sub>.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -573,6 +660,10 @@ window.CLASE_CONTENIDOS["clase-03b"] = {
     consistencia: {
       title: 'Consistencia y plim',
       sub: 'Qué pasa con el estimador cuando la muestra crece.',
+      simple: `<p>Pensá en alguien que tira dardos con la mira corrida: puede tirar mil veces y agrupar todos los tiros, pero el centro del grupo va a quedar lejos del blanco. Más tiros dan precisión, no corrigen la dirección. Un estimador consistente es el que, con más datos, se concentra en el parámetro correcto. Si el problema es de diseño, la muestra enorme solo hace más visible el error.</p>`,
+      viz: 'sampling-bias',
+      vizIntro: 'Cambiá el sesgo y el tamaño de muestra. Mirá qué pasa con el centro de la distribución y qué pasa con su ancho.',
+      vizHint: 'Más n angosta la curva, pero no mueve el centro. Si el estimador apunta al lugar equivocado, la consistencia no se alcanza acumulando datos.',
       esencia: `
         <div class="definition">Un estimador es consistente si plim β̂ = β: cuando n → ∞, su distribución se concentra en el parámetro. En el modelo simple, plim β̂<sub>1</sub> = β<sub>1</sub> + Cov(X<sub>1</sub>, u)/Var(X<sub>1</sub>).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -810,42 +901,50 @@ sibs        -0.1613124 -0.0259594`,
       {
         title: 'Varianza de una diferencia',
         eq: 'Var(β̂<sub>1</sub> − β̂<sub>2</sub>) = Var(β̂<sub>1</sub>) + Var(β̂<sub>2</sub>) − 2Cov(β̂<sub>1</sub>, β̂<sub>2</sub>)',
-        note: 'No se suman los errores estándar: la covarianza importa.'
+        note: 'No se suman los errores estándar: la covarianza importa.',
+        more: `<p>La varianza de una diferencia no se obtiene sumando varianzas: el término de covarianza puede restar o sumar. Dos coeficientes de la misma regresión suelen estar correlacionados porque comparten muestra y regresores.</p><ul><li><b>Cuándo se usa:</b> al contrastar β₁ = β₂ o cualquier diferencia entre coeficientes.</li><li><b>Error típico:</b> sumar los errores estándar y olvidar la covarianza, que es lo que más cambia el resultado.</li><li><b>Conexión:</b> la reparametrización permite leer esa diferencia directo en la salida.</li></ul>`
       },
       {
         title: 'Reparametrización',
         eq: 'Y = β<sub>0</sub> + θX<sub>1</sub> + β<sub>2</sub>(X<sub>1</sub> + X<sub>2</sub>) + β<sub>3</sub>X<sub>3</sub> + u',
-        note: 'Con θ = β₁ − β₂, el t sobre θ contrasta H₀: β₁ = β₂.'
+        note: 'Con θ = β₁ − β₂, el t sobre θ contrasta H₀: β₁ = β₂.',
+        more: `<p>El modelo reparametrizado ajusta exactamente igual que el original: cambia la lectura de los coeficientes, no el ajuste. El coeficiente de X₁ pasa a estimar la diferencia θ = β₁ − β₂ y el de la suma estima β₂.</p><ul><li><b>Cuándo se usa:</b> para contrastar igualdades entre coeficientes sin calcular covarianzas a mano.</li><li><b>Error típico:</b> comparar los coeficientes de las dos parametrizaciones como si midieran lo mismo.</li><li><b>Conexión:</b> con una sola restricción, el t de θ y el F del contraste cumplen F = t².</li></ul>`
       },
       {
         title: 'F basado en SCR',
         eq: 'F = [(SCR<sub>R</sub> − SCR<sub>NR</sub>)/q] / [SCR<sub>NR</sub>/(n − k − 1)]',
-        note: 'q restricciones; grados de libertad q y n − k − 1.'
+        note: 'q restricciones; grados de libertad q y n − k − 1.',
+        more: `<p>El numerador mide cuánto aumenta la SCR al imponer las q restricciones, repartido entre esas q. El denominador mide el ruido que queda en el modelo completo, por grado de libertad. El cociente crece cuando la restricción cuesta mucho ajuste.</p><ul><li><b>Cuándo se usa:</b> con restricciones de exclusión y modelos anidados, que difieren solo en las variables que se quitan.</li><li><b>Error típico:</b> confundir q con k o usar los grados de libertad del modelo restringido en el denominador.</li><li><b>Conexión:</b> es la misma lógica del LM, pero con una distribución exacta bajo normalidad.</li></ul>`
       },
       {
         title: 'F basado en R²',
         eq: 'F = [(R²<sub>NR</sub> − R²<sub>R</sub>)/q] / [(1 − R²<sub>NR</sub>)/(n − k − 1)]',
-        note: 'Exige la misma variable dependiente y el mismo n.'
+        note: 'Exige la misma variable dependiente y el mismo n.',
+        more: `<p>Es la versión del F que usa el ajuste en lugar de la SCR. Como SCR = SCT(1 − R²), el cociente se reescribe con las R² de los dos modelos. Solo vale si la variable dependiente y el número de observaciones son idénticos.</p><ul><li><b>Cuándo se usa:</b> cuando el software reporta R² y no las sumas de cuadrados.</li><li><b>Error típico:</b> aplicarlo a modelos con distintas transformaciones de Y o con distinto n por datos faltantes.</li><li><b>Conexión:</b> con q = k y R² del modelo nulo igual a cero, queda el F de significación global.</li></ul>`
       },
       {
         title: 'F de significación global',
         eq: 'F = [R²/k] / [(1 − R²)/(n − k − 1)]',
-        note: 'H₀: todas las pendientes son cero. Rechazar indica que al menos una aporta.'
+        note: 'H₀: todas las pendientes son cero. Rechazar indica que al menos una aporta.',
+        more: `<p>Contrasta si el conjunto de pendientes aporta algo frente a un modelo que solo tiene intercepto. Rechazar significa que al menos una pendiente es distinta de cero, no que todas lo sean.</p><ul><li><b>Cuándo se usa:</b> como primer diagnóstico de una regresión y para reportar la significancia conjunta.</li><li><b>Error típico:</b> leer el rechazo como prueba de que cada variable es relevante.</li><li><b>Conexión:</b> con regresores correlacionados puede convivir con t individuales no significativos.</li></ul>`
       },
       {
         title: 'Multiplicador de Lagrange',
         eq: 'LM = n R²<sub>ũ</sub> ~ χ²<sub>q</sub>',
-        note: 'R² de la regresión auxiliar de los residuos restringidos sobre todas las X.'
+        note: 'R² de la regresión auxiliar de los residuos restringidos sobre todas las X.',
+        more: `<p>El estadístico resume si los residuos del modelo restringido conservan relación con las variables excluidas. Se calcula con el R² de esa regresión auxiliar, multiplicado por n. Su distribución es chi-cuadrado con q grados de libertad, siempre asintótica.</p><ul><li><b>Cuándo se usa:</b> con muestras grandes o cuando solo se estimó el modelo restringido.</li><li><b>Error típico:</b> usar el R² del modelo original o cambiar el n entre las dos regresiones.</li><li><b>Conexión:</b> asintóticamente coincide con el F; en muestras chicas, conviene el F.</li></ul>`
       },
       {
         title: 'Consistencia',
         eq: 'plim β̂<sub>1</sub> = β<sub>1</sub> + Cov(X<sub>1</sub>, u) / Var(X<sub>1</sub>)',
-        note: 'Si Cov = 0, es consistente. Si no, hay sesgo asintótico.'
+        note: 'Si Cov = 0, es consistente. Si no, hay sesgo asintótico.',
+        more: `<p>El plim describe el valor al que se acerca el estimador cuando n crece. Si la covarianza entre X y el error es cero, el segundo término desaparece y el estimador converge al parámetro. Si no, queda un sesgo que no se diluye.</p><ul><li><b>Cuándo se usa:</b> para discutir si más datos mejorarían la estimación o solo la harían más precisa alrededor del valor equivocado.</li><li><b>Error típico:</b> creer que una muestra grande corrige la endogeneidad.</li><li><b>Conexión:</b> la solución pasa por el diseño o por variables instrumentales, no por el tamaño.</li></ul>`
       },
       {
         title: 'Normalidad asintótica',
         eq: 't<sub>n−k−1</sub> → N(0,1) cuando n → ∞',
-        note: 'El TCL reemplaza la normalidad en muestras grandes; no reemplaza la homocedasticidad.'
+        note: 'El TCL reemplaza la normalidad en muestras grandes; no reemplaza la homocedasticidad.',
+        more: `<p>Cuando n crece, la distribución del estadístico t se aproxima a la normal estándar aunque los errores no sean normales. Los errores estándar pasan a llamarse asintóticos y los contrastes siguen siendo válidos como aproximación.</p><ul><li><b>Cuándo se usa:</b> en muestras grandes, cuando la normalidad exacta no es creíble.</li><li><b>Error típico:</b> suponer que el TCL también arregla la heterocedasticidad o la endogeneidad.</li><li><b>Conexión:</b> con varianza no constante hacen falta errores robustos; eso se retoma en la clase 6.</li></ul>`
       }
     ],
     drills: [

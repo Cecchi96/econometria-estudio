@@ -381,11 +381,68 @@ window.CLASE_CONTENIDOS["clase-06"] = {
         },
       ],
     },
+    {
+      id: "c06-s08",
+      number: "08",
+      title: "Profundización: lo que suele quedar en el aire",
+      blocks: [
+        {
+          type: "p",
+          id: "c06-s08-p01",
+          html: "Cuatro piezas de la clase quedan normalmente en segundo plano y vuelven en el parcial. Primero, qué reemplaza al F cuando hay heterocedasticidad. Segundo, por qué transformar la variable dependiente no es una corrección automática. Tercero, cómo una sola observación influyente puede mover el error estándar robusto. Cuarto, qué hacer cuando la varianza cambia por grupos y no solo por una X continua. Las cuatro se leen como extensiones de la sección 07, no como temas nuevos."
+        },
+        {
+          type: "cards",
+          items: [
+            { sym: "Wald", title: "Contrastes conjuntos", text: "El F de la salida supone homocedasticidad. Para probar varias restricciones a la vez con errores robustos hay que usar una matriz de varianzas robusta y un estadístico de Wald." },
+            { sym: "log", title: "Transformar Y", text: "El logaritmo puede estabilizar la varianza si el desvío crece con la media, pero cambia el modelo, la interpretación y la comparación del R². No es una cura universal." },
+            { sym: "hᵢᵢ", title: "Puntos influyentes", text: "HC0 a HC3 se diferencian en cómo tratan las observaciones con mucha palanca. Una sola observación puede dominar el error estándar robusto." },
+            { sym: "Grupos", title: "Varianza por grupo", text: "Cuando la dispersión cambia entre regiones, sectores o cohortes, la heterocedasticidad tiene estructura. Modelarla por grupo puede ganar eficiencia; si hay shocks compartidos, HC1 no alcanza." }
+          ]
+        },
+        {
+          type: "formula",
+          main: "W = (Rβ̂ − r)′ [R V<sub>rob</sub>(β̂) R′]<sup>−1</sup> (Rβ̂ − r) &nbsp;≈&nbsp; χ<sup>2</sup><sub>q</sub>",
+          legend: [
+            { key: "R y r", text: "R selecciona combinaciones de coeficientes y r fija el valor bajo H₀. Para H₀: β₂ = β₃ = 0, R tiene dos filas." },
+            { key: "q", text: "Cantidad de restricciones. Si querés la versión F, dividí W por q y compará con F(q, gl)." },
+            { key: "Práctica", text: "En R, linearHypothesis con vcovHC calcula esta versión. No es el F que muestra la salida estándar." }
+          ]
+        },
+        {
+          type: "p",
+          id: "c06-s08-p02",
+          html: "El punto importa para el parcial: no alcanza con decir que el F usual no es válido. Hay que decir con qué se reemplaza. El estadístico de Wald evalúa el vector de restricciones con la matriz de varianzas robusta en el medio. Con una sola restricción, su raíz cuadrada es el t robusto; con varias, prueba si todas valen al mismo tiempo. Un rechazo conjunto no implica que cada coeficiente sea significativo por separado, ni al revés. Reportá el estadístico, los grados de libertad y el p, y aclará que usaste una matriz robusta."
+        },
+        {
+          type: "callout",
+          variant: "ochre",
+          label: "Transformar no es corregir",
+          html: "Pasar de wage a log(wage) puede reducir la heterocedasticidad porque comprime la escala de los valores altos. Si el desvío de Y crece proporcionalmente con su media, el logaritmo tiende a estabilizar la dispersión. Pero no siempre lo logra, y además cambia la pregunta: los coeficientes pasan a leerse como semi-elasticidades y el R² deja de ser comparable con el del modelo en niveles. En el laboratorio, Breusch-Pagan sigue rechazando en log(wage). La secuencia correcta es transformar por razones económicas, volver a diagnosticar y reportar errores robustos si hace falta."
+        },
+        {
+          type: "p",
+          id: "c06-s08-p03",
+          html: "Las variantes HC no son intercambiables. HC0 usa los residuos al cuadrado sin ajustes. HC1 corrige por grados de libertad. HC2 y HC3 ajustan cada residuo por (1 − h<sub>ii</sub>), y HC3 usa el cuadrado; h<sub>ii</sub> mide la palanca de la observación en la estimación. Cuanto más influyente es el punto, más grande es la corrección. Con muestras chicas y observaciones extremas, la diferencia entre HC1 y HC3 puede cambiar una conclusión. Por eso conviene mirar el gráfico de residuos, identificar los puntos con palanca y reportar si los resultados sobreviven a sacarlos. El error estándar robusto no es inmune a un dato raro. <br><br>La cuarta idea es la estructura de grupo. Si la varianza cambia entre regiones o sectores, podés modelarla con variables ficticias en la ecuación de varianza y estimar por MCP con un peso por grupo. Eso es una aplicación directa de la sección 05 y conecta con las ficticias de la clase 5. Ahora bien, si las observaciones dentro de un grupo comparten shocks no observados, sus errores están correlacionados y HC1, que supone independencia entre observaciones, queda corto. En ese caso se usan errores agrupados por el grupo. Es una ampliación: para el parcial alcanza con reconocer el límite y no afirmar que HC1 corrige cualquier dependencia."
+        },
+        {
+          type: "miniCheck",
+          id: "c06-check-09",
+          question: "Rechazaste la homocedasticidad y querés contrastar si educ y exper son conjuntamente cero. ¿Podés leer el F de la salida?",
+          intro: "Pensá qué supuesto usa ese F y qué matriz de varianzas conviene poner en el medio.",
+          answer: "No. El F de la salida se construye con la matriz de varianzas homocedástica, así que no es válido bajo heterocedasticidad. Para el contraste conjunto usá un estadístico de Wald con la matriz robusta: en R, linearHypothesis con vcovHC. Con q = 2 restricciones, el estadístico se compara con una χ² de 2 grados de libertad o, dividido por 2, con una F(2, gl). El resultado puede diferir del que sugiere mirar los t individuales: un rechazo conjunto no prueba que cada coeficiente sea distinto de cero."
+        }
+      ]
+    },
   ],
   concepts: {
     hetero: {
       title: "Heterocedasticidad",
       sub: "La varianza del error cambia con X.",
+      simple: `<p>Pensá en cuánto gastan dos familias con el mismo ingreso: pueden gastar parecido o muy distinto. Ahora pensá en familias de ingresos altos: ahí las diferencias suelen ser mucho más grandes.</p><p>Eso es heterocedasticidad: el ruido del modelo cambia de tamaño según dónde mires. No es que el modelo esté mal en el promedio; es que la incertidumbre no es pareja.</p>`,
+      viz: "hetero-fan",
+      vizIntro: "Movés la intensidad de la heterocedasticidad y ves cómo se abre el abanico de puntos. Abajo comparás el error estándar MCO con el HC1.",
+      vizHint: "La pendiente se mantiene; lo que cambia es la dispersión y la estimación de la precisión. El abanico es el síntoma, no el error del modelo.",
       esencia: `<div class="definition">Hay heterocedasticidad cuando Var(u<sub>i</sub> | X) = σ<sub>i</sub><sup>2</sup> no es constante. La homocedasticidad es el caso particular σ<sub>i</sub><sup>2</sup> = σ<sup>2</sup> para todo i.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -412,6 +469,10 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     consecuencias: {
       title: "Consecuencias de la heterocedasticidad",
       sub: "Coeficientes insesgados, inferencia rota, eficiencia perdida.",
+      simple: `<p>Imaginá que pesás a varias personas con una balanza que a veces se descalibra. El promedio de los pesos puede seguir siendo correcto, pero si usás la misma regla para decir cuánto puede variar cada medición, te vas a equivocar. Con la heterocedasticidad pasa algo así: el coeficiente sigue apuntando al lugar correcto, pero el margen de error que calculás ya no es confiable.</p><p>Por eso podés tener un coeficiente razonable y un valor p que no significa nada.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Dejá el sesgo en cero y mové el tamaño de muestra. Mirá cómo se angosta la distribución del estimador sin moverse del parámetro.",
+      vizHint: "MCO sigue centrado en β: la heterocedasticidad no lo corre. Lo que se rompe es la lectura de la dispersión y, con ella, el error estándar, el t y el F.",
       esencia: `<div class="definition">Bajo heterocedasticidad, MCO sigue siendo insesgado y consistente si E(u | X) = 0, pero sus errores estándar habituales son sesgados; los t y F no tienen las distribuciones que se usan para contrastar, y MCO deja de ser ELIO.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -439,6 +500,10 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     "errores-robustos": {
       title: "Errores estándar robustos",
       sub: "La varianza de β̂ estimada con residuos al cuadrado.",
+      simple: `<p>Cuando no sabés cómo cambia la dispersión, igual podés estimar el margen de error mirando cuánto se equivocó el modelo en cada punto. Es como corregir el pronóstico del clima mirando los errores de los días anteriores, sin suponer que todos los días son igual de inciertos.</p><p>Eso hacen los errores robustos: dejan el coeficiente donde está y recalculan la incertidumbre con la información de los residuos.</p>`,
+      viz: "hetero-fan",
+      vizIntro: "Subí la heterocedasticidad y compará las dos barras: MCO y HC1 estiman lo mismo con supuestos distintos.",
+      vizHint: "El coeficiente no se mueve. El error estándar robusto puede subir o bajar: se calcula con los residuos y no garantiza una dirección.",
       esencia: `<div class="definition">Los errores estándar robustos a la heterocedasticidad (White, HC) estiman Var(β̂) sin suponer una forma particular de h(X). Reemplazan σ² por combinaciones de los residuos MCO al cuadrado.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -466,6 +531,7 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     "breusch-pagan": {
       title: "Breusch-Pagan",
       sub: "Contrastar si u² se relaciona linealmente con las X.",
+      simple: `<p>Pensá en las propinas de un bar: en las mesas con cuentas chicas las propinas se parecen bastante, pero en las mesas con cuentas grandes varían mucho más. Si esa diferencia existe, los errores al cuadrado del modelo deberían moverse con el tamaño de la cuenta.</p><p>Breusch-Pagan hace justamente esa pregunta: si las X explican el cuadrado de los errores, hay evidencia de que la dispersión no es constante. Si no las explican, no tenés evidencia suficiente, que no es lo mismo que tener la certeza de que la varianza es fija.</p>`,
       esencia: `<div class="definition">La prueba de Breusch-Pagan contrasta H<sub>0</sub>: homocedasticidad contra la alternativa de que la varianza del error depende linealmente de las X. Se estima û² en las X y se contrasta la significación conjunta de las pendientes.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -493,6 +559,7 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     white: {
       title: "Prueba de White",
       sub: "Heterocedasticidad no lineal y productos cruzados.",
+      simple: `<p>Pensá en los precios de casas parecidas: la dispersión no siempre crece de forma pareja con los metros. Puede dispararse en los barrios caros o cambiar cuando se combinan ubicación y tamaño. Breusch-Pagan busca una relación derecha; White deja entrar curvas y combinaciones.</p><p>Es una lupa más amplia, y por eso también puede encontrar patrones que en realidad vienen de una mala forma funcional, no de la varianza.</p>`,
       esencia: `<div class="definition">La prueba de White contrasta homocedasticidad permitiendo que u² dependa de las X, de sus cuadrados y de sus productos cruzados. Es más general que Breusch-Pagan y también puede aplicarse con los valores ajustados y su cuadrado.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -520,6 +587,10 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     mcp: {
       title: "Mínimos cuadrados ponderados",
       sub: "GLS cuando la varianza es diagonal y conocida.",
+      simple: `<p>Si sabés que algunas observaciones son mucho más ruidosas que otras, tiene sentido escucharlas menos. Es como promediar las notas de un curso dando menos peso a la evaluación que se tomó en un día de caos.</p><p>Mínimos cuadrados ponderados hace exactamente eso: da menos peso a las observaciones con más varianza y más peso a las que son más confiables. La ganancia aparece solo si la forma de la varianza está bien elegida.</p>`,
+      viz: "wls",
+      vizIntro: "Subí el crecimiento de la varianza y compará la recta de MCO con la de mínimos cuadrados ponderados. Mirá también los dos coeficientes estimados.",
+      vizHint: "Las dos rectas estiman lo mismo, pero la ponderada se deja guiar menos por los puntos ruidosos. Con varianza bien especificada, gana precisión; con una forma equivocada, la ventaja se pierde.",
       esencia: `<div class="definition">Si Var(u<sub>i</sub> | X) = σ²h<sub>i</sub> y h<sub>i</sub> se conoce salvo por σ², se divide la ecuación por √h<sub>i</sub> y se estima por MCO. Ese estimador es de mínimos cuadrados ponderados: minimiza Σû<sub>i</sub><sup>2</sup>/h<sub>i</sub>.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -547,6 +618,10 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     mcgf: {
       title: "MCGF",
       sub: "Mínimos cuadrados generalizados factibles.",
+      simple: `<p>En la práctica casi nunca sabés de antemano cuánto varía cada observación. Entonces lo estimás: mirás los errores que dejó el modelo, ves cómo se relacionan con las X y armás los pesos con esa información.</p><p>Es como calibrar la balanza con las mediciones anteriores antes de pesar de nuevo. Funciona bien cuando hay muchos datos y la forma elegida es razonable; con pocos datos, la calibración es frágil.</p>`,
+      viz: "wls",
+      vizIntro: "La visualización muestra el caso ideal de WLS, con la varianza conocida. Mové la intensidad y compará la recta ponderada con la de MCO.",
+      vizHint: "En MCGF los pesos no se conocen: se estiman con una primera regresión. La ganancia de eficiencia sobrevive si la estimación aproxima bien la varianza; en muestras chicas, estimar los pesos agrega fragilidad.",
       esencia: `<div class="definition">MCGF estima la función de varianza en una primera etapa y usa los ponderadores estimados en una segunda. Es la versión practicable de MCP cuando h(X) no se conoce.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -574,6 +649,7 @@ window.CLASE_CONTENIDOS["clase-06"] = {
     "prueba-t-robusta": {
       title: "Prueba t robusta",
       sub: "El t con el error estándar corregido.",
+      simple: `<p>Pensá en dos alumnos que sacan 10 puntos más que el promedio. Si las notas del curso están muy dispersas, esa diferencia no llama la atención; si son parejas, sí. El t hace esa cuenta: compara el coeficiente con la dispersión que lo rodea.</p><p>El t robusto cambia esa dispersión por una calculada sin suponer varianza constante, así que un coeficiente que antes parecía no significativo puede pasar a serlo, o al revés, sin que cambie la estimación.</p>`,
       esencia: `<div class="definition">El estadístico t robusto a la heterocedasticidad es t<sub>rob</sub> = β̂<sub>j</sub> / ee<sub>rob</sub>(β̂<sub>j</sub>). Usa el mismo coeficiente que el t habitual, pero el error estándar estimado sin imponer varianza constante.</div>
 <div class="mini-label">Qué tenés que entender</div>
 <ul>
@@ -877,18 +953,18 @@ tenure      0.0159896850 0.02814475`,
     title: "Kit de repaso: heterocedasticidad",
     intro: "Empezá por las fórmulas, seguí con los drills y la sesión de 90 minutos, y cerrá con el plan de 7 días. La idea es tener una hoja de ruta para diagnosticar, corregir la inferencia y decidir si vale la pena buscar eficiencia.",
     formulas: [
-      { title: "Varianza condicional", eq: "Var(u<sub>i</sub> | X) = σ<sub>i</sub><sup>2</sup>", note: "Homocedasticidad: σᵢ² = σ² para todo i. Heterocedasticidad: cambia con X." },
-      { title: "Varianza MCO con heterocedasticidad", eq: "Var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>", note: "Ω es diagonal con las varianzas relativas si no hay autocorrelación." },
-      { title: "Varianza MCO con homocedasticidad", eq: "Var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>", note: "Es la fórmula que usa el software. Solo vale si Ω = I." },
-      { title: "Error estándar robusto simple", eq: "Var(β̂<sub>1</sub>) = Σ(X<sub>i</sub> − X̄)<sup>2</sup>û<sub>i</sub><sup>2</sup> / SCT<sub>X</sub><sup>2</sup>", note: "White (1980). Reemplaza σᵢ² por ûᵢ². No requiere especificar h." },
-      { title: "Error estándar robusto múltiple", eq: "Var(β̂<sub>j</sub>) = Σr̂<sub>ij</sub><sup>2</sup>û<sub>i</sub><sup>2</sup> / (Σr̂<sub>ij</sub><sup>2</sup>)<sup>2</sup>", note: "r̂ᵢⱼ son los residuos de regresar Xⱼ en las demás X." },
-      { title: "t robusto", eq: "t<sub>rob</sub> = β̂<sub>j</sub> / ee<sub>rob</sub>(β̂<sub>j</sub>)", note: "Mismo coeficiente, otro denominador. Válido asintóticamente." },
-      { title: "Breusch-Pagan", eq: "û<sub>i</sub><sup>2</sup> = δ<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + δ<sub>k</sub>X<sub>ki</sub> + v<sub>i</sub>", note: "H₀: δ₁ = … = δₖ = 0. LM = nR² ≈ χ²ₖ." },
-      { title: "White", eq: "û<sub>i</sub><sup>2</sup> = δ<sub>0</sub> + δ<sub>1</sub>ŷ<sub>i</sub> + δ<sub>2</sub>ŷ<sub>i</sub><sup>2</sup> + v<sub>i</sub>", note: "Versión parsimoniosa. La completa usa X, X² y productos cruzados." },
-      { title: "Transformación WLS", eq: "Y<sub>i</sub>/√h<sub>i</sub> = β<sub>0</sub>/√h<sub>i</sub> + β<sub>1</sub>X<sub>1i</sub>/√h<sub>i</sub> + … + u<sub>i</sub>/√h<sub>i</sub>", note: "Con Var(uᵢ | X) = σ²hᵢ, el error transformado tiene varianza σ²." },
-      { title: "Objetivo WLS", eq: "min Σ(Y<sub>i</sub> − β<sub>0</sub> − β<sub>1</sub>X<sub>1i</sub> − …)<sup>2</sup>/h<sub>i</sub>", note: "Cada observación pesa 1/hᵢ. Menos peso a mayor varianza." },
-      { title: "Modelo de varianza MCGF", eq: "Var(u<sub>i</sub> | X) = σ<sup>2</sup>exp(δ<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + δ<sub>k</sub>X<sub>ki</sub>)", note: "La exponencial garantiza varianzas positivas. Se estima con log(û²)." },
-      { title: "Ponderador MCGF", eq: "log(û<sub>i</sub><sup>2</sup>) = α<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + e<sub>i</sub> &nbsp;→&nbsp; ĥ<sub>i</sub> = exp(ĝ<sub>i</sub>)", note: "Pesos 1/ĥᵢ. Si h es dudosa, usá errores robustos sobre la estimación MCP." },
+      { title: "Varianza condicional", eq: "Var(u<sub>i</sub> | X) = σ<sub>i</sub><sup>2</sup>", note: "Homocedasticidad: σᵢ² = σ² para todo i. Heterocedasticidad: cambia con X.", more: "<p>La expresión describe la dispersión del error dentro de un grupo de observaciones que comparten las mismas X. El subíndice i es el que manda: la varianza puede cambiar de una observación a otra, no es un único número poblacional.</p><ul><li><b>Cuándo se usa:</b> para escribir el supuesto de Gauss-Markov y para definir h<sub>i</sub> = σ<sub>i</sub><sup>2</sup>/σ<sup>2</sup>.</li><li><b>Error típico:</b> confundirla con la varianza de Y. Y agrega la variación de la media condicional; no es lo mismo.</li><li><b>Conexión:</b> de acá salen la matriz Ω y todos los métodos de esta clase.</li></ul>" },
+      { title: "Varianza MCO con heterocedasticidad", eq: "Var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>", note: "Ω es diagonal con las varianzas relativas si no hay autocorrelación.", more: "<p>La fórmula general mete la matriz Ω entre las X y muestra que la varianza del estimador no depende solo de (X′X)<sup>−1</sup>. Si las observaciones ruidosas pesan mucho, la varianza crece. Ω resume las varianzas relativas y las covarianzas de los errores.</p><ul><li><b>Cuándo se usa:</b> para entender qué estima un error estándar robusto y por qué la fórmula usual falla.</li><li><b>Error típico:</b> creer que Ω es la matriz de varianzas de Y; es la de los errores.</li><li><b>Conexión:</b> con Ω = I se recupera la fórmula homocedástica; con Ω diagonal, el caso de esta clase.</li></ul>" },
+      { title: "Varianza MCO con homocedasticidad", eq: "Var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>", note: "Es la fórmula que usa el software. Solo vale si Ω = I.", more: "<p>Es el caso particular de la fórmula general cuando los errores tienen todos la misma varianza y no están correlacionados. La ventaja es que solo hay un parámetro desconocido, σ<sup>2</sup>, y se estima con la SCR dividida por los grados de libertad. Por eso el software la calcula por defecto.</p><ul><li><b>Cuándo se usa:</b> cuando el diagnóstico no encuentra heterocedasticidad y la muestra no justifica otra cosa.</li><li><b>Error típico:</b> seguir usándola después de rechazar Breusch-Pagan, solo porque es la salida estándar.</li><li><b>Conexión:</b> es la base del t y del F clásicos de la clase 3.</li></ul>" },
+      { title: "Error estándar robusto simple", eq: "Var(β̂<sub>1</sub>) = Σ(X<sub>i</sub> − X̄)<sup>2</sup>û<sub>i</sub><sup>2</sup> / SCT<sub>X</sub><sup>2</sup>", note: "White (1980). Reemplaza σᵢ² por ûᵢ². No requiere especificar h.", more: "<p>La fórmula reemplaza cada varianza desconocida por el cuadrado del residuo correspondiente. El peso (X<sub>i</sub> − X̄)<sup>2</sup> hace que las observaciones alejadas de la media importen más, porque son las que más influyen en la pendiente. No hace falta conocer h: los residuos hacen ese trabajo.</p><ul><li><b>Cuándo se usa:</b> en regresión simple, para reportar inferencia válida sin modelar la varianza.</li><li><b>Error típico:</b> olvidar la corrección por grados de libertad; HC0 subestima un poco en muestras chicas.</li><li><b>Conexión:</b> la versión múltiple reemplaza (X<sub>i</sub> − X̄)<sup>2</sup> por los residuos de regresar X<sub>j</sub> en las demás X.</li></ul>" },
+      { title: "Error estándar robusto múltiple", eq: "Var(β̂<sub>j</sub>) = Σr̂<sub>ij</sub><sup>2</sup>û<sub>i</sub><sup>2</sup> / (Σr̂<sub>ij</sub><sup>2</sup>)<sup>2</sup>", note: "r̂ᵢⱼ son los residuos de regresar Xⱼ en las demás X.", more: "<p>En regresión múltiple, cada regresor tiene su propio denominador: la suma de los residuos al cuadrado de regresar esa X en las demás. Ese paso aísla la variación de X<sub>j</sub> que no comparte con el resto.</p><ul><li><b>Cuándo se usa:</b> es la fórmula que aplica el software cuando pedís vcovHC en un modelo con varios regresores.</li><li><b>Error típico:</b> usar la fórmula simple con varias X; omite la correlación entre regresores y da un error estándar incorrecto.</li><li><b>Conexión:</b> los r̂<sub>ij</sub> son los mismos del teorema de Frisch-Waugh de la clase 2.</li></ul>" },
+      { title: "t robusto", eq: "t<sub>rob</sub> = β̂<sub>j</sub> / ee<sub>rob</sub>(β̂<sub>j</sub>)", note: "Mismo coeficiente, otro denominador. Válido asintóticamente.", more: "<p>El estadístico conserva la estructura de siempre: coeficiente sobre error estándar. Lo que cambia es el denominador, que ahora se estima sin imponer varianza constante. El valor crítico se toma de la normal o de una t con grados de libertad, según el software y el tamaño de muestra.</p><ul><li><b>Cuándo se usa:</b> para contrastar H<sub>0</sub>: β<sub>j</sub> = 0 cuando el diagnóstico rechaza homocedasticidad.</li><li><b>Error típico:</b> comparar t robustos entre modelos con distintas variables dependientes o distintas escalas.</li><li><b>Conexión:</b> el intervalo robusto usa el mismo error estándar; el contraste conjunto necesita una versión Wald, no el F común.</li></ul>" },
+      { title: "Breusch-Pagan", eq: "û<sub>i</sub><sup>2</sup> = δ<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + δ<sub>k</sub>X<sub>ki</sub> + v<sub>i</sub>", note: "H₀: δ₁ = … = δₖ = 0. LM = nR² ≈ χ²ₖ.", more: "<p>La auxiliar convierte un problema sobre varianzas en un contraste de significación conjunta. Si las X explican el cuadrado de los residuos, hay evidencia de que la dispersión depende de ellas. El estadístico LM = nR<sup>2</sup> crece con la muestra y con la calidad del ajuste auxiliar.</p><ul><li><b>Cuándo se usa:</b> como primer contraste formal, sobre todo cuando sospechás una relación lineal con las X.</li><li><b>Error típico:</b> leer un rechazo como una receta de transformación; el test no dice cuál es h.</li><li><b>Conexión:</b> White agrega cuadrados y productos cruzados; los errores HC corrigen la inferencia sin necesidad de este test.</li></ul>" },
+      { title: "White", eq: "û<sub>i</sub><sup>2</sup> = δ<sub>0</sub> + δ<sub>1</sub>ŷ<sub>i</sub> + δ<sub>2</sub>ŷ<sub>i</sub><sup>2</sup> + v<sub>i</sub>", note: "Versión parsimoniosa. La completa usa X, X² y productos cruzados.", more: "<p>La versión con ŷ y ŷ<sup>2</sup> prueba si la dispersión cambia con el nivel ajustado, sin gastar un término por cada regresor. Es útil cuando hay muchas X o cuando sospechás que la varianza sigue el nivel de Y. La versión completa, con todos los cuadrados y productos cruzados, es más general pero muy costosa.</p><ul><li><b>Cuándo se usa:</b> cuando querés detectar formas no lineales que Breusch-Pagan no ve.</li><li><b>Error típico:</b> atribuir el rechazo solo a la varianza; una media mal especificada produce el mismo síntoma.</li><li><b>Conexión:</b> la prueba diagnostica; los errores de White corrigen. No son lo mismo.</li></ul>" },
+      { title: "Transformación WLS", eq: "Y<sub>i</sub>/√h<sub>i</sub> = β<sub>0</sub>/√h<sub>i</sub> + β<sub>1</sub>X<sub>1i</sub>/√h<sub>i</sub> + … + u<sub>i</sub>/√h<sub>i</sub>", note: "Con Var(uᵢ | X) = σ²hᵢ, el error transformado tiene varianza σ².", more: "<p>Dividir por la raíz de h deja el error con varianza constante y convierte el problema en una regresión estándar. La ecuación transformada tiene otro intercepto y otras pendientes numéricas, pero los β son los mismos parámetros de la ecuación original.</p><ul><li><b>Cuándo se usa:</b> cuando h se conoce o se puede justificar, por ejemplo varianza proporcional al ingreso.</li><li><b>Error típico:</b> dividir por h en lugar de √h; así la varianza del error transformado no se estabiliza.</li><li><b>Conexión:</b> la regresión ponderada con pesos 1/h produce exactamente el mismo estimador.</li></ul>" },
+      { title: "Objetivo WLS", eq: "min Σ(Y<sub>i</sub> − β<sub>0</sub> − β<sub>1</sub>X<sub>1i</sub> − …)<sup>2</sup>/h<sub>i</sub>", note: "Cada observación pesa 1/hᵢ. Menos peso a mayor varianza.", more: "<p>La suma ponderada muestra el criterio: cada residuo al cuadrado se divide por la varianza de su observación. Las observaciones más ruidosas aportan menos a la función objetivo y dejan de arrastrar la recta. MCO es el caso particular en que todos los pesos valen lo mismo.</p><ul><li><b>Cuándo se usa:</b> para entender qué hace el software cuando especificás weights.</li><li><b>Error típico:</b> pensar que ponderar cambia la interpretación de los coeficientes; cambia la precisión, no el significado.</li><li><b>Conexión:</b> si los pesos se estiman en lugar de conocerse, el criterio es el de MCGF.</li></ul>" },
+      { title: "Modelo de varianza MCGF", eq: "Var(u<sub>i</sub> | X) = σ<sup>2</sup>exp(δ<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + δ<sub>k</sub>X<sub>ki</sub>)", note: "La exponencial garantiza varianzas positivas. Se estima con log(û²).", more: "<p>La forma exponencial garantiza que la varianza estimada sea positiva para cualquier valor de las X. Al tomar logaritmos, el modelo se vuelve lineal y se puede estimar por MCO. Es un supuesto auxiliar: si está mal, los pesos son menos útiles, aunque el estimador puede seguir siendo consistente.</p><ul><li><b>Cuándo se usa:</b> cuando no hay una teoría clara sobre h y se necesita una forma flexible.</li><li><b>Error típico:</b> olvidar que la exponencial puede producir pesos extremos si alguna X tiene valores muy alejados.</li><li><b>Conexión:</b> la primera etapa de MCGF estima estos δ; la segunda aplica MCP.</li></ul>" },
+      { title: "Ponderador MCGF", eq: "log(û<sub>i</sub><sup>2</sup>) = α<sub>0</sub> + δ<sub>1</sub>X<sub>1i</sub> + … + e<sub>i</sub> &nbsp;→&nbsp; ĥ<sub>i</sub> = exp(ĝ<sub>i</sub>)", note: "Pesos 1/ĥᵢ. Si h es dudosa, usá errores robustos sobre la estimación MCP.", more: "<p>Se regresa el logaritmo del residuo al cuadrado en las X y se exponencian los valores ajustados. El resultado, ĥ<sub>i</sub>, es la varianza relativa estimada de cada observación. Su inverso es el peso que usa la segunda etapa.</p><ul><li><b>Cuándo se usa:</b> en el procedimiento de dos etapas de MCGF, después de estimar el modelo original.</li><li><b>Error típico:</b> dejar los residuos iguales a cero; log(0) no existe y la observación se pierde.</li><li><b>Conexión:</b> si ĥ está mal, conviene reportar errores robustos sobre la estimación MCP.</li></ul>" },
     ],
     drills: [
       { q: "Definí heterocedasticidad en una frase.", a: "La varianza condicional del error, Var(uᵢ | X), no es constante: cambia con X entre observaciones." },

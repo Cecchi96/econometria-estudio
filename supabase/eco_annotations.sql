@@ -12,10 +12,16 @@ create table if not exists public.eco_annotations (
   end_offset integer not null check (end_offset > start_offset),
   quote text not null,
   note text not null default '',
-  color text not null default 'yellow' check (color in ('yellow', 'green')),
+  color text not null default 'yellow' check (color in ('yellow', 'green', 'blue', 'rose')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Migración para bases creadas con la versión anterior (solo amarillo y verde).
+alter table public.eco_annotations drop constraint if exists eco_annotations_color_check;
+alter table public.eco_annotations
+  add constraint eco_annotations_color_check
+  check (color in ('yellow', 'green', 'blue', 'rose'));
 
 create index if not exists eco_annotations_user_class_idx
   on public.eco_annotations (user_id, class_id, created_at desc);

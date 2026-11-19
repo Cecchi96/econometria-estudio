@@ -750,12 +750,86 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
           answer: 'No. Los R² no son comparables porque la variable dependiente es distinta: uno explica variación de Y en niveles y el otro, variación de log Y. El R² de 0,22 puede convivir con coeficientes precisos y una muestra homogénea. La elección depende de la pregunta económica, de la teoría, de la interpretación y del diagnóstico, no de comparar números de escalas distintas.'
         }
       ]
+    },
+    {
+      id: 'c04a-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        {
+          type: 'p',
+          id: 'c04a-s08-p01',
+          html: 'Hay tres ideas que suelen quedar en el aire después de esta clase. La primera es que una cuadrática depende de dónde esté el cero de X: centrar la variable cambia el coeficiente lineal y la lectura, aunque no la curva. La segunda es que no se puede tomar logaritmo de cero y que sumar uno no es una solución gratuita. La tercera es que un modelo en logaritmos no vuelve solo a niveles: la media de log Y no es el log de la media de Y. Ninguna de las tres aparece en la lista de fórmulas, pero las tres aparecen en los ejercicios y en el parcial.'
+        },
+        {
+          type: 'cards',
+          items: [
+            {
+              sym: 'X*',
+              title: 'Cuadrática y cero',
+              text: 'El coeficiente lineal depende del punto donde está el cero. Centrar en la media cambia la lectura y deja la curva igual.'
+            },
+            {
+              sym: 'log 0',
+              title: 'Ceros y logaritmos',
+              text: 'log(0) no existe. Sumar uno resuelve el error de R, pero cambia la elasticidad y depende de la unidad de medida.'
+            },
+            {
+              sym: 'exp',
+              title: 'Volver de logaritmos',
+              text: 'Exponenciar un valor ajustado no devuelve el promedio de Y. La transformación no es lineal y el nivel se subestima.'
+            }
+          ]
+        },
+        {
+          type: 'p',
+          id: 'c04a-s08-p02',
+          html: 'Supongamos que estimás ventas en función de la antigüedad y su cuadrado. La antigüedad va de 0 a 30, así que X y X<sup>2</sup> comparten casi toda su variación: cuando X es grande, X<sup>2</sup> también. Parte de esa colinealidad no viene de los datos, viene de cómo escribiste el modelo. Además, β<sub>1</sub> mide la pendiente en cero, un extremo del rango. Si centrás en la media, el modelo pasa a Y = α<sub>0</sub> + α<sub>1</sub>(X − X̄) + α<sub>2</sub>(X − X̄)<sup>2</sup>. La curva es idéntica y el vértice no se mueve, pero α<sub>1</sub> ahora es la pendiente en la media, un punto que sí está en el centro de la muestra. Centrar no mejora el ajuste ni cambia el R<sup>2</sup>; solo hace legible el coeficiente lineal y reduce la colinealidad artificial entre X y X<sup>2</sup>.'
+        },
+        {
+          type: 'formula',
+          main: 'Y = α<sub>0</sub> + α<sub>1</sub>(X − X̄) + α<sub>2</sub>(X − X̄)<sup>2</sup> + u',
+          legend: [
+            {
+              key: 'α<sub>1</sub>',
+              text: 'Pendiente en X = X̄. Se lee como efecto marginal en el centro de la muestra.'
+            },
+            {
+              key: 'α<sub>2</sub>',
+              text: 'Igual a β<sub>2</sub>: centrar no cambia la curvatura ni el vértice.'
+            },
+            {
+              key: 'Relación',
+              text: 'α<sub>1</sub> = β<sub>1</sub> + 2β<sub>2</sub>X̄. El coeficiente cambia porque cambió el punto de referencia.'
+            }
+          ]
+        },
+        {
+          type: 'callout',
+          variant: 'ochre',
+          label: 'log(1 + X) no es neutro',
+          html: 'Si X tiene ceros, log X no existe. Sumar uno evita el error en R, pero cambia la pregunta: ahora el efecto es sobre log(1 + X) y la elasticidad depende de la unidad en que midas X. Un peso y un millón de pesos no producen la misma transformación. Si los ceros son muchos, preguntate si el margen relevante es extensivo y considerá modelos para variables no negativas en lugar de forzar el logaritmo. Este punto no vuelve en 04B; conviene dejarlo resuelto acá.'
+        },
+        {
+          type: 'p',
+          id: 'c04a-s08-p03',
+          html: 'Estimar en logaritmos tiene otra consecuencia que suele pasar desapercibida. Si el modelo es log Y = β<sub>0</sub> + β<sub>1</sub>X + u, el valor ajustado está en logaritmos. Para volver a pesos hay que exponenciar, pero exp(media de log Y) no es la media de Y: es la mediana cuando el error es simétrico. Como la exponencial es convexa, el nivel promedio queda subestimado. La corrección de smearing, que promedia exp(û) y multiplica, evita el supuesto de normalidad. Es un tema de predicción y se desarrolla en 04B, pero la advertencia sirve ya: no leas un intercepto en logaritmos como si fuera un nivel en pesos.'
+        },
+        {
+          type: 'miniCheck',
+          id: 'c04a-check-09',
+          question: 'Si centrás X en su media antes de elevarla al cuadrado, ¿cambia el efecto marginal en un valor dado de X?',
+          intro: 'Separá la curva estimada de la lectura de los coeficientes.',
+          answer: 'No. La curva es la misma: el vértice y el efecto marginal en cada valor de X no cambian. Lo que cambia es el coeficiente lineal, porque ahora mide la pendiente en la media y no en cero. Centrar no mejora el ajuste ni cambia el R<sup>2</sup>; solo hace interpretable β<sub>1</sub> y reduce la colinealidad entre X y X<sup>2</sup>. Si además cambiás la escala de X, el coeficiente cuadrático se multiplica por el factor al cuadrado, pero el vértice en unidades originales sigue en el mismo lugar.'
+        }
+      ]
     }
   ],
   concepts: {
     'cambios-escala': {
       title: 'Cambios de escala',
       sub: 'Multiplicar una variable por una constante cambia los coeficientes, no la evidencia.',
+      simple: `<p>Imaginá que medís tu altura en centímetros y después en metros. El número cambia, pero vos sos igual de alto. Con las variables pasa lo mismo: si Y pasa de pesos a miles de pesos, los coeficientes se achican y nada más.</p><p>La evidencia estadística no cambia: los t y el R cuadrado que mirás en la salida quedan intactos. Cambió la unidad, no la conclusión.</p>`,
       esencia: `
         <div class="definition">Cambiar la escala de Y o de una X multiplica los coeficientes y sus errores estándar por un factor, pero deja invariantes los estadísticos t, F y el R<sup>2</sup>.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -790,6 +864,7 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     beta: {
       title: 'Coeficientes beta',
       sub: 'La magnitud relativa, medida en desvíos estándar.',
+      simple: `<p>Supongamos que querés comparar cuánto pesa la educación y cuánto pesa la experiencia en el salario. Mirar los coeficientes en unidades no alcanza: un año de educación no se mueve igual que un año de experiencia en la muestra. Los beta llevan todo a una misma regla: cuánto se mueve Y, en desvíos estándar, cuando X se mueve un desvío estándar.</p><p>Así podés ordenar magnitudes sin que la unidad decida el ranking.</p>`,
       esencia: `
         <div class="definition">Los coeficientes beta son los coeficientes de una regresión con Y y las X estandarizadas: b̂<sub>j</sub> = β̂<sub>j</sub>σ̂<sub>j</sub>/σ̂<sub>Y</sub>. Miden cuántos desvíos estándar cambia Y por un desvío estándar de X<sub>j</sub>, ceteris paribus.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -824,6 +899,10 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     'intrinsecamente-lineales': {
       title: 'Modelos intrínsecamente lineales',
       sub: 'No lineales en las variables, lineales en los parámetros.',
+      simple: `<p>Pensá en una receta escrita como lista de pasos. Aunque el plato final sea complicado, la preparación sigue un orden claro. Acá pasa lo mismo: la relación puede curvarse, pero los parámetros entran sumando y multiplicando, sin potencias ni productos entre ellos.</p><p>Por eso el método de mínimos cuadrados puede estimarla igual que una recta.</p>`,
+      viz: 'forms',
+      vizIntro: 'Probá las cinco formas y mové los parámetros. Todas son curvas o rectas que MCO puede estimar porque los coeficientes entran de forma lineal.',
+      vizHint: 'Que la curva se doble no rompe MCO. Lo que cambia es la interpretación del coeficiente y la forma del efecto marginal, no el método de estimación.',
       esencia: `
         <div class="definition">Un modelo es intrínsecamente lineal si, aun con logaritmos, cuadrados o interacciones, puede escribirse como una combinación lineal de parámetros. MCO estima esos modelos sin problema.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -858,6 +937,10 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     'log-log': {
       title: 'Modelo log-log',
       sub: 'Elasticidad constante.',
+      simple: `<p>Pensá en dos amigos que comparan cuánto creció su sueldo. Uno dice que ganó un 10% más y el otro también, aunque uno cobre en pesos y el otro en dólares. El log-log trabaja así: en porcentajes.</p><p>Un 1% más de X se asocia con el mismo porcentaje de Y en todo el rango, sin importar la moneda.</p>`,
+      viz: 'forms',
+      vizIntro: 'Elegí log-log y mové la pendiente y el punto de evaluación. Mirá cómo la elasticidad se mantiene igual en todo el rango.',
+      vizHint: 'En log-log la tangente cambia de nivel pero la elasticidad no: un 1% más de X se asocia siempre con el mismo porcentaje de Y. Esa constancia es la diferencia con una recta en niveles.',
       esencia: `
         <div class="definition">log Y = β<sub>0</sub> + β<sub>1</sub>log X + u. β<sub>1</sub> es la elasticidad de Y respecto de X: el cambio porcentual de Y ante un cambio de 1% en X.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -892,6 +975,7 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     'log-lin': {
       title: 'Modelo log-lin',
       sub: 'Semi-elasticidad: porcentaje por unidad.',
+      simple: `<p>Imaginá que cada año extra de estudio te sube el sueldo un porcentaje fijo, no una cantidad fija de pesos. Eso es lo que describe el log-lin: el efecto de X se lee en porcentaje de Y.</p><p>Sumás una unidad de X y Y cambia en un porcentaje, siempre en la misma dirección.</p>`,
       esencia: `
         <div class="definition">log Y = β<sub>0</sub> + β<sub>1</sub>X + u. Un cambio de una unidad en X se asocia con aproximadamente 100β<sub>1</sub>% de cambio en Y. β<sub>1</sub> es una semi-elasticidad.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -926,6 +1010,7 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     'lin-log': {
       title: 'Modelo lin-log',
       sub: 'Un porcentaje de X, unidades de Y.',
+      simple: `<p>Imaginá que cada 1% de aumento en el ingreso te suma unos pesos al gasto. No importa si partís de un ingreso bajo o alto: el porcentaje se traduce en una cantidad de Y.</p><p>Eso es el lin-log: X entra en porcentaje y Y se lee en unidades.</p>`,
       esencia: `
         <div class="definition">Y = β<sub>0</sub> + β<sub>1</sub>log X + u. Un cambio de 1% en X se asocia con un cambio de β<sub>1</sub>/100 unidades en Y.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -960,6 +1045,7 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     'cambio-exacto': {
       title: 'Cambio porcentual exacto',
       sub: 'Cuando la aproximación logarítmica no alcanza.',
+      simple: `<p>Cuando el coeficiente de un modelo en logaritmos es chico, decir que sube un 8% y calcular 8,33% da casi lo mismo. Cuando es grande, la diferencia se nota: 0,5 no es 50%, es 64,9%.</p><p>La fórmula exacta corrige esa brecha porque deshace el logaritmo con una exponencial.</p>`,
       esencia: `
         <div class="definition">En un modelo log-lin, el cambio porcentual exacto de Y ante un cambio ΔX es 100[exp(β<sub>1</sub>ΔX) − 1]. La aproximación 100β<sub>1</sub>ΔX solo es buena para cambios pequeños.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -994,6 +1080,10 @@ window.CLASE_CONTENIDOS["clase-04a"] = {
     cuadraticas: {
       title: 'Funciones cuadráticas',
       sub: 'Efectos marginales que cambian con X.',
+      simple: `<p>Imaginá que rendís más en el trabajo durante los primeros años y después, con demasiada rutina, empezás a bajar. Una recta no puede contar esa historia porque sube o baja siempre igual.</p><p>La cuadrática agrega una curva: primero mejora, llega a un punto y después cambia de dirección. Ese punto es el vértice, y solo tiene sentido si cae dentro de los valores que observaste.</p>`,
+      viz: 'quadratic',
+      vizIntro: 'Movés los dos coeficientes y ves la parábola y, abajo, la recta del efecto marginal. El punto donde esa recta cruza cero es el vértice.',
+      vizHint: 'El efecto marginal cambia con X y es cero en el vértice. β₁ solo es la pendiente cuando X = 0; si ese valor está fuera de la muestra, no sirve como resumen del efecto.',
       esencia: `
         <div class="definition">Y = β<sub>0</sub> + β<sub>1</sub>X + β<sub>2</sub>X<sup>2</sup> + u. El efecto marginal es β<sub>1</sub> + 2β<sub>2</sub>X; el punto de giro es X* = −β<sub>1</sub>/(2β<sub>2</sub>).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -1321,62 +1411,74 @@ log(X3)      0.12460012 0.5466413`,
       {
         title: 'Escala de Y',
         eq: 'Ŷ/c = β̂<sub>0</sub>/c + (β̂<sub>1</sub>/c)X<sub>1</sub> + …',
-        note: 'Coeficientes y errores estándar se dividen por c; los t de significancia, el F de exclusión y R² no cambian; SCR por c².'
+        note: 'Coeficientes y errores estándar se dividen por c; los t de significancia, el F de exclusión y R² no cambian; SCR por c².',
+        more: `<p>Dividir Y por c reescala toda la recta: los coeficientes y sus errores estándar se dividen por c, los residuos también y la SCR por c al cuadrado. La relación entre X e Y no cambia.</p><ul><li><b>Cuándo se usa:</b> para pasar de pesos a miles o de unidades a millones sin perder la lectura económica.</li><li><b>Error típico:</b> creer que los t o el R cuadrado cambiaron. Se mantienen porque numerador y denominador se escalan igual.</li><li><b>Conexión:</b> esta invariancia es la que permite comparar modelos con distintas unidades y entender los coeficientes beta.</li></ul>`
       },
       {
         title: 'Escala de X',
         eq: 'X<sub>2</sub>/c &nbsp;→&nbsp; β̂<sub>2</sub>·c &nbsp;·&nbsp; ee(β̂<sub>2</sub>)·c',
-        note: 'La pendiente y su error estándar se multiplican por c; el intercepto no cambia.'
+        note: 'La pendiente y su error estándar se multiplican por c; el intercepto no cambia.',
+        more: `<p>Si dividís una X por c, su pendiente y su error estándar se multiplican por c, porque el producto entre coeficiente y regresor tiene que dar lo mismo. El intercepto no se mueve.</p><ul><li><b>Cuándo se usa:</b> cuando cambiás la unidad de un regresor, por ejemplo de pesos a miles, y querés leer el nuevo coeficiente.</li><li><b>Error típico:</b> ajustar el intercepto como si también se hubiera escalado. Solo cambia si la variable se traslada.</li><li><b>Conexión:</b> la misma lógica explica por qué las elasticidades no dependen de las unidades.</li></ul>`
       },
       {
         title: 'Logaritmo de una escala',
         eq: 'log(cY) = log c + log Y',
-        note: 'Solo se desplaza el intercepto; las pendientes y elasticidades quedan iguales.'
+        note: 'Solo se desplaza el intercepto; las pendientes y elasticidades quedan iguales.',
+        more: `<p>Multiplicar una variable por c suma log c y no toca la pendiente. En niveles, el cambio de unidad desplaza el nivel; en logaritmos, se convierte en una constante aditiva.</p><ul><li><b>Cuándo se usa:</b> para argumentar que una elasticidad no depende de si medís en pesos, miles o millones.</li><li><b>Error típico:</b> decir que el intercepto queda igual. Se corre en log c, y ese corrimiento hay que reportarlo.</li><li><b>Conexión:</b> es la razón por la que el log-log se usa tanto en funciones de producción y de demanda.</li></ul>`
       },
       {
         title: 'Coeficiente beta',
         eq: 'b̂<sub>j</sub> = β̂<sub>j</sub> · σ̂<sub>j</sub>/σ̂<sub>Y</sub>',
-        note: 'Desvíos estándar de Y por desvío estándar de X. Menos de 0,3: pequeño; hasta 0,7: moderado; más de 0,7: grande.'
+        note: 'Desvíos estándar de Y por desvío estándar de X. Menos de 0,3: pequeño; hasta 0,7: moderado; más de 0,7: grande.',
+        more: `<p>El beta traduce la pendiente a desvíos estándar. Su valor depende de cuánto varía X en la muestra y de cuánto varía Y, así que no es una propiedad del mundo sino del conjunto de datos.</p><ul><li><b>Cuándo se usa:</b> para comparar la magnitud relativa de regresores con unidades distintas dentro del mismo modelo.</li><li><b>Error típico:</b> leerlo como efecto causal o comparar betas de muestras distintas.</li><li><b>Conexión:</b> es una aplicación de los cambios de escala y no reemplaza al coeficiente original.</li></ul>`
       },
       {
         title: 'Log-log',
         eq: 'log Y = β<sub>0</sub> + β<sub>1</sub>log X + u',
-        note: 'β₁ es la elasticidad: Δ%Y por 1% de X.'
+        note: 'β₁ es la elasticidad: Δ%Y por 1% de X.',
+        more: `<p>La ecuación impone una elasticidad constante: cualquier cambio porcentual de X se traduce en el mismo cambio porcentual de Y, sin importar el nivel de partida.</p><ul><li><b>Cuándo se usa:</b> cuando la pregunta es porcentual y ambas variables son positivas, como en demanda, producción o gravedad del comercio.</li><li><b>Error típico:</b> leer el coeficiente como unidades de Y por unidad de X. Es un cociente de porcentajes.</li><li><b>Conexión:</b> es la forma linealizada de una Cobb-Douglas y la base de las elasticidades del Ejercicio 7.</li></ul>`
       },
       {
         title: 'Log-lin',
         eq: 'log Y = β<sub>0</sub> + β<sub>1</sub>X + u',
-        note: 'Δ%Y ≈ 100β₁ΔX. β₁ es una semi-elasticidad.'
+        note: 'Δ%Y ≈ 100β₁ΔX. β₁ es una semi-elasticidad.',
+        more: `<p>Acá X entra en niveles y Y en logaritmos. El coeficiente es una semi-elasticidad: mide el cambio porcentual de Y por una unidad más de X.</p><ul><li><b>Cuándo se usa:</b> cuando X cambia en unidades que tienen sentido propio, como años de educación o puntos de una tasa.</li><li><b>Error típico:</b> multiplicar por 100 dos veces o interpretar 0,08 como 0,08%. El coeficiente ya está en escala decimal.</li><li><b>Conexión:</b> la fórmula del cambio exacto corrige la aproximación cuando el coeficiente es grande.</li></ul>`
       },
       {
         title: 'Lin-log',
         eq: 'Y = β<sub>0</sub> + β<sub>1</sub>log X + u',
-        note: 'ΔY ≈ (β₁/100)Δ%X. β₁ está en unidades de Y por punto porcentual.'
+        note: 'ΔY ≈ (β₁/100)Δ%X. β₁ está en unidades de Y por punto porcentual.',
+        more: `<p>El logaritmo está en X y Y queda en niveles. El coeficiente se lee como unidades de Y por punto porcentual de X, y la aproximación vale para cambios pequeños.</p><ul><li><b>Cuándo se usa:</b> cuando querés expresar el efecto de un cambio porcentual en unidades concretas, por ejemplo pesos de gasto ante 1% más de ingreso.</li><li><b>Error típico:</b> confundirlo con una elasticidad. Acá Y no está en porcentaje.</li><li><b>Conexión:</b> completa la familia log y se compara con el log-log por la posición del logaritmo.</li></ul>`
       },
       {
         title: 'Cambio exacto',
         eq: 'Δ%Y = 100[exp(β̂<sub>1</sub>ΔX) − 1]',
-        note: 'Para log-lin. Consistente, no insesgado. Necesario cuando β o ΔX son grandes.'
+        note: 'Para log-lin. Consistente, no insesgado. Necesario cuando β o ΔX son grandes.',
+        more: `<p>La exponencial deshace el logaritmo y devuelve el cambio porcentual sin la aproximación lineal. Es la lectura correcta cuando el coeficiente o el cambio en X son grandes.</p><ul><li><b>Cuándo se usa:</b> en modelos log-lin con coeficientes altos, o cuando el parcial pide el cambio exacto y no la aproximación.</li><li><b>Error típico:</b> aplicarla a un log-log. Ahí el cambio porcentual se calcula con la potencia del coeficiente, no con una sola exponencial.</li><li><b>Conexión:</b> el estimador es consistente pero no insesgado, porque la exponencial no es lineal.</li></ul>`
       },
       {
         title: 'Efecto marginal cuadrático',
         eq: '∂Ŷ/∂X = β̂<sub>1</sub> + 2β̂<sub>2</sub>X',
-        note: 'Cambia con X. β₁ es la pendiente en X = 0.'
+        note: 'Cambia con X. β₁ es la pendiente en X = 0.',
+        more: `<p>La derivada muestra que el efecto depende del valor de X. β₁ es solo la pendiente cuando X = 0, un punto que puede estar fuera de la muestra o no tener sentido.</p><ul><li><b>Cuándo se usa:</b> para interpretar una cuadrática en un valor concreto, por ejemplo a los 5 años de antigüedad.</li><li><b>Error típico:</b> reportar β₁ como si fuera el efecto constante de X.</li><li><b>Conexión:</b> el efecto marginal es una recta que cruza cero en el vértice y conecta con la fórmula del punto de giro.</li></ul>`
       },
       {
         title: 'Punto de giro',
         eq: 'X* = −β̂<sub>1</sub>/(2β̂<sub>2</sub>)',
-        note: 'Máximo si β₁ &gt; 0 y β₂ &lt; 0; mínimo si β₁ &lt; 0 y β₂ &gt; 0. Verificar el rango.'
+        note: 'Máximo si β₁ &gt; 0 y β₂ &lt; 0; mínimo si β₁ &lt; 0 y β₂ &gt; 0. Verificar el rango.',
+        more: `<p>El vértice es el valor de X donde la parábola deja de subir o deja de bajar. Se obtiene igualando el efecto marginal a cero y dividiendo por dos veces la curvatura.</p><ul><li><b>Cuándo se usa:</b> para ubicar un máximo o un mínimo y decidir si cae dentro del rango observado.</li><li><b>Error típico:</b> interpretarlo sin comparar con el mínimo y el máximo de X. Fuera de rango, es extrapolación.</li><li><b>Conexión:</b> los signos de β₁ y β₂ dicen si el vértice es máximo o mínimo, y su error estándar requiere el método delta.</li></ul>`
       },
       {
         title: 'Rendimientos a escala',
         eq: 'r = β<sub>1</sub> + β<sub>2</sub> + β<sub>3</sub>',
-        note: 'r = 1 constantes; r &gt; 1 crecientes; r &lt; 1 decrecientes. Contrastar, no solo mirar.'
+        note: 'r = 1 constantes; r &gt; 1 crecientes; r &lt; 1 decrecientes. Contrastar, no solo mirar.',
+        more: `<p>La suma de elasticidades resume qué pasa cuando todos los insumos crecen en la misma proporción. Es un parámetro derivado, no un coeficiente que aparezca directo en la salida.</p><ul><li><b>Cuándo se usa:</b> para contrastar rendimientos constantes con una restricción lineal sobre la Cobb-Douglas.</li><li><b>Error típico:</b> mirar solo el valor puntual y no el intervalo. Una suma de 0,91 puede ser compatible con 1.</li><li><b>Conexión:</b> la reparametrización convierte la suma en un coeficiente con su propio error estándar.</li></ul>`
       },
       {
         title: 'Reparametrización Cobb-Douglas',
         eq: 'log Q = β<sub>0</sub> + θ log X<sub>1</sub> + β<sub>2</sub>log(X<sub>2</sub>/X<sub>1</sub>) + …',
-        note: 'θ = suma de elasticidades. Con θ̂ y su ee se contrasta θ = 1; el t es (θ̂ − 1)/ee(θ̂).'
+        note: 'θ = suma de elasticidades. Con θ̂ y su ee se contrasta θ = 1; el t es (θ̂ − 1)/ee(θ̂).',
+        more: `<p>Al despejar β₁ en función de la suma, el modelo pasa a tener a θ como coeficiente de uno de los regresores. Así el contraste de rendimientos constantes se vuelve un t común.</p><ul><li><b>Cuándo se usa:</b> cuando querés el intervalo de la suma sin calcular combinaciones lineales a mano.</li><li><b>Error típico:</b> olvidar que los demás coeficientes también cambian de lectura: ahora multiplican cocientes de insumos.</li><li><b>Conexión:</b> el t de θ = 1 al cuadrado reproduce el F de la restricción, y el intervalo sale directo de confint.</li></ul>`
       }
     ],
     drills: [

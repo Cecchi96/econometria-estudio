@@ -246,6 +246,53 @@ window.CLASE_CONTENIDOS["clase-01"] = {
           ]
         }
       ]
+    },
+    {
+      id: "c01-s07",
+      number: "07",
+      title: "Profundización: lo que suele quedar en el aire",
+      blocks: [
+        {
+          type: "p",
+          id: "c01-s07-p01",
+          html: 'Hay tres piezas que suelen quedar implícitas en la primera lectura de la clase 1: qué significa exactamente el <strong>error estándar</strong>, por qué los <strong>grados de libertad</strong> no son un detalle contable y por qué una recta estimada no es todavía una afirmación causal. Las tres vuelven en las clases siguientes.'
+        },
+        {
+          type: "cards",
+          items: [
+            { sym: "EE", title: "Error estándar", text: "Es la desviación típica de la distribución muestral del estimador. No mide el error de una estimación concreta: mide cuánto variaría β̂ si repitieras el muestreo." },
+            { sym: "gl", title: "Grados de libertad", text: "Son las piezas de información que quedan después de estimar parámetros. En regresión simple se pierden dos: uno por la constante y otro por la pendiente." },
+            { sym: "u", title: "Error no observado", text: "Contiene todo lo que afecta a Y y no está en X. Si ese contenido también se mueve con X, el supuesto E(u|X)=0 falla y la interpretación cambia." }
+          ]
+        },
+        {
+          type: "formula",
+          main: "EE(β̂<sub>1</sub>) = √[ σ̂<sup>2</sup> / Σ(X<sub>i</sub> − X̄)<sup>2</sup> ]",
+          legend: [
+            { key: "σ̂²", text: "Varianza estimada del error; se calcula con la SCR." },
+            { key: "Denominador", text: "Variación de X. Más variación, menor error estándar." },
+            { key: "n − 2", text: "Grados de libertad que se usan para estimar σ²." }
+          ]
+        },
+        {
+          type: "p",
+          id: "c01-s07-p02",
+          html: 'El error estándar no es “el error que cometió el modelo”. Es una medida de <strong>precisión</strong>: si β̂ tiene un error estándar grande, distintas muestras habrían producido estimaciones muy distintas. Por eso un coeficiente puede ser grande y, aun así, no ser distinguible de cero.'
+        },
+        {
+          type: "callout",
+          variant: "ochre",
+          label: "Lo que la recta no dice",
+          html: "Una pendiente estimada describe una asociación condicional en la muestra. Para pasar de ahí a un efecto causal hacen falta supuestos adicionales sobre cómo se generó X: exogeneidad, ausencia de variables omitidas relevantes y un diseño que sostenga la comparación. La clase 9 trabaja ese problema de forma explícita."
+        },
+        {
+          type: "miniCheck",
+          id: "c01-check-02",
+          question: "Dos estudios tienen el mismo β̂, pero uno tiene un error estándar cuatro veces más grande. ¿Qué cambia?",
+          intro: "Separá el tamaño del coeficiente de la precisión con la que se estima.",
+          answer: "<strong>Cambia la precisión, no el valor estimado.</strong> El coeficiente es el mismo, pero en el segundo estudio es mucho más difícil distinguirlo de cero y su intervalo de confianza es más ancho. Eso puede deberse a menos variación en X, más ruido no explicado o un n menor. La magnitud del coeficiente y la evidencia estadística son dos dimensiones distintas."
+        }
+      ]
     }
   ],
 
@@ -253,6 +300,7 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     error: {
       title: "Error y residuo",
       sub: "Dos objetos parecidos que no son lo mismo.",
+      simple: `<p>Imaginá que querés saber cuánto gana en promedio alguien con cierta educación. La realidad tiene mil razones que no ves: talento, contactos, suerte. Todo eso junto es el <strong>error</strong>. Cuando estimás una recta con datos, la diferencia entre lo que gana cada persona y lo que predice tu recta es el <strong>residuo</strong>.</p><p>La diferencia clave: el error es del mundo real y no lo observás; el residuo es la cuenta que hacés con tu muestra. Por eso no son intercambiables, aunque suenen parecido.</p>`,
       esencia: `
         <div class="definition">El error <em>u<sub>i</sub></em> es la diferencia entre Y y su valor esperado poblacional. El residuo <em>û<sub>i</sub></em> es la diferencia entre Y y el valor ajustado por la recta estimada.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -289,6 +337,10 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     frp: {
       title: "FRP y FRM",
       sub: "La función que querríamos conocer y la que efectivamente estimamos.",
+      simple: `<p>Pensá en la FRP como el “promedio verdadero” de toda la población: si pudieras ver a todos, esa sería la recta. La FRM es la recta que dibujás con la muestra que tenés a mano. Como la muestra cambia, la recta estimada también cambia.</p><p>La FRP es una sola y no la ves; la FRM es la que ves en el gráfico y en la salida de R.</p>`,
+      viz: "frp-frm",
+      vizIntro: "Cambiá de muestra y mirá qué se mueve y qué queda fijo. La recta punteada es la FRP; la recta llena, la FRM.",
+      vizHint: "La FRP no se mueve porque es poblacional. La FRM cambia con cada muestra: esa es la variabilidad que después se usa para construir intervalos y Tests.",
       esencia: `
         <div class="definition">La FRP es <em>E(Y | X) = β₀ + β₁X</em>, la relación promedio poblacional. La FRM es <em>Ŷ = β̂₀ + β̂₁X</em>, la recta estimada con una muestra.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -324,6 +376,10 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     mco: {
       title: "Mínimos cuadrados ordinarios",
       sub: "El criterio que define la recta estimada.",
+      simple: `<p>MCO es una forma de elegir la recta: pruebe muchas rectas y quédese con la que deja los puntos, en promedio, más cerca en sentido vertical. Para que los errores grandes no se compensen con los chicos, los eleva al cuadrado.</p><p>No busca “la recta verdadera”: busca la recta que mejor resume esos datos según ese criterio.</p>`,
+      viz: "ols-scr",
+      vizIntro: "Movés la pendiente y ves cómo cambia la suma de los residuos al cuadrado. El mínimo de la curva es la recta de MCO.",
+      vizHint: "El mínimo no se elige a ojo: es el punto donde la derivada de la SCR se hace cero. Por eso MCO tiene una solución única cuando X varía.",
       esencia: `
         <div class="definition">MCO elige β̂₀ y β̂₁ para minimizar la suma de los residuos al cuadrado: <em>SCR(β₀, β₁) = Σ(Y<sub>i</sub> − β₀ − β₁X<sub>i</sub>)²</em>.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -359,6 +415,10 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     insesgado: {
       title: "Insesgamiento",
       sub: "La distribución del estimador está centrada en el parámetro.",
+      simple: `<p>Imaginá que repetís el estudio mil veces con mil muestras distintas. Cada muestra te da una pendiente. Si el promedio de todas esas pendientes es igual al verdadero parámetro, el estimador es insesgado. Una sola estimación puede estar lejos; lo que importa es el centro de la distribución.</p><p>Insesgado no significa “exacto” ni “seguro”: significa “sin error sistemático”.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Subí o bajá el sesgo y cambiá el tamaño de muestra. Mirá dónde queda el centro de la distribución.",
+      vizHint: "Subir n angosta la curva, pero no mueve el centro si hay sesgo. El sesgo es un problema de diseño; la precisión, un problema de información.",
       esencia: `
         <div class="definition">β̂ es insesgado si <em>E(β̂) = β</em>. No significa que cada estimación sea igual al parámetro; significa que, repetido el muestreo, el promedio de las estimaciones coincide con el parámetro.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -394,6 +454,10 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     r2: {
       title: "R²",
       sub: "Una medida de ajuste, no una prueba de causalidad.",
+      simple: `<p>El R² responde una pregunta muy concreta: de toda la variación de Y que hay en la muestra, ¿qué parte queda explicada por la recta? Si Y cambia mucho y la recta sigue esos cambios, el R² es alto. Si Y se mueve por razones que la recta no captura, el R² es bajo.</p><p>Es una medida de ajuste. No dice si hay causalidad, ni si el modelo está bien especificado.</p>`,
+      viz: "r2-parts",
+      vizIntro: "Movés la pendiente y ves cómo se reparte la variación total entre lo explicado y lo residual.",
+      vizHint: "El R² es una proporción, no una probabilidad. Un R² alto puede convivir con un modelo sesgado o con una tendencia común.",
       esencia: `
         <div class="definition">R² = SCE/SCT = 1 − SCR/SCT. Mide la proporción de la variación muestral de Y explicada linealmente por el modelo.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -429,6 +493,10 @@ window.CLASE_CONTENIDOS["clase-01"] = {
     gm: {
       title: "Supuestos de Gauss-Markov",
       sub: "Cinco condiciones, cinco propiedades. No son un paquete indivisible.",
+      simple: `<p>Los supuestos son las reglas del juego que hacen que MCO se comporte bien. Si se cumplen, MCO es insesgado y, entre los estimadores lineales, el más preciso. Si falla uno, no se cae todo: se cae la propiedad que dependía de ese supuesto.</p><p>Pensalos como condiciones de una receta: cada una habilita algo distinto.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Usá el sesgo para representar qué pasa cuando falla E(u|X)=0. Cambiá n para ver el efecto de la precisión.",
+      vizHint: "El insesgamiento depende del supuesto de exogeneidad; la eficiencia, de la homocedasticidad. No es un único interruptor.",
       esencia: `
         <div class="definition">Linealidad en los parámetros; muestra aleatoria; E(u | X) = 0; variabilidad en X; homocedasticidad Var(u | X) = σ².</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -626,19 +694,19 @@ X            1.873106  9.450424`,
     title: "Kit de repaso y sesión de 90 minutos",
     intro: "Empezá por el formulario, seguí con el drill y la sesión, y cerrá con el plan de 7 días. La idea es repasar sin volver a leer todo desde cero.",
     formulas: [
-      { title: "Modelo poblacional", eq: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub> + u<sub>i</sub>", note: "Y es la variable dependiente; X, la explicativa; u, el error no observable." },
-      { title: "FRP", eq: "E(Y<sub>i</sub> | X<sub>i</sub>) = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub>", note: "Vale si E(u<sub>i</sub> | X<sub>i</sub>) = 0. Es el objeto poblacional que MCO intenta estimar." },
-      { title: "Restricciones de momentos", eq: "E(u<sub>i</sub>) = 0   ·   E(X<sub>i</sub>u<sub>i</sub>) = 0", note: "En la muestra: Σû<sub>i</sub> = 0 y ΣX<sub>i</sub>û<sub>i</sub> = 0." },
-      { title: "Pendiente MCO", eq: "β̂<sub>1</sub> = Σ(X<sub>i</sub> − X̄)(Y<sub>i</sub> − Ȳ) / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = Cov(X,Y) / Var(X)", note: "En desvíos: Σx<sub>i</sub>y<sub>i</sub> / Σx<sub>i</sub><sup>2</sup>." },
-      { title: "Intercepto MCO", eq: "β̂<sub>0</sub> = Ȳ − β̂<sub>1</sub>X̄", note: "La recta estimada pasa por el punto (X̄, Ȳ)." },
-      { title: "Propiedades algebraicas", eq: "Σû<sub>i</sub> = 0   ·   ΣX<sub>i</sub>û<sub>i</sub> = 0", note: "También Cov(X, û) = 0 y Cov(Ŷ, û) = 0 con constante." },
-      { title: "Descomposición", eq: "SCT = SCE + SCR", note: "SCT = Σ(Y<sub>i</sub> − Ȳ)<sup>2</sup>; SCE = Σ(Ŷ<sub>i</sub> − Ȳ)<sup>2</sup>; SCR = Σû<sub>i</sub><sup>2</sup>." },
-      { title: "Coeficiente de determinación", eq: "R<sup>2</sup> = SCE / SCT = 1 − SCR / SCT", note: "Está entre 0 y 1. Mide ajuste, no causalidad." },
-      { title: "Varianza de β̂1", eq: "Var(β̂<sub>1</sub>) = σ<sup>2</sup> / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = σ<sup>2</sup> / SCT<sub>x</sub>", note: "Más dispersión de X o menos ruido ⇒ menor varianza." },
-      { title: "Varianza de β̂0", eq: "Var(β̂<sub>0</sub>) = σ<sup>2</sup> [ 1/n + X̄<sup>2</sup> / SCT<sub>x</sub> ]", note: "Depende de n, de X̄ y de la dispersión de X." },
-      { title: "Varianza estimada del error", eq: "σ̂<sup>2</sup> = SCR / (n − 2)", note: "n − 2 grados de libertad en regresión simple." },
-      { title: "Gauss-Markov", eq: "RLS.1–RLS.5 ⇒ MCO es ELIO", note: "Lineal, insesgado y de mínima varianza entre los lineales insesgados." },
-      { title: "Modelo lineal clásico", eq: "u<sub>i</sub> ~ N(0, σ<sup>2</sup>) ⇒ t y F exactas", note: "La normalidad no es un supuesto de Gauss-Markov; se agrega para inferencia exacta." }
+      { title: "Modelo poblacional", eq: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub> + u<sub>i</sub>", note: "Y es la variable dependiente; X, la explicativa; u, el error no observable.", more: "<p>Es la ecuación que describe el proceso poblacional: una parte lineal en X y una parte no observada. No afirma que la relación sea perfecta; afirma que la recta es la aproximación promedio.</p><ul><li><b>Cuándo se usa:</b> para escribir el supuesto de linealidad y derivar MCO.</li><li><b>Error típico:</b> tratar u como si fuera el residuo û. El error es poblacional; el residuo, muestral.</li><li><b>Conexión:</b> si E(u|X)=0, tomar esperanza condicional lleva a la FRP.</li></ul>" },
+      { title: "FRP", eq: "E(Y<sub>i</sub> | X<sub>i</sub>) = β<sub>0</sub> + β<sub>1</sub> X<sub>i</sub>", note: "Vale si E(u<sub>i</sub> | X<sub>i</sub>) = 0. Es el objeto poblacional que MCO intenta estimar.", more: "<p>La FRP es la media de Y para cada valor de X en la población. Es única y desconocida; la FRM es la que estimás con una muestra.</p><ul><li><b>Cuándo se usa:</b> para interpretar β₁ como cambio esperado, no como un hecho de cada individuo.</li><li><b>Error típico:</b> creer que la recta estimada es la FRP. La estimación tiene error muestral.</li><li><b>Conexión:</b> la inferencia de la clase 3 mide qué tan lejos puede estar la FRM de la FRP.</li></ul>" },
+      { title: "Restricciones de momentos", eq: "E(u<sub>i</sub>) = 0   ·   E(X<sub>i</sub>u<sub>i</sub>) = 0", note: "En la muestra: Σû<sub>i</sub> = 0 y ΣX<sub>i</sub>û<sub>i</sub> = 0.", more: "<p>Son las dos condiciones poblacionales que hacen que la recta pase por el centro de los datos y que X no esté correlacionada con el error. En la muestra se imponen como Σû=0 y ΣXû=0.</p><ul><li><b>Cuándo se usa:</b> para derivar MCO por el método de momentos.</li><li><b>Error típico:</b> confundir la restricción muestral (siempre vale por construcción) con el supuesto poblacional (hay que justificarlo).</li><li><b>Conexión:</b> E(Xu)=0 es el corazón del insesgamiento.</li></ul>" },
+      { title: "Pendiente MCO", eq: "β̂<sub>1</sub> = Σ(X<sub>i</sub> − X̄)(Y<sub>i</sub> − Ȳ) / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = Cov(X,Y) / Var(X)", note: "En desvíos: Σx<sub>i</sub>y<sub>i</sub> / Σx<sub>i</sub><sup>2</sup>.", more: "<p>La pendiente es la covariación entre X e Y dividida por la variación propia de X. Si X se mueve mucho, el denominador es grande y la estimación gana precisión.</p><ul><li><b>Cuándo se usa:</b> para calcular a mano y para entender de dónde sale la precisión.</li><li><b>Error típico:</b> olvidar que Cov y Var están en las mismas unidades; el cociente no tiene unidades de Y.</li><li><b>Conexión:</b> el denominador reaparece en Var(β̂₁).</li></ul>" },
+      { title: "Intercepto MCO", eq: "β̂<sub>0</sub> = Ȳ − β̂<sub>1</sub>X̄", note: "La recta estimada pasa por el punto (X̄, Ȳ).", more: "<p>Una vez estimada la pendiente, el intercepto se elige para que la recta pase por las medias. Por eso β̂₀ no siempre tiene una interpretación económica útil: a veces X=0 está fuera del rango de los datos.</p><ul><li><b>Cuándo se usa:</b> para escribir la FRM y calcular valores ajustados.</li><li><b>Error típico:</b> interpretar β̂₀ como “lo que vale Y sin X” cuando X=0 no existe en la población.</li><li><b>Conexión:</b> la recta pasa por (X̄, Ȳ) por la primera condición de momentos.</li></ul>" },
+      { title: "Propiedades algebraicas", eq: "Σû<sub>i</sub> = 0   ·   ΣX<sub>i</sub>û<sub>i</sub> = 0", note: "También Cov(X, û) = 0 y Cov(Ŷ, û) = 0 con constante.", more: "<p>Son propiedades de la muestra estimada, no supuestos del mundo. Siempre valen con constante, aunque el modelo esté mal especificado.</p><ul><li><b>Cuándo se usa:</b> para verificar una regresión y para demostrar la descomposición de la varianza.</li><li><b>Error típico:</b> concluir que el modelo es correcto porque los residuos suman cero.</li><li><b>Conexión:</b> permiten separar SCT en SCE + SCR.</li></ul>" },
+      { title: "Descomposición", eq: "SCT = SCE + SCR", note: "SCT = Σ(Y<sub>i</sub> − Ȳ)<sup>2</sup>; SCE = Σ(Ŷ<sub>i</sub> − Ȳ)<sup>2</sup>; SCR = Σû<sub>i</sub><sup>2</sup>.", more: "<p>La variación total de Y se parte en la parte que sigue a la recta y la que queda en los residuos. Es una identidad algebraica cuando el modelo tiene constante.</p><ul><li><b>Cuándo se usa:</b> para definir R² y para leer la tabla de ANOVA.</li><li><b>Error típico:</b> usarla con modelos sin constante sin revisar la definición de SCT.</li><li><b>Conexión:</b> R² = SCE/SCT es una consecuencia directa.</li></ul>" },
+      { title: "Coeficiente de determinación", eq: "R<sup>2</sup> = SCE / SCT = 1 − SCR / SCT", note: "Está entre 0 y 1. Mide ajuste, no causalidad.", more: "<p>Es la proporción de la variación muestral de Y que la recta explica linealmente. En regresión simple con constante coincide con el cuadrado de la correlación entre X e Y.</p><ul><li><b>Cuándo se usa:</b> para describir ajuste, no para elegir causalidad.</li><li><b>Error típico:</b> comparar R² entre modelos con distintas transformaciones de Y o creer que un R² alto valida los supuestos.</li><li><b>Conexión:</b> al agregar regresores nunca baja; por eso aparece el R² ajustado en la clase 2.</li></ul>" },
+      { title: "Varianza de β̂1", eq: "Var(β̂<sub>1</sub>) = σ<sup>2</sup> / Σ(X<sub>i</sub> − X̄)<sup>2</sup> = σ<sup>2</sup> / SCT<sub>x</sub>", note: "Más dispersión de X o menos ruido ⇒ menor varianza.", more: "<p>Mide la precisión con la que se estima la pendiente. Depende del ruido del modelo y de cuánto varía X: más variación de X o menos ruido dan una pendiente más precisa.</p><ul><li><b>Cuándo se usa:</b> para construir el error estándar y entender por qué algunos coeficientes son imprecisos.</li><li><b>Error típico:</b> pensar que solo importa el tamaño de la muestra; también importa la dispersión de X.</li><li><b>Conexión:</b> es la base del t y del intervalo de confianza de la clase 3A.</li></ul>" },
+      { title: "Varianza de β̂0", eq: "Var(β̂<sub>0</sub>) = σ<sup>2</sup> [ 1/n + X̄<sup>2</sup> / SCT<sub>x</sub> ]", note: "Depende de n, de X̄ y de la dispersión de X.", more: "<p>El intercepto suele ser menos preciso que la pendiente porque su varianza crece con el cuadrado de la media de X. Cuanto más lejos esté X=0 del centro de los datos, peor se estima.</p><ul><li><b>Cuándo se usa:</b> para interpretar el error estándar del intercepto.</li><li><b>Error típico:</b> leer β̂₀ como un efecto causal cuando X=0 no tiene sentido económico.</li><li><b>Conexión:</b> la misma fórmula aparece en la matriz de varianzas-covarianzas de la clase 2B.</li></ul>" },
+      { title: "Varianza estimada del error", eq: "σ̂<sup>2</sup> = SCR / (n − 2)", note: "n − 2 grados de libertad en regresión simple.", more: "<p>Es el estimador insesgado de la varianza del error. Se divide por n−2 porque se estimaron dos parámetros y los residuos pierden dos grados de libertad.</p><ul><li><b>Cuándo se usa:</b> para calcular errores estándar y intervalos.</li><li><b>Error típico:</b> dividir por n; el estimador queda sesgado hacia abajo.</li><li><b>Conexión:</b> en regresión múltiple pasa a n−k−1.</li></ul>" },
+      { title: "Gauss-Markov", eq: "RLS.1–RLS.5 ⇒ MCO es ELIO", note: "Lineal, insesgado y de mínima varianza entre los lineales insesgados.", more: "<p>Si se cumplen los cinco supuestos, MCO es el mejor estimador lineal insesgado. “Mejor” significa de menor varianza dentro de la clase de estimadores lineales e insesgados, no el mejor de todos los estimadores posibles.</p><ul><li><b>Cuándo se usa:</b> para justificar MCO y para saber qué propiedad se pierde cuando falla un supuesto.</li><li><b>Error típico:</b> incluir la normalidad dentro de Gauss-Markov.</li><li><b>Conexión:</b> la homocedasticidad sostiene la eficiencia; E(u|X)=0, el insesgamiento.</li></ul>" },
+      { title: "Modelo lineal clásico", eq: "u<sub>i</sub> ~ N(0, σ<sup>2</sup>) ⇒ t y F exactas", note: "La normalidad no es un supuesto de Gauss-Markov; se agrega para inferencia exacta.", more: "<p>Agregar normalidad permite obtener distribuciones exactas t y F en muestras pequeñas. No es necesaria para estimar por MCO ni para que MCO sea insesgado.</p><ul><li><b>Cuándo se usa:</b> para tests e intervalos exactos en muestras chicas.</li><li><b>Error típico:</b> creer que sin normalidad no se puede hacer inferencia; con muestras grandes se apela a la aproximación asintótica.</li><li><b>Conexión:</b> la clase 3B estudia qué pasa cuando la normalidad no es razonable.</li></ul>" }
     ],
     drills: [
       { q: "Escribí el modelo poblacional y la FRP.", a: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>i</sub> + u<sub>i</sub>; E(Y<sub>i</sub>|X<sub>i</sub>) = β<sub>0</sub> + β<sub>1</sub>X<sub>i</sub> si E(u<sub>i</sub>|X<sub>i</sub>) = 0." },

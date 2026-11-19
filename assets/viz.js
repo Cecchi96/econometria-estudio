@@ -215,6 +215,51 @@
     return a.reduce((sum, value, index) => sum + (value - meanA) * (b[index] - meanB), 0) / a.length;
   }
 
+  function normalPDF(x, mean = 0, sd = 1) {
+    return Math.exp(-0.5 * ((x - mean) / sd) ** 2) / (sd * Math.sqrt(2 * Math.PI));
+  }
+
+  function erfApprox(x) {
+    const sign = x < 0 ? -1 : 1;
+    const value = Math.abs(x);
+    const a1 = 0.254829592;
+    const a2 = -0.284496736;
+    const a3 = 1.421413741;
+    const a4 = -1.453152027;
+    const a5 = 1.061405429;
+    const p = 0.3275911;
+    const t = 1 / (1 + p * value);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-value * value);
+    return sign * y;
+  }
+
+  function normalCDF(x, mean = 0, sd = 1) {
+    return 0.5 * (1 + erfApprox((x - mean) / (sd * Math.SQRT2)));
+  }
+
+  function weightedFit(rows, yKey, xKey, weightKey) {
+    let sw = 0;
+    let swx = 0;
+    let swy = 0;
+    let swxx = 0;
+    let swxy = 0;
+    rows.forEach(row => {
+      const weight = row[weightKey];
+      const x = row[xKey];
+      const y = row[yKey];
+      sw += weight;
+      swx += weight * x;
+      swy += weight * y;
+      swxx += weight * x * x;
+      swxy += weight * x * y;
+    });
+    const denominator = sw * swxx - swx * swx;
+    if (Math.abs(denominator) < 1e-12) return [0, 0];
+    const slope = (sw * swxy - swx * swy) / denominator;
+    const intercept = (swy - slope * swx) / sw;
+    return [intercept, slope];
+  }
+
   function solveLinear(matrix, vector) {
     const size = vector.length;
     const augmented = matrix.map((row, index) => [...row, vector[index]]);
@@ -2116,6 +2161,1000 @@
     draw();
   }
 
+  // ---------- Visualizaciones de conceptos ----------
+
+  function mountFrpFrm(body) {
+    const TRUE = { b0: 1.2, b1: 0.8 };
+    const xs = [1, 1.6, 2.3, 3.0, 3.7, 4.4, 5.1, 5.8, 6.5, 7.2, 7.9, 8.6, 9.3, 10];
+    const state = { sample: 1 };
+    const noise = (seed, index) => (
+      Math.sin(seed * 9.7 + index * 4.3) + 0.55 * Math.cos(seed * 3.1 + index * 2.1)
+    ) * 0.75;
+
+    body.innerHTML = `
+      <div class="viz-seg" data-sample-group role="group" aria-label="Muestra simulada">
+        <button type="button" data-sample="1" class="active">Muestra 1</button>
+        <button type="button" data-sample="2">Muestra 2</button>
+        <button type="button" data-sample="3">Muestra 3</button>
+        <button type="button" data-sample="4">Muestra 4</button>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch hollow"></i> FRP: recta poblacional</span>
+        <span><i class="viz-swatch"></i> FRM: recta estimada</span>
+        <span><i class="viz-swatch ochre"></i> Observaciones de la muestra</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const sampleGroup = body.querySelector("[data-sample-group]");
+
+    function draw() {
+      const rows = xs.map((x, index) => ({
+        x,
+        y: TRUE.b0 + TRUE.b1 * x + noise(state.sample, index)
+      }));
+      const fit = fitOLS(rows, "y", ["x"]);
+      const chart = frame({
+        w: 560, h: 280, l: 50, r: 18, t: 18, b: 36,
+        xd: [0, 10.5], yd: [0, 11.5],
+        xt: [0, 2, 4, 6, 8, 10], yt: niceTicks(0, 11.5, 5),
+        aria: "Dispersión con la recta poblacional y la recta estimada en una muestra"
+      });
+
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(TRUE.b0),
+        x2: chart.sx(10.5), y2: chart.sy(TRUE.b0 + TRUE.b1 * 10.5),
+        class: "viz-line-ghost"
+      }));
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(fit[0]),
+        x2: chart.sx(10.5), y2: chart.sy(fit[0] + fit[1] * 10.5),
+        class: "viz-line"
+      }));
+      rows.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x), cy: chart.sy(row.y), r: 4.2, class: "viz-dot-ochre"
+        }));
+      });
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(8.2), y: chart.sy(TRUE.b0 + TRUE.b1 * 8.2) - 9,
+        class: "viz-text-muted", "text-anchor": "end"
+      }, "FRP"));
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(9.8), y: chart.sy(fit[0] + fit[1] * 9.8) - 9,
+        class: "viz-text", "text-anchor": "end"
+      }, "FRM"));
+      addAxisLabels(chart, "X", "Y");
+      stage.replaceChildren(chart.svg);
+
+      metrics.innerHTML = [
+        metric("β₁ FRP", fmt(TRUE.b1)),
+        metric("β̂₁ FRM", fmt(fit[1]), Math.abs(fit[1] - TRUE.b1) < 0.15 ? "is-good" : ""),
+        metric("β̂₀ FRM", fmt(fit[0])),
+        metric("Muestra", state.sample)
+      ].join("");
+      readout.innerHTML = `La <b>FRP</b> es una sola: la recta punteada no cambia. La <b>FRM</b> cambia con cada muestra porque usa los puntos observados. Acá la pendiente estimada es <b>${fmt(fit[1])}</b> y la verdadera es <b>${fmt(TRUE.b1)}</b>. La diferencia no es un error de cuentas: es variabilidad muestral.`;
+    }
+
+    sampleGroup.addEventListener("click", event => {
+      const button = event.target.closest("[data-sample]");
+      if (!button) return;
+      state.sample = Number(button.dataset.sample);
+      setActive(sampleGroup, "data-sample", String(state.sample));
+      draw();
+    });
+    draw();
+  }
+
+  function mountSamplingBias(body) {
+    const state = { bias: 0, n: 40 };
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Sesgo del estimador <output data-output="bias">—</output></span>
+          <input type="range" data-param="bias" min="0" max="0.8" step="0.05" value="0" aria-label="Sesgo del estimador">
+        </label>
+        <label class="range-control">
+          <span>Tamaño de muestra n <output data-output="n">—</output></span>
+          <input type="range" data-param="n" min="10" max="200" step="10" value="40" aria-label="Tamaño de muestra">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch hollow"></i> Distribución insesgada</span>
+        <span><i class="viz-swatch ochre"></i> Distribución con el sesgo elegido</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const biasInput = body.querySelector('[data-param="bias"]');
+    const nInput = body.querySelector('[data-param="n"]');
+    const biasOutput = body.querySelector('[data-output="bias"]');
+    const nOutput = body.querySelector('[data-output="n"]');
+
+    function draw() {
+      const sd = 1.15 / Math.sqrt(state.n);
+      const maxDensity = Math.max(normalPDF(0, 0, sd), normalPDF(state.bias, state.bias, sd)) * 1.18;
+      const domains = [-1.4, Math.max(1.4, state.bias + 1.4)];
+      const chart = frame({
+        w: 560, h: 245, l: 46, r: 18, t: 20, b: 34,
+        xd: domains, yd: [0, maxDensity],
+        xt: niceTicks(domains[0], domains[1], 5),
+        yt: [],
+        xfmt: value => fmt(value, 2),
+        aria: "Dos distribuciones muestrales del estimador: una centrada y otra desplazada por el sesgo"
+      });
+
+      function densityPath(mean, klass) {
+        const points = [];
+        for (let index = 0; index <= 160; index += 1) {
+          const x = domains[0] + (index / 160) * (domains[1] - domains[0]);
+          points.push({ x: chart.sx(x), y: chart.sy(normalPDF(x, mean, sd)) });
+        }
+        chart.svg.appendChild(make("path", { d: linePath(points), class: klass }));
+      }
+
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.t, x2: chart.sx(0), y2: chart.bottom, class: "viz-zero"
+      }));
+      densityPath(0, "viz-line-ghost");
+      densityPath(state.bias, "viz-line-2");
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(0), y: chart.t - 3, class: "viz-text-muted", "text-anchor": "middle"
+      }, "β verdadero"));
+      addAxisLabels(chart, "β̂", "densidad");
+      stage.replaceChildren(chart.svg);
+
+      biasOutput.textContent = fmt(state.bias, 2);
+      nOutput.textContent = String(state.n);
+      const rmse = Math.sqrt(state.bias ** 2 + sd ** 2);
+      metrics.innerHTML = [
+        metric("Sesgo", fmt(state.bias, 2), state.bias === 0 ? "is-good" : "is-warn"),
+        metric("Desvío típico", fmt(sd, 3)),
+        metric("ECM", fmt(rmse, 3)),
+        metric("n", String(state.n))
+      ].join("");
+      readout.innerHTML = state.bias === 0
+        ? `Con sesgo cero, la distribución está centrada en el parámetro: el estimador es <b>insesgado</b>. Al subir n, la curva se angosta: el estimador se vuelve más preciso y, si el sesgo es cero, también <b>consistente</b>.`
+        : `Con sesgo <b>${fmt(state.bias, 2)}</b>, la distribución está corrida a la derecha del parámetro. Subir n la angosta, pero <b>no elimina el desplazamiento</b>: más datos no arreglan un estimador sesgado.`;
+    }
+
+    biasInput.addEventListener("input", () => { state.bias = Number(biasInput.value); draw(); });
+    nInput.addEventListener("input", () => { state.n = Number(nInput.value); draw(); });
+    draw();
+  }
+
+  function mountR2Parts(body) {
+    const DATA = [
+      { x: 1.0, y: 1.9 }, { x: 1.7, y: 3.1 }, { x: 2.2, y: 2.4 },
+      { x: 2.9, y: 3.8 }, { x: 3.5, y: 3.2 }, { x: 4.2, y: 4.9 },
+      { x: 4.8, y: 4.3 }, { x: 5.5, y: 5.8 }, { x: 6.1, y: 5.1 },
+      { x: 6.8, y: 6.4 }
+    ];
+    const meanY = meanOf(DATA.map(row => row.y));
+    const meanX = meanOf(DATA.map(row => row.x));
+    const tss = DATA.reduce((sum, row) => sum + (row.y - meanY) ** 2, 0);
+    const state = { b1: 0.8 };
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Pendiente elegida β₁ <output data-output="b1">—</output></span>
+          <input type="range" data-param="b1" min="-0.4" max="1.6" step="0.01" value="0.8" aria-label="Pendiente elegida">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Explicado por la recta (ESS)</span>
+        <span><i class="viz-swatch ochre"></i> No explicado (RSS)</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('[data-param="b1"]');
+    const output = body.querySelector('[data-output="b1"]');
+
+    function draw() {
+      const b0 = meanY - state.b1 * meanX;
+      const ess = DATA.reduce((sum, row) => sum + (b0 + state.b1 * row.x - meanY) ** 2, 0);
+      const rss = DATA.reduce((sum, row) => sum + (row.y - (b0 + state.b1 * row.x)) ** 2, 0);
+      const r2 = Math.max(-1, Math.min(1, ess / tss));
+      const explained = Math.max(0, Math.min(1, r2));
+      const svg = make("svg", {
+        viewBox: "0 0 560 225", class: "viz-svg", role: "img",
+        "aria-label": "Barra que descompone la variación total en explicada y residual"
+      });
+      const left = 34;
+      const right = 526;
+      const width = right - left;
+
+      svg.appendChild(make("text", { x: left, y: 18, class: "viz-text" }, "Variación total de Y"));
+      svg.appendChild(make("rect", {
+        x: left, y: 26, width, height: 24, rx: 5, class: "viz-bg"
+      }));
+      svg.appendChild(make("text", {
+        x: right - 8, y: 43, class: "viz-text-muted", "text-anchor": "end"
+      }, `TSS = ${fmt(tss, 1)}`));
+
+      svg.appendChild(make("text", { x: left, y: 78, class: "viz-text" }, "Qué explica la recta"));
+      svg.appendChild(make("rect", {
+        x: left, y: 86, width, height: 34, rx: 6, class: "viz-bg"
+      }));
+      if (explained > 0.002) {
+        svg.appendChild(make("rect", {
+          x: left, y: 86, width: width * explained, height: 34, rx: 6, class: "viz-bar"
+        }));
+      }
+      if (explained < 0.998) {
+        svg.appendChild(make("rect", {
+          x: left + width * explained, y: 86, width: width * (1 - explained), height: 34,
+          rx: 6, class: "viz-bar-ochre"
+        }));
+      }
+      svg.appendChild(make("text", {
+        x: left + 10, y: 108, class: "viz-text", fill: explained > 0.18 ? "#fff" : "var(--ink)"
+      }, `${fmtPct(explained)} explicado`));
+      svg.appendChild(make("text", {
+        x: right - 10, y: 108, class: "viz-text", "text-anchor": "end",
+        fill: 1 - explained > 0.18 ? "#fff" : "var(--ink)"
+      }, `${fmtPct(1 - explained)} residual`));
+
+      svg.appendChild(make("text", {
+        x: left, y: 152, class: "viz-text-muted"
+      }, `ESS = ${fmt(ess, 1)} · RSS = ${fmt(rss, 1)}`));
+      svg.appendChild(make("text", {
+        x: left, y: 181, class: "viz-value"
+      }, `R² = ESS / TSS = ${fmt(r2, 3)}`));
+      svg.appendChild(make("text", {
+        x: left, y: 206, class: "viz-text-muted"
+      }, r2 < 0 ? "Con esta recta, el R² es negativo: ajusta peor que la media." : "El R² es una proporción, no una probabilidad ni una prueba causal."));
+      stage.replaceChildren(svg);
+
+      output.textContent = fmt(state.b1, 2);
+      metrics.innerHTML = [
+        metric("R²", fmt(r2, 3), r2 < 0 ? "is-warn" : ""),
+        metric("ESS", fmt(ess, 1)),
+        metric("RSS", fmt(rss, 1)),
+        metric("TSS", fmt(tss, 1))
+      ].join("");
+      readout.innerHTML = `El R² reparte la variación total de Y: la parte que la recta explica y la que deja en los residuos. Con β₁ = <b>${fmt(state.b1, 2)}</b>, explica <b>${fmtPct(explained)}</b>. Subir el R² no prueba que el modelo sea correcto: solo dice que esta recta deja menos variación sin explicar.`;
+    }
+
+    input.addEventListener("input", () => { state.b1 = Number(input.value); draw(); });
+    draw();
+  }
+
+  function mountPartialEffect(body) {
+    const TRUE = { b0: 2, b1: 1.2, b2: 0.8 };
+    const state = { x1: 5, x2: 4 };
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>X₁ <output data-output="x1">—</output></span>
+          <input type="range" data-param="x1" min="0" max="10" step="0.5" value="5" aria-label="Valor de X uno">
+        </label>
+        <label class="range-control">
+          <span>X₂ <output data-output="x2">—</output></span>
+          <input type="range" data-param="x2" min="0" max="10" step="0.5" value="4" aria-label="Valor de X dos">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Recta con X₂ actual</span>
+        <span><i class="viz-swatch hollow"></i> Recta con X₂ = 0</span>
+        <span><i class="viz-swatch ochre"></i> Punto elegido</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const x1Input = body.querySelector('[data-param="x1"]');
+    const x2Input = body.querySelector('[data-param="x2"]');
+    const x1Output = body.querySelector('[data-output="x1"]');
+    const x2Output = body.querySelector('[data-output="x2"]');
+
+    function draw() {
+      const yAt = x => TRUE.b0 + TRUE.b1 * x + TRUE.b2 * state.x2;
+      const chart = frame({
+        w: 560, h: 280, l: 50, r: 18, t: 18, b: 36,
+        xd: [0, 10.5], yd: [0, 24],
+        xt: [0, 2, 4, 6, 8, 10], yt: niceTicks(0, 24, 5),
+        aria: "Recta de regresión para un valor fijo de X dos y punto elegido"
+      });
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(TRUE.b0 + TRUE.b1 * 0),
+        x2: chart.sx(10.5), y2: chart.sy(TRUE.b0 + TRUE.b1 * 10.5),
+        class: "viz-line-ghost"
+      }));
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(yAt(0)),
+        x2: chart.sx(10.5), y2: chart.sy(yAt(10.5)),
+        class: "viz-line"
+      }));
+      const y = yAt(state.x1);
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(state.x1), y1: chart.bottom, x2: chart.sx(state.x1), y2: chart.sy(y), class: "viz-guide"
+      }));
+      chart.svg.appendChild(make("circle", {
+        cx: chart.sx(state.x1), cy: chart.sy(y), r: 6, class: "viz-dot-ochre"
+      }));
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(state.x1) + 10, y: chart.sy(y) - 10, class: "viz-value"
+      }, `Ŷ = ${fmt(y, 1)}`));
+      addAxisLabels(chart, "X₁", "Y");
+      stage.replaceChildren(chart.svg);
+
+      x1Output.textContent = fmt(state.x1, 1);
+      x2Output.textContent = fmt(state.x2, 1);
+      metrics.innerHTML = [
+        metric("Efecto parcial β₁", fmt(TRUE.b1)),
+        metric("Desplazamiento por X₂", fmt(TRUE.b2)),
+        metric("X₂ actual", fmt(state.x2, 1)),
+        metric("Ŷ", fmt(y, 1), "is-good")
+      ].join("");
+      readout.innerHTML = `Mover <b>X₁</b> te lleva a lo largo de la misma recta: cada unidad suma <b>${fmt(TRUE.b1)}</b> a Y. Mover <b>X₂</b> desplaza la recta entera: el cambio de nivel es <b>${fmt(TRUE.b2)}</b> por unidad, pero la pendiente no cambia. Eso es <span class="concept-inline">ceteris paribus</span>: una variable se mueve, las demás quedan fijas.`;
+    }
+
+    x1Input.addEventListener("input", () => { state.x1 = Number(x1Input.value); draw(); });
+    x2Input.addEventListener("input", () => { state.x2 = Number(x2Input.value); draw(); });
+    draw();
+  }
+
+  function mountFrischWaugh(body) {
+    const state = { rho: 0.65 };
+    const rows = Array.from({ length: 18 }, (_, index) => {
+      const x2 = 1 + index * 0.55;
+      const noise = Math.sin(index * 2.3) * 1.15;
+      const x1 = 1 + 0.7 * x2 + noise;
+      const y = 2 + 1 * x1 + 1.1 * x2 + Math.cos(index * 1.7) * 0.75;
+      return { x1, x2, y };
+    });
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Correlación entre X₁ y X₂ <output data-output="rho">—</output></span>
+          <input type="range" data-param="rho" min="0" max="0.9" step="0.05" value="0.65" aria-label="Correlación entre X uno y X dos">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch ochre"></i> Regresión simple de Y en X₁</span>
+        <span><i class="viz-swatch"></i> Regresión de los residuos (Frisch-Waugh)</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('[data-param="rho"]');
+    const output = body.querySelector('[data-output="rho"]');
+
+    function draw() {
+      const work = rows.map((row, index) => {
+        const noise = Math.sin(index * 2.3) * 1.15;
+        const x1 = 1 + state.rho * 1.7 * row.x2 + (1 - state.rho) * noise;
+        const y = 2 + 1 * x1 + 1.1 * row.x2 + Math.cos(index * 1.7) * 0.75;
+        return { x1, x2: row.x2, y };
+      });
+      const raw = fitOLS(work, "y", ["x1"]);
+      const yOnX2 = fitOLS(work, "y", ["x2"]);
+      const x1OnX2 = fitOLS(work, "x1", ["x2"]);
+      const residuals = work.map(row => ({
+        x: row.x1 - (x1OnX2[0] + x1OnX2[1] * row.x2),
+        y: row.y - (yOnX2[0] + yOnX2[1] * row.x2)
+      }));
+      const partial = covarianceOf(residuals.map(row => row.x), residuals.map(row => row.y))
+        / varianceOf(residuals.map(row => row.x));
+      const minX1 = Math.min(...work.map(row => row.x1)) - 0.6;
+      const maxX1 = Math.max(...work.map(row => row.x1)) + 0.6;
+      const minY = Math.min(...work.map(row => row.y)) - 1;
+      const maxY = Math.max(...work.map(row => row.y)) + 1;
+      const left = frame({
+        w: 270, h: 245, l: 44, r: 14, t: 20, b: 34,
+        xd: [minX1, maxX1], yd: [minY, maxY],
+        xt: niceTicks(minX1, maxX1, 3), yt: niceTicks(minY, maxY, 4),
+        aria: "Y contra X uno con la recta de regresión simple"
+      });
+      work.forEach(row => {
+        left.svg.appendChild(make("circle", {
+          cx: left.sx(row.x1), cy: left.sy(row.y), r: 3.2, class: "viz-dot-ochre"
+        }));
+      });
+      left.svg.appendChild(make("line", {
+        x1: left.sx(minX1), y1: left.sy(raw[0] + raw[1] * minX1),
+        x2: left.sx(maxX1), y2: left.sy(raw[0] + raw[1] * maxX1),
+        class: "viz-line-2"
+      }));
+      left.svg.appendChild(make("text", { x: 8, y: 14, class: "viz-axis-title" }, "Regresión simple"));
+      addAxisLabels(left, "X₁", "Y");
+
+      const maxRes = Math.max(
+        ...residuals.map(row => Math.abs(row.x)),
+        ...residuals.map(row => Math.abs(row.y))
+      ) * 1.15 || 1;
+      const right = frame({
+        w: 270, h: 245, l: 44, r: 14, t: 20, b: 34,
+        xd: [-maxRes, maxRes], yd: [-maxRes, maxRes],
+        xt: niceTicks(-maxRes, maxRes, 3), yt: niceTicks(-maxRes, maxRes, 4),
+        aria: "Residuos de Y contra residuos de X uno"
+      });
+      residuals.forEach(row => {
+        right.svg.appendChild(make("circle", {
+          cx: right.sx(row.x), cy: right.sy(row.y), r: 3.2, class: "viz-dot"
+        }));
+      });
+      right.svg.appendChild(make("line", {
+        x1: right.sx(-maxRes), y1: right.sy(partial * -maxRes),
+        x2: right.sx(maxRes), y2: right.sy(partial * maxRes),
+        class: "viz-line"
+      }));
+      right.svg.appendChild(make("text", { x: 8, y: 14, class: "viz-axis-title" }, "Residuos parciales"));
+      addAxisLabels(right, "resid(X₁ | X₂)", "resid(Y | X₂)");
+      stage.replaceChildren(left.svg, right.svg);
+
+      output.textContent = fmt(state.rho, 2);
+      metrics.innerHTML = [
+        metric("β simple", fmt(raw[1]), Math.abs(raw[1] - 1) > 0.12 ? "is-warn" : ""),
+        metric("β parcial", fmt(partial), Math.abs(partial - 1) < 0.12 ? "is-good" : ""),
+        metric("β verdadero", "1,00"),
+        metric("Correlación", fmt(state.rho, 2))
+      ].join("");
+      readout.innerHTML = `La regresión simple de Y en X₁ da <b>${fmt(raw[1])}</b> porque X₁ trae parte del efecto de X₂. Frisch-Waugh elimina esa parte: regresás X₁ en X₂, regresás Y en X₂ y usás los residuos. La pendiente parcial es <b>${fmt(partial)}</b>, más cerca del efecto verdadero <b>1,00</b>. Es el mismo β̂₁ de la regresión múltiple.`;
+    }
+
+    input.addEventListener("input", () => { state.rho = Number(input.value); draw(); });
+    draw();
+  }
+
+  function mountPower(body) {
+    const state = { effect: 2, alpha: 0.05 };
+    const CRITICAL = { 0.1: 1.2816, 0.05: 1.6449, 0.01: 2.3263 };
+
+    body.innerHTML = `
+      <div class="viz-seg" data-alpha-group role="group" aria-label="Nivel de significación">
+        <button type="button" data-alpha="0.1" >α = 10%</button>
+        <button type="button" data-alpha="0.05" class="active">α = 5%</button>
+        <button type="button" data-alpha="0.01">α = 1%</button>
+      </div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Efecto verdadero <output data-output="effect">—</output></span>
+          <input type="range" data-param="effect" min="0" max="4" step="0.1" value="2" aria-label="Efecto verdadero">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch hollow"></i> H₀: efecto = 0</span>
+        <span><i class="viz-swatch ochre"></i> Distribución si el efecto es real</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const effectInput = body.querySelector('[data-param="effect"]');
+    const effectOutput = body.querySelector('[data-output="effect"]');
+    const alphaGroup = body.querySelector("[data-alpha-group]");
+
+    function draw() {
+      const critical = CRITICAL[state.alpha];
+      const maxX = Math.max(4.5, state.effect + 3.8);
+      const chart = frame({
+        w: 560, h: 250, l: 44, r: 18, t: 20, b: 36,
+        xd: [-3.5, maxX], yd: [0, 0.46],
+        xt: niceTicks(-3.5, maxX, 6), yt: [],
+        xfmt: value => fmt(value, 1),
+        aria: "Distribuciones bajo la hipótesis nula y bajo una alternativa, con la región de rechazo"
+      });
+      const xMin = -3.5;
+      const xMax = maxX;
+      const toPoints = (mean, from, to) => {
+        const points = [];
+        for (let index = 0; index <= 100; index += 1) {
+          const x = from + (index / 100) * (to - from);
+          points.push({ x: chart.sx(x), y: chart.sy(normalPDF(x, mean, 1)) });
+        }
+        return points;
+      };
+      const nullPoints = toPoints(0, xMin, xMax);
+      const altPoints = toPoints(state.effect, xMin, xMax);
+      chart.svg.appendChild(make("path", {
+        d: areaPath(toPoints(state.effect, critical, xMax), chart.bottom), class: "viz-area-ochre"
+      }));
+      chart.svg.appendChild(make("path", {
+        d: areaPath(toPoints(0, critical, xMax), chart.bottom), class: "viz-tail"
+      }));
+      chart.svg.appendChild(make("path", { d: linePath(nullPoints), class: "viz-line-ghost" }));
+      chart.svg.appendChild(make("path", { d: linePath(altPoints), class: "viz-line-2" }));
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(critical), y1: chart.t, x2: chart.sx(critical), y2: chart.bottom, class: "viz-threshold"
+      }));
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(critical) + 5, y: chart.t + 4, class: "viz-text-muted"
+      }, `z crítico = ${fmt(critical, 2)}`));
+      chart.svg.appendChild(make("text", {
+        x: chart.sx(state.effect), y: chart.t + 16, class: "viz-text", "text-anchor": "middle"
+      }, "efecto real"));
+      addAxisLabels(chart, "valor del estadístico", "densidad");
+      stage.replaceChildren(chart.svg);
+
+      const power = 1 - normalCDF(critical, state.effect, 1);
+      const betaError = 1 - power;
+      effectOutput.textContent = fmt(state.effect, 1);
+      metrics.innerHTML = [
+        metric("α", fmtPct(state.alpha), "is-warn"),
+        metric("Potencia", fmtPct(power), power > 0.8 ? "is-good" : ""),
+        metric("Error tipo II", fmtPct(betaError)),
+        metric("Efecto", fmt(state.effect, 1))
+      ].join("");
+      readout.innerHTML = `La curva punteada es lo que pasa si H₀ es cierta. La curva ochre es lo que pasa si el efecto real es <b>${fmt(state.effect, 1)}</b>. La zona sombreada a la derecha del umbral es la <b>potencia</b>: la probabilidad de detectar el efecto. Con α = ${fmtPct(state.alpha)}, la potencia es <b>${fmtPct(power)}</b> y el error tipo II es <b>${fmtPct(betaError)}</b>. Bajar α reduce los falsos positivos, pero también la potencia si todo lo demás queda igual.`;
+    }
+
+    effectInput.addEventListener("input", () => { state.effect = Number(effectInput.value); draw(); });
+    alphaGroup.addEventListener("click", event => {
+      const button = event.target.closest("[data-alpha]");
+      if (!button) return;
+      state.alpha = Number(button.dataset.alpha);
+      setActive(alphaGroup, "data-alpha", String(state.alpha));
+      draw();
+    });
+    draw();
+  }
+
+  function mountInteraction(body) {
+    const state = { gap: -8, slopeDiff: 0.28, xEval: 20 };
+    const menX = Array.from({ length: 16 }, (_, index) => 4 + index * 1.55);
+    const womenX = menX.map(value => value + 1.4);
+    const noise = index => ((index * 41) % 17 - 8) * 1.4;
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Brecha base δ₀ <output data-output="gap">—</output></span>
+          <input type="range" data-param="gap" min="-16" max="16" step="1" value="-8" aria-label="Brecha en X igual a cero">
+        </label>
+        <label class="range-control">
+          <span>Diferencia de pendientes δ₁ <output data-output="slopeDiff">—</output></span>
+          <input type="range" data-param="slopeDiff" min="-0.5" max="0.8" step="0.02" value="0.28" aria-label="Diferencia de pendientes">
+        </label>
+        <label class="range-control">
+          <span>Evaluar la brecha en X <output data-output="xEval">—</output></span>
+          <input type="range" data-param="xEval" min="0" max="30" step="1" value="20" aria-label="Valor de X para evaluar la brecha">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Hombres (D = 0)</span>
+        <span><i class="viz-swatch ochre"></i> Mujeres (D = 1)</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const gapInput = body.querySelector('[data-param="gap"]');
+    const slopeInput = body.querySelector('[data-param="slopeDiff"]');
+    const evalInput = body.querySelector('[data-param="xEval"]');
+    const gapOutput = body.querySelector('[data-output="gap"]');
+    const slopeOutput = body.querySelector('[data-output="slopeDiff"]');
+    const evalOutput = body.querySelector('[data-output="xEval"]');
+
+    function draw() {
+      const rows = [];
+      menX.forEach((x, index) => {
+        rows.push({ x, d: 0, xd: 0, y: 100 + 2 * x + noise(index) });
+      });
+      womenX.forEach((x, index) => {
+        rows.push({
+          x, d: 1, xd: x,
+          y: 100 + 2 * x + state.gap + state.slopeDiff * x + noise(index + 9)
+        });
+      });
+      const fit = fitOLS(rows, "y", ["x", "d", "xd"]);
+      const chart = frame({
+        w: 560, h: 285, l: 52, r: 18, t: 18, b: 36,
+        xd: [2, 34], yd: [70, 180],
+        xt: [2, 6, 10, 14, 18, 22, 26, 30, 34], yt: niceTicks(70, 180, 5),
+        aria: "Rectas de regresión por grupo con interacción entre X y la variable ficticia"
+      });
+      rows.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x), cy: chart.sy(row.y), r: 3.2,
+          class: row.d ? "viz-dot-ochre" : "viz-dot"
+        }));
+      });
+      [0, 1].forEach(d => {
+        const yAt = x => fit[0] + fit[1] * x + fit[2] * d + fit[3] * d * x;
+        chart.svg.appendChild(make("line", {
+          x1: chart.sx(2), y1: chart.sy(yAt(2)),
+          x2: chart.sx(34), y2: chart.sy(yAt(34)),
+          class: d ? "viz-line-2" : "viz-line"
+        }));
+      });
+      const gap = fit[2] + fit[3] * state.xEval;
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(state.xEval), y1: chart.t, x2: chart.sx(state.xEval), y2: chart.bottom,
+        class: "viz-guide"
+      }));
+      anchor(chart, state.xEval, "X evaluado");
+      addAxisLabels(chart, "X", "Y");
+      stage.replaceChildren(chart.svg);
+
+      gapOutput.textContent = fmtSigned(state.gap, 1);
+      slopeOutput.textContent = fmtSigned(state.slopeDiff, 2);
+      evalOutput.textContent = fmt(state.xEval, 0);
+      metrics.innerHTML = [
+        metric("Brecha en X = 0", fmtSigned(fit[2], 1)),
+        metric(`Brecha en X = ${fmt(state.xEval, 0)}`, fmtSigned(gap, 1), "is-warn"),
+        metric("Pendiente D=0", fmt(fit[1], 2)),
+        metric("Pendiente D=1", fmt(fit[1] + fit[3], 2))
+      ].join("");
+      readout.innerHTML = `Con interacción, la brecha no es un solo número: es <b>δ₀ + δ₁X</b>. En X = 0 vale <b>${fmtSigned(fit[2], 1)}</b>; en X = ${fmt(state.xEval, 0)} vale <b>${fmtSigned(gap, 1)}</b>. La diferencia de pendientes es <b>${fmtSigned(fit[3], 2)}</b>. El coeficiente de la dummy solo no alcanza para describir la diferencia entre grupos.`;
+    }
+
+    gapInput.addEventListener("input", () => { state.gap = Number(gapInput.value); draw(); });
+    slopeInput.addEventListener("input", () => { state.slopeDiff = Number(slopeInput.value); draw(); });
+    evalInput.addEventListener("input", () => { state.xEval = Number(evalInput.value); draw(); });
+    draw();
+  }
+
+  function mountAicBic(body) {
+    const MODELS = [
+      { name: "Lineal", k: 2, rss: 100 },
+      { name: "Cuadrática", k: 4, rss: 88 },
+      { name: "Flexible", k: 6, rss: 82 }
+    ];
+    const state = { criterion: "AIC", n: 100 };
+    const valuesOf = criterion => MODELS.map(model => {
+      const penalty = criterion === "AIC" ? 2 * model.k : model.k * Math.log(state.n);
+      return state.n * Math.log(model.rss / state.n) + penalty;
+    });
+
+    body.innerHTML = `
+      <div class="viz-seg" data-criterion-group role="group" aria-label="Criterio de selección">
+        <button type="button" data-criterion="AIC" class="active">AIC</button>
+        <button type="button" data-criterion="BIC">BIC</button>
+      </div>
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Tamaño de muestra n <output data-output="n">—</output></span>
+          <input type="range" data-param="n" min="20" max="500" step="10" value="100" aria-label="Tamaño de muestra">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const criterionGroup = body.querySelector("[data-criterion-group]");
+    const nInput = body.querySelector('[data-param="n"]');
+    const nOutput = body.querySelector('[data-output="n"]');
+
+    function draw() {
+      const values = valuesOf(state.criterion);
+      const best = values.indexOf(Math.min(...values));
+      const rawMin = Math.min(...values);
+      const rawMax = Math.max(...values);
+      const pad = Math.max(1, (rawMax - rawMin) * 0.15);
+      const minValue = rawMin - pad;
+      const maxValue = rawMax + pad;
+      const chart = frame({
+        w: 560, h: 255, l: 58, r: 18, t: 20, b: 50,
+        xd: [0, 3], yd: [minValue, maxValue],
+        xt: [0.5, 1.5, 2.5],
+        yt: niceTicks(minValue, maxValue, 4),
+        xfmt: value => {
+          const model = MODELS[Math.round(value - 0.5)];
+          return model ? model.name : "";
+        },
+        aria: "Comparación de AIC o BIC entre tres modelos con distinta complejidad"
+      });
+      MODELS.forEach((model, index) => {
+        const x = 0.5 + index;
+        const value = values[index];
+        const width = chart.sx(0.78) - chart.sx(0.22);
+        chart.svg.appendChild(make("rect", {
+          x: chart.sx(x) - width / 2, y: chart.sy(value),
+          width, height: chart.bottom - chart.sy(value), rx: 5,
+          class: index === best ? "viz-bar" : "viz-bar-ochre"
+        }));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(x), y: chart.sy(value) - 7, class: "viz-value", "text-anchor": "middle"
+        }, fmt(value, 1)));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(x), y: chart.bottom + 16, class: "viz-text-muted", "text-anchor": "middle"
+        }, `k = ${model.k}`));
+      });
+      addAxisLabels(chart, "modelo", state.criterion);
+      stage.replaceChildren(chart.svg);
+
+      nOutput.textContent = String(state.n);
+      metrics.innerHTML = [
+        metric(state.criterion, fmt(values[best], 2), "is-good"),
+        metric("Modelo elegido", MODELS[best].name),
+        metric("RSS", fmt(MODELS[best].rss, 0)),
+        metric("Parámetros", String(MODELS[best].k)),
+        metric("n", String(state.n))
+      ].join("");
+      readout.innerHTML = `Los tres modelos ajustan mejor al agregar parámetros, pero el criterio les cobra una multa. Con <b>${state.criterion}</b> y n = <b>${state.n}</b>, el mínimo está en <b>${MODELS[best].name}</b>, con k = ${MODELS[best].k}. El BIC castiga más fuerte la complejidad que el AIC, y esa diferencia crece con n; por eso a veces elige un modelo más simple. Un criterio más bajo es mejor, pero ninguno prueba que el modelo sea el verdadero.`;
+    }
+
+    criterionGroup.addEventListener("click", event => {
+      const button = event.target.closest("[data-criterion]");
+      if (!button) return;
+      state.criterion = button.dataset.criterion;
+      setActive(criterionGroup, "data-criterion", state.criterion);
+      draw();
+    });
+    nInput.addEventListener("input", () => { state.n = Number(nInput.value); draw(); });
+    draw();
+  }
+
+  function mountChow(body) {
+    const state = { gap: -10, slopeDiff: 0.25 };
+    const menX = Array.from({ length: 20 }, (_, index) => 4 + index * 1.25);
+    const womenX = menX.map(value => value + 1.2);
+    const noise = index => ((index * 29) % 13 - 6) * 1.5;
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Diferencia de intercepto <output data-output="gap">—</output></span>
+          <input type="range" data-param="gap" min="-16" max="16" step="1" value="-10" aria-label="Diferencia de intercepto">
+        </label>
+        <label class="range-control">
+          <span>Diferencia de pendiente <output data-output="slopeDiff">—</output></span>
+          <input type="range" data-param="slopeDiff" min="-0.4" max="0.6" step="0.02" value="0.25" aria-label="Diferencia de pendiente">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch"></i> Grupo 1</span>
+        <span><i class="viz-swatch ochre"></i> Grupo 2</span>
+        <span><i class="viz-swatch hollow"></i> Recta conjunta restringida</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const gapInput = body.querySelector('[data-param="gap"]');
+    const slopeInput = body.querySelector('[data-param="slopeDiff"]');
+    const gapOutput = body.querySelector('[data-output="gap"]');
+    const slopeOutput = body.querySelector('[data-output="slopeDiff"]');
+
+    function draw() {
+      const rows = [];
+      menX.forEach((x, index) => rows.push({ x, d: 0, y: 100 + 2 * x + noise(index) }));
+      womenX.forEach((x, index) => rows.push({
+        x, d: 1, y: 100 + 2 * x + state.gap + state.slopeDiff * x + noise(index + 11)
+      }));
+      const pooled = fitOLS(rows, "y", ["x"]);
+      const group1 = fitOLS(rows.filter(row => row.d === 0), "y", ["x"]);
+      const group2 = fitOLS(rows.filter(row => row.d === 1), "y", ["x"]);
+      const scrRestricted = rows.reduce((sum, row) => sum + (row.y - (pooled[0] + pooled[1] * row.x)) ** 2, 0);
+      const scrUnrestricted = rows.reduce((sum, row) => {
+        const fit = row.d === 0 ? group1 : group2;
+        return sum + (row.y - (fit[0] + fit[1] * row.x)) ** 2;
+      }, 0);
+      const fStat = ((scrRestricted - scrUnrestricted) / 2) / (scrUnrestricted / (rows.length - 4));
+      const chart = frame({
+        w: 560, h: 290, l: 52, r: 18, t: 18, b: 36,
+        xd: [2, 34], yd: [70, 180],
+        xt: [2, 6, 10, 14, 18, 22, 26, 30, 34], yt: niceTicks(70, 180, 5),
+        aria: "Dispersión por grupo, recta conjunta y rectas separadas"
+      });
+      rows.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x), cy: chart.sy(row.y), r: 3.1,
+          class: row.d ? "viz-dot-ochre" : "viz-dot"
+        }));
+      });
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(2), y1: chart.sy(pooled[0] + pooled[1] * 2),
+        x2: chart.sx(34), y2: chart.sy(pooled[0] + pooled[1] * 34),
+        class: "viz-line-ghost"
+      }));
+      [group1, group2].forEach((fit, index) => {
+        chart.svg.appendChild(make("line", {
+          x1: chart.sx(2), y1: chart.sy(fit[0] + fit[1] * 2),
+          x2: chart.sx(34), y2: chart.sy(fit[0] + fit[1] * 34),
+          class: index === 0 ? "viz-line" : "viz-line-2"
+        }));
+      });
+      addAxisLabels(chart, "X", "Y");
+      stage.replaceChildren(chart.svg);
+
+      gapOutput.textContent = fmtSigned(state.gap, 0);
+      slopeOutput.textContent = fmtSigned(state.slopeDiff, 2);
+      metrics.innerHTML = [
+        metric("F de Chow", fmt(fStat, 2), fStat > 3.2 ? "is-warn" : "is-good"),
+        metric("SCR restringida", fmt(scrRestricted, 1)),
+        metric("SCR sin restringir", fmt(scrUnrestricted, 1)),
+        metric("gl", "2 y 36")
+      ].join("");
+      readout.innerHTML = `La recta punteada impone la misma función de regresión para los dos grupos; las rectas de color dejan que cambien intercepto y pendiente. El estadístico F compara las dos sumas de residuos: <b>${fmt(fStat, 2)}</b>. Si los grupos son iguales, F debería ser chico. Con diferencias grandes, F crece y la hipótesis de misma función de regresión se vuelve difícil de sostener.`;
+    }
+
+    gapInput.addEventListener("input", () => { state.gap = Number(gapInput.value); draw(); });
+    slopeInput.addEventListener("input", () => { state.slopeDiff = Number(slopeInput.value); draw(); });
+    draw();
+  }
+
+  function mountWls(body) {
+    const state = { hetero: 1.2 };
+    const rows = Array.from({ length: 24 }, (_, index) => {
+      const x = 1 + index * 0.8;
+      const sd = 0.5 + (index / 23) * state.hetero * 2.4;
+      const u = Math.sin(index * 2.7) * sd;
+      return { x, y: 2 + 1 * x + u, sd };
+    });
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Crecimiento de la varianza <output data-output="hetero">—</output></span>
+          <input type="range" data-param="hetero" min="0" max="2" step="0.1" value="1.2" aria-label="Crecimiento de la varianza">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+      <div class="viz-legend">
+        <span><i class="viz-swatch ochre"></i> MCO</span>
+        <span><i class="viz-swatch"></i> Mínimos cuadrados ponderados</span>
+      </div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('[data-param="hetero"]');
+    const output = body.querySelector('[data-output="hetero"]');
+
+    function draw() {
+      const work = rows.map((row, index) => {
+        const sd = 0.5 + (index / 23) * state.hetero * 2.4;
+        const u = Math.sin(index * 2.7) * sd;
+        return { x: row.x, y: 2 + 1 * row.x + u, sd, w: 1 / (sd * sd) };
+      });
+      const ols = fitOLS(work, "y", ["x"]);
+      const wls = weightedFit(work, "y", "x", "w");
+      const chart = frame({
+        w: 560, h: 285, l: 50, r: 18, t: 18, b: 36,
+        xd: [0, 22], yd: [-2, 28],
+        xt: [0, 4, 8, 12, 16, 20], yt: niceTicks(-2, 28, 5),
+        aria: "Dispersión con varianza creciente y rectas de MCO y de mínimos cuadrados ponderados"
+      });
+      work.forEach(row => {
+        chart.svg.appendChild(make("circle", {
+          cx: chart.sx(row.x), cy: chart.sy(row.y), r: 3.2, class: "viz-dot"
+        }));
+      });
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(ols[0]),
+        x2: chart.sx(22), y2: chart.sy(ols[0] + ols[1] * 22),
+        class: "viz-line-2"
+      }));
+      chart.svg.appendChild(make("line", {
+        x1: chart.sx(0), y1: chart.sy(wls[0]),
+        x2: chart.sx(22), y2: chart.sy(wls[0] + wls[1] * 22),
+        class: "viz-line"
+      }));
+      addAxisLabels(chart, "X", "Y");
+      stage.replaceChildren(chart.svg);
+
+      output.textContent = fmt(state.hetero, 1);
+      metrics.innerHTML = [
+        metric("β MCO", fmt(ols[1], 3), Math.abs(ols[1] - 1) > 0.08 ? "is-warn" : ""),
+        metric("β WLS", fmt(wls[1], 3), Math.abs(wls[1] - 1) < 0.08 ? "is-good" : ""),
+        metric("β verdadero", "1,000"),
+        metric("Varianza", fmt(state.hetero, 1))
+      ].join("");
+      readout.innerHTML = `Cuando la varianza del error aumenta con X, MCO sigue siendo insesgado pero deja de ser eficiente. Los mínimos cuadrados ponderados le dan menos peso a las observaciones más ruidosas: la recta <b>verde</b> es más estable que la <b>ochre</b>. El costo es que hay que conocer o estimar la forma de la varianza; si se elige mal, se pierde la ventaja.`;
+    }
+
+    input.addEventListener("input", () => { state.hetero = Number(input.value); draw(); });
+    draw();
+  }
+
+  function mountDistributedLag(body) {
+    const state = { lambda: 0.6 };
+
+    body.innerHTML = `
+      <div class="viz-controls">
+        <label class="range-control">
+          <span>Persistencia λ <output data-output="lambda">—</output></span>
+          <input type="range" data-param="lambda" min="0" max="0.95" step="0.05" value="0.6" aria-label="Persistencia del efecto">
+        </label>
+      </div>
+      <div class="viz-stage"></div>
+      <div class="viz-metrics" aria-live="polite"></div>
+      <div class="viz-readout"></div>
+    `;
+
+    const stage = body.querySelector(".viz-stage");
+    const metrics = body.querySelector(".viz-metrics");
+    const readout = body.querySelector(".viz-readout");
+    const input = body.querySelector('[data-param="lambda"]');
+    const output = body.querySelector('[data-output="lambda"]');
+
+    function draw() {
+      const weights = Array.from({ length: 7 }, (_, lag) => state.lambda ** lag);
+      const cumulative = 1 / (1 - state.lambda);
+      const chart = frame({
+        w: 560, h: 250, l: 52, r: 18, t: 18, b: 44,
+        xd: [0, 7], yd: [0, 1.15],
+        xt: [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        yt: [0, 0.25, 0.5, 0.75, 1],
+        xfmt: value => `t−${Math.round(value - 0.5)}`,
+        aria: "Pesos de un rezago distribuido con persistencia decreciente"
+      });
+      weights.forEach((weight, lag) => {
+        const x = 0.5 + lag;
+        const width = chart.sx(0.72) - chart.sx(0.28);
+        chart.svg.appendChild(make("rect", {
+          x: chart.sx(x) - width / 2, y: chart.sy(weight),
+          width, height: chart.bottom - chart.sy(weight), rx: 4,
+          class: lag === 0 ? "viz-bar-ochre" : "viz-bar"
+        }));
+        chart.svg.appendChild(make("text", {
+          x: chart.sx(x), y: chart.sy(weight) - 6, class: "viz-value", "text-anchor": "middle"
+        }, fmt(weight, 2)));
+      });
+      addAxisLabels(chart, "rezago", "peso");
+      stage.replaceChildren(chart.svg);
+
+      output.textContent = fmt(state.lambda, 2);
+      metrics.innerHTML = [
+        metric("Impacto inmediato", fmt(weights[0], 2)),
+        metric("Efecto a 4 períodos", fmt(weights.slice(0, 5).reduce((sum, value) => sum + value, 0), 2)),
+        metric("Efecto acumulado", fmt(cumulative, 2), state.lambda > 0.8 ? "is-warn" : ""),
+        metric("λ", fmt(state.lambda, 2))
+      ].join("");
+      readout.innerHTML = `Con λ = <b>${fmt(state.lambda, 2)}</b>, un shock en X no se agota en el período actual: deja efectos de <b>${fmt(weights[1], 2)}</b> en t−1, <b>${fmt(weights[2], 2)}</b> en t−2 y así. El efecto de largo plazo es la suma de todos los pesos, <b>${fmt(cumulative, 2)}</b>. Cuanto más alta la persistencia, más tarda la serie en volver al equilibrio.`;
+    }
+
+    input.addEventListener("input", () => { state.lambda = Number(input.value); draw(); });
+    draw();
+  }
+
+  function anchor(chart, x, label) {
+    chart.svg.appendChild(make("text", {
+      x: chart.sx(x), y: chart.bottom - 8, class: "viz-text-muted", "text-anchor": "middle"
+    }, label));
+  }
+
   window.ECO_VIZ = {
     mounts: {
       "ols-scr": mountScr,
@@ -2131,7 +3170,18 @@
       "trend-season": mountTrendSeason,
       "ar1": mountAR1,
       "proxy-bias": mountProxyBias,
-      "weak-iv": mountWeakIV
+      "weak-iv": mountWeakIV,
+      "frp-frm": mountFrpFrm,
+      "sampling-bias": mountSamplingBias,
+      "r2-parts": mountR2Parts,
+      "partial-effect": mountPartialEffect,
+      "frisch-waugh": mountFrischWaugh,
+      "power": mountPower,
+      "interaction": mountInteraction,
+      "aic-bic": mountAicBic,
+      "chow": mountChow,
+      "wls": mountWls,
+      "distributed-lag": mountDistributedLag
     }
   };
 })();

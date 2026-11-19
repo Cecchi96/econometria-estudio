@@ -570,12 +570,74 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
           ]
         }
       ]
+    },
+    {
+      id: 'c03a-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        {
+          type: 'p',
+          id: 'c03a-s08-p01',
+          html: 'La clase deja tres herramientas en el umbral: el error estándar se usa como denominador pero casi nunca se explica de dónde sale, la potencia se define pero no se calcula antes de estimar, y la tabla de un modelo suele leerse coeficiente por coeficiente como si cada contraste viviera solo. Esta sección completa esas piezas y agrega una cuarta: qué hacer cuando la normalidad no se sostiene. Las cuatro vuelven en el parcial como preguntas de interpretación más que de cálculo.'
+        },
+        {
+          type: 'formula',
+          main: 'ee(β̂<sub>1</sub>) = σ̂ / √[ Σ(X<sub>i</sub> − X̄)<sup>2</sup> ]',
+          legend: [
+            {
+              key: 'σ̂',
+              text: 'Desvío residual estimado: el ruido que queda después del ajuste.'
+            },
+            {
+              key: 'Σ(X<sub>i</sub> − X̄)<sup>2</sup>',
+              text: 'Variación propia de X. Si todos los casos tienen valores parecidos, es chica.'
+            },
+            {
+              key: 'n',
+              text: 'Entra en la suma y en la estimación de σ̂. Más observaciones, más precisión.'
+            }
+          ]
+        },
+        {
+          type: 'p',
+          id: 'c03a-s08-p02',
+          html: 'Mirá las piezas del error estándar. El numerador es el ruido que el modelo no explica: si las variables incluidas explican poco, σ̂ es grande y todos los errores estándar crecen. El denominador mide cuánta información propia aporta X: si todos los casos tienen casi el mismo valor, la suma de desvíos al cuadrado es chica y la pendiente se estima mal, aunque el coeficiente sea grande. El n ayuda por los dos lados, porque agranda la suma de cuadrados y estabiliza la estimación de σ. En regresión múltiple, el denominador pasa a ser la variación de X<sub>j</sub> que no explican las demás variables; ahí se entiende por qué la colinealidad infla los errores estándar. Esa es la conexión con 03B.'
+        },
+        {
+          type: 'p',
+          id: 'c03a-s08-p03',
+          html: 'Con el error estándar se puede planificar antes de estimar. Si esperás un ee de 0,05 y querés 80% de potencia con un contraste bilateral al 5%, el efecto más pequeño que el estudio detectaría de forma confiable ronda (1,96 + 0,84) × 0,05 ≈ 0,14. Si el efecto que te importa es 0,05, el estudio está condenado a no encontrarlo: no es que no exista, es que el diseño no lo distingue del ruido. Esa cuenta se llama tamaño mínimo detectable y es la versión cuantitativa de “no rechazar no es aceptar”. También explica por qué un intervalo ancho no dice “no hay efecto”: dice que hay muchos efectos compatibles, incluido el nulo y otros relevantes.'
+        },
+        {
+          type: 'callout',
+          variant: 'ochre',
+          label: 'Muchos contrastes, un solo 5%',
+          html: 'Si mirás una tabla con diez coeficientes y probás cada uno al 5%, la probabilidad de rechazar al menos una nula verdadera no es 5%: ronda 1 − 0,95<sup>10</sup> ≈ 40%. Con veinte, se acerca a 64%. Por eso no se elige el coeficiente con el p más chico y se lo presenta como hallazgo. Hay que reportar todos los contrastes que se hicieron y, si la pregunta es conjunta, usar el F de la clase 03B. La multiplicidad no invalida un resultado puntual, pero cambia su credibilidad.'
+        },
+        {
+          type: 'p',
+          id: 'c03a-s08-p04',
+          html: '¿Y si la normalidad no se sostiene? En muestras grandes el TCL suele alcanzar y los contrastes t siguen siendo válidos de forma aproximada; el detalle asintótico queda para 03B. En muestras chicas la cuestión es más seria: mirá los residuos, desconfiá de los valores extremos y fijate si las conclusiones cambian al sacar observaciones influyentes. Los tests formales de normalidad no resuelven el problema: con n grande rechazan por desvíos triviales y con n chico tienen poca potencia. Si el resultado es frágil, conviene reportarlo como tal antes que apoyarse en un supuesto que los datos no sostienen.'
+        },
+        {
+          type: 'miniCheck',
+          id: 'c03a-check-08',
+          question: 'Un estudio con 80 observaciones no rechaza H₀ y el IC 95% del coeficiente va de −0,05 a 0,45. ¿Podés concluir que el efecto es nulo?',
+          intro: 'Mirá el ancho del intervalo y pensá qué efectos habrían sido detectables con ese tamaño de muestra.',
+          answer: 'No. El intervalo es amplio: contiene efectos negativos pequeños, el cero y efectos positivos de hasta 0,45. La muestra no permitió precisar el parámetro, y con 80 observaciones la potencia para efectos moderados suele ser baja. La conclusión correcta es que no hubo evidencia suficiente para rechazar H₀ y que el diseño no descarta efectos relevantes. Para sostener ausencia de efecto haría falta un intervalo angosto alrededor de cero, no un intervalo ancho que lo contiene por casualidad.'
+        }
+      ]
     }
   ],
   concepts: {
     mlc: {
       title: 'Modelo lineal clásico',
       sub: 'Gauss-Markov más normalidad: la base de la inferencia exacta.',
+      simple: `<p>Pensá en el MLC como una promesa sobre la forma de las estimaciones: si repitieras el estudio muchas veces, además de estar centradas, se parecerían a una campana. Esa forma es la que te deja traducir “dos errores estándar” a una probabilidad concreta. No arregla nada del diseño: si la variable está correlacionada con lo que quedó afuera, la campana puede estar corrida. Es la diferencia entre saber cuánto pesa un objeto y saber, además, cómo se reparten los errores de la balanza.</p>`,
+      viz: 'sampling-bias',
+      vizIntro: 'Mirá la curva como la distribución muestral del coeficiente. Mové el tamaño de muestra y el sesgo, y fijate qué cambia y qué no.',
+      vizHint: 'El MLC agrega forma normal, no insesgamiento. Con más datos la curva se angosta, pero si el centro está desplazado por un problema de diseño, sigue desplazado.',
       esencia: `
         <div class="definition">El modelo lineal clásico (MLC) es Gauss-Markov más un supuesto distribucional: u es independiente de X y se distribuye N(0, σ<sup>2</sup>). Bajo el MLC, β̂ | X es normal y los estadísticos t y F tienen distribuciones exactas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -610,6 +672,10 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
     t: {
       title: 'Estadístico t',
       sub: 'La distancia entre la estimación y la hipótesis, medida en errores estándar.',
+      simple: `<p>El t mide distancia sin mirar las unidades: no te dice si el efecto es grande, sino cuántos errores estándar lo separan de la hipótesis. Es como medir cuánto se aleja un tirador del centro usando la dispersión de su propio pulso, no los centímetros del blanco. Por eso dos coeficientes del mismo tamaño pueden tener t muy distintos: uno puede estar estimado con mucha más precisión. Si el t es chico, la estimación está cerca del valor nulo o el error estándar es grande; conviene distinguir cuál de las dos cosas pasa.</p>`,
+      viz: 't-dist',
+      vizIntro: 'Mové los grados de libertad y el t observado. La curva es la distribución bajo H₀ y el área sombreada, el valor p bilateral.',
+      vizHint: 'Con pocos grados de libertad la t tiene colas más gruesas y el valor crítico supera 1,96. El t es una distancia estandarizada: cambia si cambia la precisión, aunque el coeficiente quede igual.',
       esencia: `
         <div class="definition">Bajo el MLC y H<sub>0</sub>: β<sub>j</sub> = a, el estadístico t = (β̂<sub>j</sub> − a) / ee(β̂<sub>j</sub>) se distribuye t con n − k − 1 grados de libertad.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -644,6 +710,7 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
     'valor-p': {
       title: 'Valor p',
       sub: 'La evidencia contra H₀, en una escala de probabilidad.',
+      simple: `<p>El valor p responde una pregunta muy específica: si la hipótesis nula fuera cierta, qué tan seguido verías un resultado como el tuyo o más extremo. No dice cuál es la probabilidad de que la hipótesis sea cierta, aunque suene parecido. Un p chico es una mala noticia para H₀; no es una medida del tamaño del efecto ni de su importancia. Pensalo como la probabilidad de sacar un resultado así en un mundo donde no pasa nada.</p>`,
       esencia: `
         <div class="definition">El valor p es la probabilidad de observar un estadístico al menos tan extremo como el de la muestra si H<sub>0</sub> fuera verdadera. Se rechaza H<sub>0</sub> cuando p < α.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -680,6 +747,10 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
     potencia: {
       title: 'Errores y potencia',
       sub: 'α, β y la probabilidad de detectar un efecto real.',
+      simple: `<p>La potencia es la capacidad del estudio para ver un efecto que existe de verdad. Es como la sensibilidad de un detector: si está baja, podés pasar al lado del problema y no enterarte. Sube cuando el efecto es más grande, cuando hay más datos o cuando hay menos ruido. Por eso un resultado no significativo puede significar dos cosas muy distintas: que no hay efecto o que el estudio no estaba en condiciones de encontrarlo.</p>`,
+      viz: 'power',
+      vizIntro: 'Movés el efecto verdadero y cambiás α. La curva punteada representa la nula y la ochre, el mundo donde el efecto existe.',
+      vizHint: 'La zona sombreada a la derecha del umbral es la potencia. Bajar α mueve el umbral y reduce los falsos positivos, pero también la probabilidad de detectar un efecto real.',
       esencia: `
         <div class="definition">α es la probabilidad de rechazar H<sub>0</sub> cuando es verdadera —error tipo I—; β es la probabilidad de no rechazarla cuando es falsa —error tipo II—; la potencia es 1 − β.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -716,6 +787,7 @@ window.CLASE_CONTENIDOS["clase-03a"] = {
     ic: {
       title: 'Intervalo de confianza',
       sub: 'Un rango de valores compatibles con los datos.',
+      simple: `<p>Un intervalo de confianza es el rango de valores que tu muestra no puede descartar. Si va de 0,06 a 0,19, la muestra dice que el efecto es positivo pero no permite precisar cuánto. El 95% no es una probabilidad sobre este intervalo concreto: describe el método, que acierta en 95 de cada 100 muestras parecidas. Un intervalo angosto habla de precisión; no dice nada sobre si el efecto es causal.</p>`,
       esencia: `
         <div class="definition">Un IC al (1 − α)% para β<sub>j</sub> es β̂<sub>j</sub> ± t<sub>α/2, n−k−1</sub> · ee(β̂<sub>j</sub>). En muestreo repetido, el (1 − α)% de los intervalos así construidos contiene al parámetro.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -937,32 +1009,38 @@ sibs        -0.1613124 -0.0259594`,
       {
         title: 'Modelo lineal clásico',
         eq: 'u | X ~ N(0, σ<sup>2</sup>)',
-        note: 'Gauss-Markov más normalidad. Permite inferencia exacta en muestras chicas.'
+        note: 'Gauss-Markov más normalidad. Permite inferencia exacta en muestras chicas.',
+        more: `<p>Dice tres cosas a la vez: el error tiene media cero, varianza constante y forma normal, todo condicional a X. La media cero sostiene el insesgamiento; la varianza constante, los errores estándar usuales; la normalidad, la distribución exacta de t y F.</p><ul><li><b>Cuándo se usa:</b> en muestras chicas, cuando se busca inferencia exacta sin apelar al TCL.</li><li><b>Error típico:</b> creer que la normalidad repara un problema de exogeneidad o de heterocedasticidad. No lo hace.</li><li><b>Conexión:</b> la clase 03B muestra qué pasa cuando se la reemplaza por normalidad asintótica.</li></ul>`
       },
       {
         title: 'Distribución de β̂',
         eq: 'β̂<sub>j</sub> | X ~ N(β<sub>j</sub>, Var(β̂<sub>j</sub>))',
-        note: 'Bajo el MLC. La media es el parámetro y la varianza depende de σ² y de X.'
+        note: 'Bajo el MLC. La media es el parámetro y la varianza depende de σ² y de X.',
+        more: `<p>La forma es normal y cada pieza tiene lectura directa: el centro es el coeficiente poblacional y la dispersión es la varianza del estimador. Condicionar a X significa que el resultado vale para los valores observados de las explicativas.</p><ul><li><b>Cuándo se usa:</b> es el paso previo a estandarizar y construir el estadístico t.</li><li><b>Error típico:</b> confundir Var(β̂<sub>j</sub>) con el error estándar; la varianza está en unidades al cuadrado.</li><li><b>Conexión:</b> de acá salen el denominador del t y la amplitud de todo intervalo.</li></ul>`
       },
       {
         title: 'Estadístico t',
         eq: 't = (β̂<sub>j</sub> − a) / ee(β̂<sub>j</sub>)',
-        note: 'Se distribuye t con n − k − 1 grados de libertad bajo H₀ y normalidad.'
+        note: 'Se distribuye t con n − k − 1 grados de libertad bajo H₀ y normalidad.',
+        more: `<p>El numerador es la distancia entre la estimación y el valor que propone la nula; el denominador la traduce a errores estándar. Al reemplazar σ por su estimador, la normal deja de ser exacta y aparece la t con n − k − 1 grados de libertad.</p><ul><li><b>Cuándo se usa:</b> en cualquier contraste sobre un coeficiente; lo habitual es a = 0.</li><li><b>Error típico:</b> usar z aunque σ sea desconocida, o contar n grados de libertad en vez de n − k − 1.</li><li><b>Conexión:</b> con una sola restricción, F = t<sup>2</sup>; la versión conjunta está en 03B.</li></ul>`
       },
       {
         title: 'Valor p',
         eq: 'p = P(|T| ≥ |t<sub>obs</sub>| | H<sub>0</sub>)',
-        note: 'Se rechaza H₀ si p < α. No es P(H₀ | datos).'
+        note: 'Se rechaza H₀ si p < α. No es P(H₀ | datos).',
+        more: `<p>El valor p es un área de la distribución del estadístico bajo la nula: la cola que queda más allá del valor observado. Con alternativa bilateral se suman las dos colas; con unilateral, una sola. Cuanto más lejos está el estadístico, más chica es esa área.</p><ul><li><b>Cuándo se usa:</b> para reportar evidencia sin imponer un nivel de significación concreto.</li><li><b>Error típico:</b> leerlo como P(H₀ | datos) o compararlo entre modelos con muestras distintas.</li><li><b>Conexión:</b> el intervalo de confianza responde la misma pregunta para todos los valores a la vez.</li></ul>`
       },
       {
         title: 'Intervalo de confianza',
         eq: 'β̂<sub>j</sub> ± t<sub>α/2, n−k−1</sub> · ee(β̂<sub>j</sub>)',
-        note: 'En muestreo repetido, el (1 − α)% de los intervalos contiene al parámetro.'
+        note: 'En muestreo repetido, el (1 − α)% de los intervalos contiene al parámetro.',
+        more: `<p>El intervalo se arma con tres piezas: el centro es la estimación, el margen combina el valor crítico y el error estándar, y el nivel fija cuántas colas se dejan afuera. Si el error estándar se duplica, el margen también.</p><ul><li><b>Cuándo se usa:</b> para reportar magnitudes plausibles, no solo si el efecto es distinto de cero.</li><li><b>Error típico:</b> decir que hay 95% de probabilidad de que β esté adentro; el parámetro es fijo y el intervalo es aleatorio.</li><li><b>Conexión:</b> equivale al contraste bilateral: si a queda fuera, se rechaza H₀: β = a al 5%.</li></ul>`
       },
       {
         title: 'Potencia',
         eq: 'Potencia = P(rechazar H<sub>0</sub> | H<sub>0</sub> falsa) = 1 − β',
-        note: 'Crece con el efecto, con n y con la precisión; cae con el ruido y con un α más exigente.'
+        note: 'Crece con el efecto, con n y con la precisión; cae con el ruido y con un α más exigente.',
+        more: `<p>La potencia es condicional a que la nula sea falsa, así que depende del efecto verdadero: no hay una potencia única, sino una curva. Más efecto, más n o menos ruido corren o angostan la alternativa y agrandan la cola de rechazo.</p><ul><li><b>Cuándo se usa:</b> antes de recolectar datos, para decidir si la muestra alcanza; después, para leer un resultado no significativo.</li><li><b>Error típico:</b> decir potencia = 1 − α. Ese 1 − α supone que H₀ es cierta, justo lo contrario.</li><li><b>Conexión:</b> explica por qué un intervalo ancho no prueba ausencia de efecto.</li></ul>`
       }
     ],
     drills: [

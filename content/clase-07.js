@@ -195,11 +195,33 @@ window.CLASE_CONTENIDOS["clase-07"] = {
           intro: 'Sumá, pero distinguí el primer período del acumulado.',
           answer: 'El efecto inmediato es 0,4. El de largo plazo es 0,4 + 0,3 + 0,1 = 0,8. Si X sube una unidad y se queda ahí, Y sube 0,4 en t, 0,3 más en t+1 y 0,1 más en t+2; a partir de ahí el nivel acumulado es 0,8. Decir que el efecto es 0,4 “para siempre” confunde el multiplicador de impacto con el de largo plazo.' },
     ] },
+    { id: 'c07-s08', number: '08', title: 'Profundización: lo que suele quedar en el aire', blocks: [
+        { type: 'p', id: 'c07-s08-p01',
+          html: 'Hay cuatro piezas que en la clase aparecen de paso y que en el parcial vuelven disfrazadas de detalle. La primera es qué distingue un modelo estático de uno dinámico. La segunda, cómo se elige la cantidad de rezagos. La tercera, por qué el F calculado con R<sup>2</sup> deja de servir cuando cambia la variable dependiente. La cuarta, qué significa de verdad que un contraste conjunto no rechace. Ninguna es un tecnicismo: cada una decide cómo leés una salida de R. Conviene estudiarlas juntas porque responden a una misma pregunta: qué modelo puede sostener la conclusión que querés escribir.' },
+        { type: 'cards', items: [
+          { sym: 'Estático', title: 'Solo el presente', text: 'Y_t depende de X_t y de nada más. Es el punto de partida y el caso particular de los otros dos: si todos los coeficientes de los rezagos son cero, volvés al modelo estático.' },
+          { sym: 'RD finito', title: 'El efecto repartido', text: 'Y_t depende de X_t y de un número fijo de rezagos. Permite leer impacto y acumulado, pero obliga a decidir cuántos rezagos incluir y a convivir con su colinealidad.' },
+          { sym: 'AR', title: 'La serie se mira a sí misma', text: 'Y_t depende de su propio pasado, por ejemplo Y_t−1. Koyck termina siendo un AR con una restricción: el coeficiente de Y_t−1 es ρ y los rezagos de X decaen a esa misma tasa.' },
+        ] },
+        { type: 'p', id: 'c07-s08-p02',
+          html: '¿Cuántos rezagos? No hay una respuesta universal. Con pocos, la dinámica queda en el residuo y aparece autocorrelación; con muchos, perdés grados de libertad y los rezagos se vuelven casi colineales. La práctica razonable es empezar por la teoría sobre el proceso de ajuste, estimar q y q+1 y contrastar con un F conjunto si el último rezago aporta. También podés mirar criterios de información. Lo que no conviene es elegir q según qué coeficiente sale significativo: eso es seleccionar sobre la misma muestra que después usás para inferir. Un q demasiado grande también vuelve más ruidoso el multiplicador de largo plazo. Si sospechás que el efecto de la tasa sobre la inversión tarda hasta seis trimestres, empezá con q = 6 y contrastá si el sexto aporta; no arranques con doce solo porque el software devuelve números.' },
+        { type: 'formula', main: 'F = [(R<sup>2</sup><sub>NR</sub> − R<sup>2</sup><sub>R</sub>)/q] / [(1 − R<sup>2</sup><sub>NR</sub>)/(n − k − 1)]',
+          legend: [{ key: 'R<sup>2</sup><sub>NR</sub>', text: 'Modelo no restringido: deja libres las q restricciones que se quieren contrastar.' }, { key: 'R<sup>2</sup><sub>R</sub>', text: 'Modelo restringido: impone las q restricciones.' }, { key: 'Letra chica', text: 'Los dos modelos deben explicar la misma Y, con la misma muestra y la misma transformación.' }] },
+        { type: 'callout', variant: 'ochre', label: 'El F con R² tiene una letra chica',
+          html: 'La fórmula solo vale si los dos modelos explican la misma variable dependiente, con la misma muestra y la misma transformación. Si comparás un modelo en niveles con uno en logaritmos, o uno con Y contra uno con Y sin tendencia, el R<sup>2</sup> no es comparable y el F no tiene sentido. Tampoco sirve para modelos no anidados. Esa es la razón por la que no se puede comparar el R<sup>2</sup> del modelo con t contra el de la regresión en residuos: son dos variables dependientes distintas. Un F calculado así con modelos distintos no es un contraste: es un número sin distribución.' },
+        { type: 'p', id: 'c07-s08-p03',
+          html: 'La potencia es el otro número que falta. Un contraste conjunto con muchas restricciones reparte la evidencia entre todas y pierde capacidad de detectar cambios moderados. Que un Chow con 19 restricciones dé p = 0,99 no certifica estabilidad: dice que esta muestra no distingue los dos regímenes. Con 93 grados de libertad y coeficientes imprecisos, un cambio económicamente grande puede pasar inadvertido. Antes de celebrar, mirá los intervalos de confianza de cada subperíodo y preguntate qué tamaño de cambio el test podía detectar. La conclusión honesta incluye la potencia, no solo el p. La potencia crece con n, con la precisión de los coeficientes y con la magnitud del cambio; no se arregla bajando el nivel de significancia.' },
+        { type: 'miniCheck', id: 'c07-check-09',
+          question: 'Querés comparar con un F el modelo con tendencia incluida contra el modelo estimado en residuos. ¿Podés usar los R<sup>2</sup> de las dos salidas?',
+          intro: 'Fijate qué variable dependiente tiene cada modelo.',
+          answer: 'No. En el segundo modelo la variable dependiente es Y sin tendencia, no Y. El F con R<sup>2</sup> exige la misma Y, la misma muestra y la misma transformación. Podés comparar los coeficientes de X, que por Frisch-Waugh son iguales, pero no los R<sup>2</sup> ni construir un F con ellos. Para contrastar la tendencia, usá el modelo con t y un F de exclusión sobre ese coeficiente.' },
+    ] },
   ],
   concepts: {
     'proceso-estocastico': {
       title: 'Proceso estocástico',
       sub: 'Una sucesión de variables aleatorias indexadas en el tiempo.',
+      simple: `<p>Pensá en el precio del pan durante veinte años: no viste una foto fija, viste una película, y esa película es la única que te tocó. Si el país hubiera tomado otras decisiones, habrías visto otra película.</p><p>El <strong>proceso</strong> es la regla que genera todas las películas posibles; la <strong>realización</strong> es la que tenés en la planilla. Confundirlas es como creer que tu historia es la única que el mundo podía contar.</p>`,
       esencia: `
         <div class="definition">Un proceso estocástico es una familia {Y<sub>t</sub> : t ∈ T} de variables aleatorias ordenadas por el tiempo. La serie que observás es una sola realización de ese proceso.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -234,6 +256,7 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     estacionariedad: {
       title: 'Estacionariedad',
       sub: 'Las reglas probabilísticas no cambian con el calendario.',
+      simple: `<p>Imaginá que medís la temperatura de tu casa todos los días durante un año. Cambia, sí, pero siempre alrededor de un mismo rango: no se va calentando para siempre. Eso es estabilidad en el lenguaje de las series.</p><p>Si la serie sube sin volver o la dispersión crece, las reglas cambiaron y un solo modelo ya no resume la historia: necesitás transformarla o partirla.</p>`,
       esencia: `
         <div class="definition">Una serie es débilmente estacionaria si E(Y<sub>t</sub>) = μ, Var(Y<sub>t</sub>) = σ<sup>2</sup> y Cov(Y<sub>t</sub>, Y<sub>t+j</sub>) = γ<sub>j</sub> para todo t. Media y varianza finitas y constantes; covarianza que depende solo de la distancia j.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -268,6 +291,7 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     'dependencia-debil': {
       title: 'Dependencia débil',
       sub: 'La memoria se apaga cuando los períodos se alejan.',
+      simple: `<p>El clima de hoy se parece mucho al de ayer, algo al de la semana pasada y casi nada al de hace un año. Esa memoria que se apaga con la distancia es la idea central.</p><p>Si el pasado lejano sigue pesando igual que el reciente, promediar muchos períodos no te aporta más información: te da la misma información varias veces. Ahí la estadística habitual empieza a fallar.</p>`,
       esencia: `
         <div class="definition">Una serie es débilmente dependiente si Y<sub>t</sub> e Y<sub>t+j</sub> son casi independientes a medida que j crece: la covarianza γ<sub>j</sub> tiende a cero lo bastante rápido. Es la condición que permite promediar y aplicar la asintótica habitual en series.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -302,6 +326,7 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     'exogeneidad-estricta': {
       title: 'Exogeneidad estricta',
       sub: 'El error no está correlacionado con ninguna X, pasada, presente ni futura.',
+      simple: `<p>Supongá que querés medir cómo la publicidad afecta las ventas. Si la empresa decide el presupuesto mirando las ventas del mes anterior, causa y efecto se mezclan: la publicidad ya trae información del pasado de las ventas.</p><p>La exogeneidad estricta pide algo más fuerte: que el error de hoy no tenga nada que ver con la publicidad de ningún mes, ni pasado ni futuro. Es una condición de diseño, no algo que se arregle mirando la salida de R.</p>`,
       esencia: `
         <div class="definition">Las X son estrictamente exógenas si E(u<sub>t</sub> | X<sub>1</sub>, …, X<sub>n</sub>) = 0 para todo t. La exogeneidad contemporánea solo pide E(u<sub>t</sub> | X<sub>t</sub>) = 0.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -336,6 +361,10 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     tendencia: {
       title: 'Tendencia',
       sub: 'El nivel de la serie cambia sistemáticamente con el tiempo.',
+      simple: `<p>Pensá en dos cosas que crecen con los años, la cantidad de celulares y el precio del kilo de pan: las dos suben, pero una no explica la otra. La tendencia es ese empuje común del tiempo que puede hacer parecer relacionadas a series que no lo están.</p><p>Antes de creer en un coeficiente alto, preguntate si las dos variables solo están subiendo juntas. Si sacás la tendencia y la relación desaparece, era el calendario, no una conexión real.</p>`,
+      viz: 'trend-season',
+      vizIntro: 'Subí la pendiente y mirá cómo la recta acompaña el nivel de largo plazo. La serie observada se separa en una tendencia y un componente que vuelve cada 12 meses.',
+      vizHint: 'La tendencia explica el nivel, no los picos de cada año. Si el residuo conserva un ciclo, lo que falta no es más tendencia sino estacionalidad.',
       esencia: `
         <div class="definition">Una serie tiene tendencia determinística si su media es una función del tiempo. Puede ser lineal (α<sub>1</sub>t), exponencial (log Y = α<sub>0</sub> + α<sub>1</sub>t) o cuadrática (α<sub>1</sub>t + α<sub>2</sub>t<sup>2</sup>). Ignorarla puede producir regresión espuria.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -370,6 +399,10 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     estacionalidad: {
       title: 'Estacionalidad',
       sub: 'El valor esperado cambia según el mes o el trimestre.',
+      simple: `<p>Las ventas de una juguetería se disparan en diciembre y caen en enero. No es una tendencia ni una casualidad: es un patrón que vuelve todos los años en la misma época.</p><p>Si no lo modelás, el residuo conserva ese ritmo y el modelo cree que hay memoria donde solo hay calendario. La solución es dejar que cada mes tenga su propio nivel, comparando siempre contra un mes de referencia.</p>`,
+      viz: 'trend-season',
+      vizIntro: 'Bajá la pendiente a cero y mové la amplitud: el panel inferior muestra el ciclo anual que la recta no captura.',
+      vizHint: 'La estacionalidad se repite cada 12 meses y no cambia el nivel de largo plazo. Si la omitís, ese ciclo queda en el residuo y se disfraza de autocorrelación.',
       esencia: `
         <div class="definition">Una serie con frecuencia mensual o trimestral es estacional si su nivel esperado depende de la estación del año. Se modela con dummies de mes o trimestre y una categoría base, y se contrasta con un F conjunto.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -404,6 +437,10 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     chow: {
       title: 'Prueba de Chow',
       sub: '¿Los coeficientes son los mismos en dos períodos?',
+      simple: `<p>Imaginá que medís cuánto gastan las familias en comida antes y después de una crisis: la relación entre ingreso y gasto puede haber cambiado, y quizás antes destinaban una proporción y después otra.</p><p>Chow compara dos modelos: uno que fuerza la misma relación en todo el período y otro que deja que cada tramo tenga la suya. Si el segundo ajusta mucho mejor, hay evidencia de que algo cambió. Ojo: no encontrar diferencias no prueba que todo siga igual.</p>`,
+      viz: 'chow',
+      vizIntro: 'Movés la diferencia de intercepto y de pendiente entre dos grupos o períodos y ves cómo responde el F. La recta punteada impone una sola relación para todos.',
+      vizHint: 'Chow contrasta la función entera, no un coeficiente aislado. Un cambio chico en la pendiente puede dar F alto si los datos son precisos.',
       esencia: `
         <div class="definition">La prueba de Chow contrasta la estabilidad de todos los coeficientes entre dos submuestras. Compara la SCR del modelo restringido (un solo juego de coeficientes) con la suma de las SCR de los dos modelos estimados por separado.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -438,6 +475,10 @@ window.CLASE_CONTENIDOS["clase-07"] = {
     'rezagos-distribuidos': {
       title: 'Rezagos distribuidos',
       sub: 'La respuesta de Y a X no es instantánea.',
+      simple: `<p>Cuando el Banco Central sube la tasa, las empresas no cancelan sus proyectos ese mismo día: primero revisan, después negocian y recién meses más tarde ajustan la inversión. El efecto llega por partes.</p><p>Un modelo de rezagos distribuidos reparte ese efecto en varios períodos: cuánto pega hoy y cuánto sigue pegando en los meses siguientes. La suma de todas esas partes es lo que te interesa si el cambio es permanente.</p>`,
+      viz: 'distributed-lag',
+      vizIntro: 'Cambiá la persistencia y mirá cómo se reparten los pesos entre el impacto y los rezagos. La primera barra es el efecto del período en que cambia X.',
+      vizHint: 'El efecto inmediato es solo una parte. La suma de todos los pesos es el multiplicador de largo plazo, y crece rápido cuando la persistencia se acerca a uno.',
       esencia: `
         <div class="definition">Un modelo de rezagos distribuidos finitos incluye X<sub>t</sub>, X<sub>t−1</sub>, …, X<sub>t−q</sub>. β<sub>0</sub> es el multiplicador de impacto y la suma de los β<sub>j</sub> es el multiplicador de largo plazo.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -814,62 +855,74 @@ dec          -0.419141201  0.61921450`,
       {
         title: 'Estacionariedad débil',
         eq: 'E(Y<sub>t</sub>) = μ &nbsp;·&nbsp; Var(Y<sub>t</sub>) = σ<sup>2</sup> &nbsp;·&nbsp; Cov(Y<sub>t</sub>, Y<sub>t+j</sub>) = γ<sub>j</sub>',
-        note: 'Media y varianza finitas y constantes; covarianza que depende solo de la distancia j.'
+        note: 'Media y varianza finitas y constantes; covarianza que depende solo de la distancia j.',
+        more: `<p>Las tres igualdades dicen que el proceso no cambia de reglas: el nivel medio, la dispersión y la memoria dependen de la distancia entre períodos, no de la fecha. Es una definición operativa: se chequea con momentos, no con la distribución completa.</p><ul><li><b>Cuándo se usa:</b> antes de estimar y para justificar la inferencia asintótica.</li><li><b>Error típico:</b> mirar solo la media y olvidar que la varianza también puede depender de t.</li><li><b>Conexión:</b> sin esta base, el coeficiente estimado no tiene un parámetro estable al que apuntar.</li></ul>`
       },
       {
         title: 'Paseo aleatorio',
         eq: 'Y<sub>t</sub> = Y<sub>t−1</sub> + e<sub>t</sub> &nbsp;→&nbsp; Var(Y<sub>t</sub>) = tσ<sup>2</sup>',
-        note: 'No estacionario. La primera diferencia es ruido blanco si e<sub>t</sub> lo es.'
+        note: 'No estacionario. La primera diferencia es ruido blanco si e<sub>t</sub> lo es.',
+        more: `<p>Cada valor arranca en el anterior y le suma un shock nuevo. Por eso la varianza se acumula: después de t períodos es t veces la varianza del shock. La serie no vuelve a un nivel de referencia, se queda donde la dejó el último golpe.</p><ul><li><b>Cuándo se usa:</b> como modelo de series muy persistentes, tipo precios o tipos de cambio.</li><li><b>Error típico:</b> agregarle una tendencia lineal y creer que se volvió estacionaria.</li><li><b>Conexión:</b> la primera diferencia la convierte en ruido blanco si los shocks no están correlacionados.</li></ul>`
       },
       {
         title: 'Tendencia lineal',
         eq: 'Y<sub>t</sub> = α<sub>0</sub> + α<sub>1</sub>t + u<sub>t</sub>',
-        note: 'α<sub>1</sub> es el cambio absoluto por período. Contrastar α<sub>1</sub> = 0 con un t.'
+        note: 'α<sub>1</sub> es el cambio absoluto por período. Contrastar α<sub>1</sub> = 0 con un t.',
+        more: `<p>La serie oscila alrededor de una recta con pendiente constante. α<sub>1</sub> mide cuántas unidades de Y cambia el nivel esperado por período; el signo indica crecimiento o caída.</p><ul><li><b>Cuándo se usa:</b> cuando el gráfico muestra un avance parejo y el cambio absoluto por período es estable.</li><li><b>Error típico:</b> aplicarla a series que crecen a tasa porcentual constante; ahí la recta subestima el crecimiento reciente.</li><li><b>Conexión:</b> es el caso base de la eliminación de tendencia y del contraste con Chow.</li></ul>`
       },
       {
         title: 'Tendencia exponencial',
         eq: 'log Y<sub>t</sub> = α<sub>0</sub> + α<sub>1</sub>t + u<sub>t</sub>',
-        note: '100α<sub>1</sub> es aproximadamente la tasa de crecimiento porcentual por período.'
+        note: '100α<sub>1</sub> es aproximadamente la tasa de crecimiento porcentual por período.',
+        more: `<p>En logaritmos, una tasa constante se vuelve una recta. Por eso α<sub>1</sub> se lee como cambio proporcional: multiplicado por 100, es el crecimiento porcentual aproximado por período. El valor exacto es 100[exp(α<sub>1</sub>) − 1].</p><ul><li><b>Cuándo se usa:</b> con series que crecen a tasa aproximadamente constante, como precios o producto nominal.</li><li><b>Error típico:</b> leer α<sub>1</sub> como puntos porcentuales sin multiplicar por 100.</li><li><b>Conexión:</b> es la misma lógica del modelo semilogarítmico de la clase 4.</li></ul>`
       },
       {
         title: 'Tendencia cuadrática',
         eq: 'Y<sub>t</sub> = α<sub>0</sub> + α<sub>1</sub>t + α<sub>2</sub>t<sup>2</sup> + u<sub>t</sub>',
-        note: 'α<sub>2</sub> capta aceleración. El efecto marginal del tiempo es α<sub>1</sub> + 2α<sub>2</sub>t.'
+        note: 'α<sub>2</sub> capta aceleración. El efecto marginal del tiempo es α<sub>1</sub> + 2α<sub>2</sub>t.',
+        more: `<p>Agrega un término t<sup>2</sup> para permitir que el crecimiento se acelere o se frene. Ya no hay una pendiente única: el efecto del tiempo en cada período es α<sub>1</sub> + 2α<sub>2</sub>t y cambia con t.</p><ul><li><b>Cuándo se usa:</b> cuando el gráfico se curva de forma sistemática y el término lineal deja residuos con forma de parábola.</li><li><b>Error típico:</b> extrapolar la curvatura fuera del rango observado.</li><li><b>Conexión:</b> un cambio de signo en esa pendiente puede ser un quiebre, no una parábola.</li></ul>`
       },
       {
         title: 'Eliminación de tendencia',
         eq: 'Y<sub>t</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>t</sub> + β<sub>3</sub>t + u<sub>t</sub> &nbsp;vs.&nbsp; Y<sub>t</sub>* = β<sub>1</sub>X<sub>t</sub>* + e<sub>t</sub>',
-        note: 'Mismo β<sub>1</sub> por Frisch-Waugh; el R² no es comparable.'
+        note: 'Mismo β<sub>1</sub> por Frisch-Waugh; el R² no es comparable.',
+        more: `<p>Las dos estrategias buscan lo mismo: separar la variación de largo plazo de la relación entre X e Y. Incluir t deja la tendencia dentro del modelo; extraerla trabaja con los residuos de regresar cada variable sobre t.</p><ul><li><b>Cuándo se usa:</b> cuando ambas series comparten tendencia y querés estimar la relación sin ese empuje común.</li><li><b>Error típico:</b> comparar los R² de los dos modelos: la variable dependiente no es la misma.</li><li><b>Conexión:</b> Frisch-Waugh garantiza el mismo β<sub>1</sub> si el modelo está bien especificado.</li></ul>`
       },
       {
         title: 'Estacionalidad mensual',
         eq: 'Y<sub>t</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>t</sub> + Σ<sub>m=2</sub><sup>12</sup> δ<sub>m</sub>M<sub>mt</sub> + u<sub>t</sub>',
-        note: 'Once dummies con enero base. δ<sub>m</sub> es la diferencia respecto de enero.'
+        note: 'Once dummies con enero base. δ<sub>m</sub> es la diferencia respecto de enero.',
+        more: `<p>El modelo deja que el nivel esperado cambie mes a mes sin perder la pendiente de X. Con enero como base, cada δ<sub>m</sub> mide cuánto se aparta el mes m del nivel de enero, manteniendo X constante.</p><ul><li><b>Cuándo se usa:</b> con frecuencia mensual y un patrón que se repite cada año.</li><li><b>Error típico:</b> incluir las doce dummies y la constante: hay colinealidad perfecta.</li><li><b>Conexión:</b> es el mismo esquema de dummies de la clase 5, aplicado al calendario.</li></ul>`
       },
       {
         title: 'Contraste de estacionalidad',
         eq: 'H<sub>0</sub>: δ<sub>2</sub> = … = δ<sub>12</sub> = 0',
-        note: 'F conjunto con 11 restricciones. No alcanza con mirar los t individuales.'
+        note: 'F conjunto con 11 restricciones. No alcanza con mirar los t individuales.',
+        more: `<p>La hipótesis nula junta los once coeficientes mensuales en una sola restricción. No pregunta si enero es distinto de febrero, sino si el conjunto de los meses aporta algo. Es un F con once restricciones en el numerador.</p><ul><li><b>Cuándo se usa:</b> después de estimar el modelo con dummies mensuales o trimestrales.</li><li><b>Error típico:</b> concluir con los t individuales; con once contrastes, alguno puede dar significativo por azar.</li><li><b>Conexión:</b> la misma lógica conjunta aparece en Chow y en la exclusión de rezagos.</li></ul>`
       },
       {
         title: 'Prueba de Chow',
         eq: 'F = [(SCR<sub>R</sub> − (SCR<sub>1</sub> + SCR<sub>2</sub>))/p] / [(SCR<sub>1</sub> + SCR<sub>2</sub>)/(n − 2p)]',
-        note: 'H<sub>0</sub>: coeficientes iguales en los dos períodos. F<sub>p, n−2p</sub>.'
+        note: 'H<sub>0</sub>: coeficientes iguales en los dos períodos. F<sub>p, n−2p</sub>.',
+        more: `<p>El estadístico compara el error del modelo que impone una sola función de regresión con el error de estimar cada subperíodo por separado. Si los coeficientes son iguales, la restricción cuesta poco ajuste y F es chico.</p><ul><li><b>Cuándo se usa:</b> con una fecha de quiebre fijada por historia institucional, no por búsqueda.</li><li><b>Error típico:</b> elegir el corte donde el p es más bajo e ignorar que eso invalida el p.</li><li><b>Conexión:</b> equivale al F conjunto de una dummy y sus interacciones con todas las X.</li></ul>`
       },
       {
         title: 'Rezagos distribuidos',
         eq: 'Y<sub>t</sub> = α<sub>0</sub> + β<sub>0</sub>X<sub>t</sub> + … + β<sub>q</sub>X<sub>t−q</sub> + u<sub>t</sub>',
-        note: 'β<sub>0</sub> es el impacto; θ = Σβ<sub>j</sub> es el multiplicador de largo plazo.'
+        note: 'β<sub>0</sub> es el impacto; θ = Σβ<sub>j</sub> es el multiplicador de largo plazo.',
+        more: `<p>El modelo reparte el efecto de X a lo largo de varios períodos. β<sub>0</sub> es lo que pega en el acto; los β<sub>j</sub> siguientes, lo que sigue llegando. θ suma todo y responde qué pasa si el cambio es permanente.</p><ul><li><b>Cuándo se usa:</b> cuando hay hábitos, contratos o costos de ajuste que demoran la respuesta.</li><li><b>Error típico:</b> reportar solo el impacto y presentarlo como efecto total.</li><li><b>Conexión:</b> los rezagos suelen estar correlacionados entre sí y con el error, lo que complica la estimación.</li></ul>`
       },
       {
         title: 'Reparametrización del RD',
         eq: 'Y<sub>t</sub> = α<sub>0</sub> + θX<sub>t</sub> + β<sub>1</sub>(X<sub>t−1</sub> − X<sub>t</sub>) + … + u<sub>t</sub>',
-        note: 'El coeficiente de X<sub>t</sub> es θ, con su error estándar directamente.'
+        note: 'El coeficiente de X<sub>t</sub> es θ, con su error estándar directamente.',
+        more: `<p>Reescribe el modelo para que el coeficiente de X<sub>t</sub> sea directamente la suma de los β<sub>j</sub>. Al restar X<sub>t</sub> de cada rezago, la regresión devuelve θ con su error estándar, sin calcular covarianzas a mano.</p><ul><li><b>Cuándo se usa:</b> cuando querés contrastar el multiplicador de largo plazo y no cada rezago por separado.</li><li><b>Error típico:</b> leer θ como impacto inmediato; θ es el efecto acumulado.</li><li><b>Conexión:</b> es una reparametrización algebraica, no un modelo distinto.</li></ul>`
       },
       {
         title: 'Koyck',
         eq: 'β<sub>j</sub> = β<sub>0</sub>ρ<sup>j</sup> &nbsp;→&nbsp; θ = β<sub>0</sub>/(1 − ρ)',
-        note: 'Y<sub>t</sub> = α + β<sub>0</sub>X<sub>t</sub> + ρY<sub>t−1</sub> + v<sub>t</sub>. Y<sub>t−1</sub> es endógena.'
+        note: 'Y<sub>t</sub> = α + β<sub>0</sub>X<sub>t</sub> + ρY<sub>t−1</sub> + v<sub>t</sub>. Y<sub>t−1</sub> es endógena.',
+        more: `<p>Impone que cada rezago pese una fracción ρ del anterior. Con eso, infinitos coeficientes quedan resumidos en tres parámetros: el nivel, el impacto y la persistencia. La suma de la serie geométrica da β<sub>0</sub>/(1 − ρ).</p><ul><li><b>Cuándo se usa:</b> cuando la respuesta decae de forma gradual y no querés fijar un número arbitrario de rezagos.</li><li><b>Error típico:</b> estimar por MCO sin advertir que Y<sub>t−1</sub> está correlacionada con v<sub>t</sub>.</li><li><b>Conexión:</b> anticipa el problema de endogeneidad y variables instrumentales de la clase 9.</li></ul>`
       }
     ],
     drills: [

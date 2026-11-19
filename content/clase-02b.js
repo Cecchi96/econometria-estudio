@@ -368,6 +368,57 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
           ]
         }
       ]
+    },
+    {
+      id: "c02b-s08",
+      number: "08",
+      title: "Profundización: lo que suele quedar en el aire",
+      blocks: [
+        {
+          type: "p",
+          id: "c02b-s08-p01",
+          html: 'La clase deja tres piezas en el borde. Primero, qué hacer cuando la colinealidad aparece y qué decisiones no la arreglan. Segundo, cómo se ve la versión perfecta en una base real, donde casi nunca llega con un cartel que diga singular. Tercero, por qué las covarianzas entre coeficientes importan tanto como sus errores estándar. Las tres apuntan a la misma pregunta de parcial: qué modelo estimás, qué podés afirmar y qué no.'
+        },
+        {
+          type: "cards",
+          items: [
+            { sym: "más X", title: "No siempre mejor", text: "Agregar una variable reduce el sesgo si es relevante, pero también sube la varianza. Un control que explica mucho de X₁ y poco de Y encarece la estimación sin mejorar el sesgo. La decisión es un balance, no una carrera por acumular columnas." },
+            { sym: "centrar", title: "No arregla nada", text: "Restar la media cambia el intercepto y su error estándar, pero deja intactos los FIV de las pendientes. Las correlaciones entre regresores no cambian. Si el problema es separar efectos, centrar no lo resuelve." },
+            { sym: "más n", title: "No siempre más información", text: "Agregar observaciones reduce la varianza, pero si repiten la misma estructura de colinealidad el FIV no baja. Lo que falta es variación independiente, no solo filas." }
+          ]
+        },
+        {
+          type: "p",
+          id: "c02b-s08-p02",
+          html: 'La colinealidad perfecta rara vez aparece como dos columnas idénticas a la vista. Aparece como una trampa de ficticias: si incluís todas las categorías y además la constante, las columnas suman la de unos. También aparece cuando un regresor es constante en la submuestra que usás, cuando dos ratios se construyen sobre el mismo total o cuando tenés más parámetros que observaciones. El software no siempre avisa con claridad: omite una columna, la marca como aliased o devuelve un coeficiente que en realidad no está identificado. Antes de culpar a los datos, revisá el diseño de la matriz.'
+        },
+        {
+          type: "p",
+          id: "c02b-s08-p03",
+          html: 'Entre la matriz invertible y la singular hay un continuo. El determinante no alcanza para medir ese deterioro porque cambia con las unidades: si pasás de pesos a miles de pesos, se multiplica por una potencia de mil. El índice de condición, calculado sobre columnas estandarizadas, es la raíz del cociente entre el autovalor más grande de X′X y el más chico. Un valor por encima de 30 suele tomarse como señal de que la inversa es frágil: pequeños cambios en los datos pueden mover mucho los coeficientes. Es un diagnóstico de sensibilidad, no una prueba de que el modelo esté mal.'
+        },
+        {
+          type: "formula",
+          main: "Var(β̂<sub>1</sub> − β̂<sub>2</sub>) = Var(β̂<sub>1</sub>) + Var(β̂<sub>2</sub>) − 2 Cov(β̂<sub>1</sub>, β̂<sub>2</sub>)",
+          legend: [
+            { key: "Cov", text: "Elemento fuera de la diagonal de Var(β̂). Puede ser grande y positiva." },
+            { key: "Lectura", text: "La precisión de una diferencia no sale solo de los errores estándar individuales." },
+            { key: "Conexión", text: "Es la base del contraste de restricciones lineales de la clase 3B." }
+          ]
+        },
+        {
+          type: "p",
+          id: "c02b-s08-p04",
+          html: 'La diagonal de Var(β̂) alcanza para los t individuales, pero no para contrastar restricciones lineales. Si querés testear β₁ = β₂, la varianza de la diferencia depende también de la covarianza. Con colinealidad alta esa covarianza suele ser grande y positiva: los coeficientes se mueven juntos, y su diferencia puede estimarse con mucha más precisión que cada uno por separado. Es la contracara del diagnóstico. El mismo fenómeno que arruina los t individuales puede favorecer ciertos contrastes conjuntos. Por eso no se descarta un modelo solo porque los coeficientes individuales no sean significativos.'
+        },
+        {
+          type: "miniCheck",
+          id: "c02b-check-09",
+          question: "Dos coeficientes tienen errores estándar grandes y su covarianza estimada es alta y positiva. ¿Puede el contraste β₁ = β₂ rechazar con fuerza?",
+          intro: "Mirá la fórmula de la varianza de la diferencia y pensá qué signo tiene el término de covarianza.",
+          answer: "Sí. Var(β̂₁ − β̂₂) = Var(β̂₁) + Var(β̂₂) − 2Cov(β̂₁, β̂₂). Si la covarianza es grande y positiva, el último término resta mucho y la diferencia se estima con precisión. Es el caso típico de dos regresores que se mueven juntos: cada efecto parcial es impreciso, pero la diferencia entre ambos puede estar bien identificada. Para el parcial: no confundas la precisión de un coeficiente con la de una combinación lineal."
+        }
+      ]
     }
   ],
 
@@ -375,6 +426,10 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     multicol: {
       title: "Multicolinealidad",
       sub: "Regresores que se mueven juntos y reparten la información.",
+      simple: `<p>Pensá en dos personas que siempre trabajan juntas. Si el equipo produce más, no podés saber cuánto aporta cada una por separado: las dos se mueven al mismo tiempo. Eso es la multicolinealidad cuando no es perfecta.</p><p>El modelo puede funcionar bien en conjunto y, al mismo tiempo, dejar en claro que separar los aportes individuales sale caro.</p>`,
+      viz: "vif",
+      vizIntro: "Subí el R² de la regresión de una X sobre las demás. Ese R² mide cuánto se mueven juntas: mirá cómo crece el FIV y se ensancha el intervalo.",
+      vizHint: "La multicolinealidad no mueve el coeficiente: infla su varianza. Cuanto más se explica una X con las otras, menos información propia queda para estimar su efecto parcial.",
       esencia: `
         <div class="definition">Hay multicolinealidad cuando las variables explicativas están linealmente relacionadas. Es perfecta si un regresor es combinación lineal exacta de otros; es imperfecta si la relación es fuerte pero no exacta.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -411,6 +466,10 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     fiv: {
       title: "Factor de inflación de varianza",
       sub: "El número que resume cuánto se agranda la varianza por colinealidad.",
+      simple: `<p>El FIV es un amplificador de la duda. Si vale 4, la varianza de tu coeficiente se multiplica por cuatro y el error estándar por dos; si vale 20, la estimación se vuelve muy imprecisa para separar efectos.</p><p>No mide si el modelo está bien: mide cuánto te cuesta estimar ese coeficiente con los regresores que elegiste.</p>`,
+      viz: "vif",
+      vizIntro: "Mové el R² de la regresión auxiliar y mirá cómo se infla la varianza del coeficiente. El coeficiente no se mueve: lo que cambia es el ancho de tu incertidumbre.",
+      vizHint: "El FIV no dice si el efecto existe: dice cuánto cuesta medirlo. Con FIV alto, el intervalo se ensancha y el t baja aunque el coeficiente sea el mismo.",
       esencia: `
         <div class="definition">FIV<sub>j</sub> = 1 / (1 − R<sub>j</sub><sup>2</sup>), donde R<sub>j</sub><sup>2</sup> es el R² de la regresión de X<sub>j</sub> sobre el resto de las variables explicativas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -447,6 +506,7 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     matricial: {
       title: "Regresión matricial",
       sub: "Y = Xβ + u: una línea para n ecuaciones.",
+      simple: `<p>Escribir el modelo con matrices es como pasar varias cuentas sueltas a una planilla: en lugar de n renglones repetidos, tenés un solo objeto con filas y columnas. Cada fila es una observación y cada columna, una variable.</p><p>Con esa forma, estimar los coeficientes deja de ser una receta repetida y se vuelve una operación de álgebra.</p>`,
       esencia: `
         <div class="definition">El modelo de regresión múltiple se escribe Y = Xβ + u, con Y y u de n × 1, X de n × (k + 1) y β de (k + 1) × 1. MCO minimiza û′û y obtiene β̂ = (X′X)<sup>−1</sup>X′Y.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -483,6 +543,7 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     proyeccion: {
       title: "Matriz de proyección",
       sub: "La operación que separa lo explicado de lo residual.",
+      simple: `<p>Imaginá la sombra de un objeto sobre una pared. La sombra es lo más parecido al objeto que se puede lograr usando solo esa superficie. La proyección hace eso con Y sobre el espacio que generan tus X: toma la parte que se puede explicar y deja el resto como residuo.</p><p>Si el modelo está mal, la sombra también será mala, pero la operación sigue siendo la misma.</p>`,
       esencia: `
         <div class="definition">P<sub>X</sub> = X(X′X)<sup>−1</sup>X′ proyecta Y sobre el espacio de columnas de X. Los valores ajustados son Ŷ = P<sub>X</sub>Y y los residuos son û = (I − P<sub>X</sub>)Y.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -519,6 +580,7 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     varcov: {
       title: "Matriz de varianzas-covarianzas",
       sub: "La precisión conjunta de los estimadores, en una matriz.",
+      simple: `<p>Cada coeficiente viene con una duda. La matriz de varianzas-covarianzas es el tablero donde ponés todas esas dudas juntas: en la diagonal, cuánto puede moverse cada coeficiente; fuera de ella, cuánto se mueven dos coeficientes a la vez.</p><p>Mirar cada error estándar por separado es como mirar el motor pieza por pieza y no ver cómo encajan.</p>`,
       esencia: `
         <div class="definition">Bajo homocedasticidad, Var(β̂ | X) = σ²(X′X)<sup>−1</sup>. La versión estimada reemplaza σ² por σ̂² = SCR/(n − k − 1).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -555,6 +617,10 @@ window.CLASE_CONTENIDOS["clase-02b"] = {
     "insesgado-m": {
       title: "Insesgamiento matricial",
       sub: "E(β̂ | X) = β, demostrado con álgebra de matrices.",
+      simple: `<p>Pensá en una balanza. Si está mal calibrada, todas tus mediciones se van para el mismo lado y el error es sistemático; si está bien, los errores se compensan en promedio. El insesgamiento es esa buena calibración, aplicada a la distribución del estimador.</p><p>Una medición sola puede estar lejos. Lo que se juzga es el centro de todas las mediciones posibles.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Agregá sesgo y cambiá el tamaño de muestra. Mirá dónde queda el centro de la distribución y cuánto se abre o se cierra la curva.",
+      vizHint: "Más n reduce la dispersión, pero no corrige un centro corrido. El insesgamiento depende del supuesto E(u|X)=0, no de juntar más datos.",
       esencia: `
         <div class="definition">Partiendo de β̂ = (X′X)<sup>−1</sup>X′Y y reemplazando Y = Xβ + u, se obtiene β̂ = β + (X′X)<sup>−1</sup>X′u. Si E(u | X) = 0, entonces E(β̂ | X) = β.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -782,18 +848,18 @@ riqueza     -0.2331757  0.14830666`,
     title: "Kit de repaso y sesión de 90 minutos",
     intro: "Empezá por el formulario, seguí con el drill y la sesión, y cerrá con el plan de 7 días. La idea es repasar sin volver a leer todo desde cero.",
     formulas: [
-      { title: "Modelo matricial", eq: "Y = Xβ + u", note: "Y y u son n × 1; X es n × (k + 1); β es (k + 1) × 1." },
-      { title: "Condiciones de primer orden", eq: "X′Xβ̂ = X′Y", note: "Se obtienen al minimizar û′û = (Y − Xβ̂)′(Y − Xβ̂)." },
-      { title: "Estimador MCO", eq: "β̂ = (X′X)<sup>−1</sup>X′Y", note: "Requiere que X′X sea invertible: X de rango completo k + 1." },
-      { title: "Valores ajustados", eq: "Ŷ = Xβ̂ = P<sub>X</sub>Y", note: "P<sub>X</sub> proyecta Y sobre el espacio de columnas de X." },
-      { title: "Matriz de proyección", eq: "P<sub>X</sub> = X(X′X)<sup>−1</sup>X′", note: "Es simétrica e idempotente. P<sub>X</sub> + M = I." },
-      { title: "Residuos", eq: "û = Y − Ŷ = (I − P<sub>X</sub>)Y", note: "Si hay constante, Σû = 0. Además, X′û = 0." },
-      { title: "Ortogonalidad", eq: "X′û = 0", note: "Los residuos son ortogonales a las columnas incluidas en X, no a cualquier variable." },
-      { title: "Insesgamiento", eq: "E(β̂ | X) = β", note: "Sale de β̂ = β + (X′X)<sup>−1</sup>X′u y de E(u|X) = 0." },
-      { title: "Varianza", eq: "Var(β̂ | X) = σ<sup>2</sup>(X′X)<sup>−1</sup>", note: "Bajo homocedasticidad. La diagonal contiene las varianzas de los estimadores." },
-      { title: "Varianza estimada", eq: "Var(β̂) = σ̂<sup>2</sup>(X′X)<sup>−1</sup>", note: "σ̂<sup>2</sup> = SCR/(n − k − 1). La raíz de la diagonal da los errores estándar." },
-      { title: "Errores no esféricos", eq: "Var(β̂<sub>MCO</sub>) = σ̂<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>", note: "Es la versión general cuando Var(u|X) ≠ σ<sup>2</sup>I." },
-      { title: "FIV", eq: "FIV<sub>j</sub> = 1/(1 − R<sub>j</sub><sup>2</sup>)", note: "La multicolinealidad imperfecta no viola Gauss-Markov; la perfecta impide estimar." }
+      { title: "Modelo matricial", eq: "Y = Xβ + u", note: "Y y u son n × 1; X es n × (k + 1); β es (k + 1) × 1.", more: "<p>Resume n ecuaciones en una sola línea: cada fila de X es una observación y cada columna, un regresor. La constante entra como una columna de unos.</p><ul><li><b>Cuándo se usa:</b> para derivar MCO y demostrar sus propiedades sin repetir la suma para cada i.</li><li><b>Error típico:</b> olvidar la columna de unos y perder el intercepto.</li><li><b>Conexión:</b> las dimensiones son el primer control: si no cierran, el álgebra está mal.</li></ul>" },
+      { title: "Condiciones de primer orden", eq: "X′Xβ̂ = X′Y", note: "Se obtienen al minimizar û′û = (Y − Xβ̂)′(Y − Xβ̂).", more: "<p>Es la derivada de la suma de residuos al cuadrado igualada a cero. Dice que el residuo debe ser ortogonal a cada columna de X.</p><ul><li><b>Cuándo se usa:</b> para obtener β̂ y para verificar que una estimación cumple las condiciones de MCO.</li><li><b>Error típico:</b> despejar β̂ dividiendo por X en lugar de por X′X.</li><li><b>Conexión:</b> con la inversa de X′X se llega al estimador; si esa matriz es singular, el sistema no tiene solución única.</li></ul>" },
+      { title: "Estimador MCO", eq: "β̂ = (X′X)<sup>−1</sup>X′Y", note: "Requiere que X′X sea invertible: X de rango completo k + 1.", more: "<p>Es la solución explícita del sistema de condiciones de primer orden. Existe solo si X tiene rango completo k + 1, es decir, si no hay colinealidad perfecta.</p><ul><li><b>Cuándo se usa:</b> para calcular coeficientes y para demostrar insesgamiento y varianza.</li><li><b>Error típico:</b> creer que la fórmula funciona siempre; con X′X singular no hay inversa.</li><li><b>Conexión:</b> de acá salen β̂ = β + (X′X)⁻¹X′u y toda la inferencia matricial.</li></ul>" },
+      { title: "Valores ajustados", eq: "Ŷ = Xβ̂ = P<sub>X</sub>Y", note: "P<sub>X</sub> proyecta Y sobre el espacio de columnas de X.", more: "<p>Los valores ajustados son la parte de Y que queda dentro del espacio de columnas de X. No son predicciones para datos nuevos: son la proyección de la misma muestra usada para estimar.</p><ul><li><b>Cuándo se usa:</b> para descomponer Y y para entender de dónde salen los residuos.</li><li><b>Error típico:</b> leer Ŷ como una predicción fuera de muestra, cuando está construida con los datos observados.</li><li><b>Conexión:</b> la diferencia Y − Ŷ es el residuo, ortogonal a X.</li></ul>" },
+      { title: "Matriz de proyección", eq: "P<sub>X</sub> = X(X′X)<sup>−1</sup>X′", note: "Es simétrica e idempotente. P<sub>X</sub> + M = I.", more: "<p>Es una matriz n × n que transforma cualquier vector en su sombra sobre el espacio de X. Tiene dos propiedades que ordenan el álgebra: es simétrica e idempotente.</p><ul><li><b>Cuándo se usa:</b> para demostrar la descomposición Y = Ŷ + û y las propiedades de los residuos.</li><li><b>Error típico:</b> confundir P<sub>X</sub> con X: P<sub>X</sub> es n × n y X es n × (k+1).</li><li><b>Conexión:</b> M = I − P<sub>X</sub> proyecta sobre el complemento ortogonal y produce los residuos.</li></ul>" },
+      { title: "Residuos", eq: "û = Y − Ŷ = (I − P<sub>X</sub>)Y", note: "Si hay constante, Σû = 0. Además, X′û = 0.", more: "<p>El residuo es la parte de Y que el modelo no explica. Sale de aplicar la matriz complemento M, que es simétrica e idempotente como P<sub>X</sub>.</p><ul><li><b>Cuándo se usa:</b> para calcular σ̂², diagnósticos y verificaciones numéricas.</li><li><b>Error típico:</b> pensar que el residuo es el error poblacional; depende de la muestra y del modelo estimado.</li><li><b>Conexión:</b> si el modelo tiene constante, los residuos suman cero; además X′û = 0.</li></ul>" },
+      { title: "Ortogonalidad", eq: "X′û = 0", note: "Los residuos son ortogonales a las columnas incluidas en X, no a cualquier variable.", more: "<p>Es una consecuencia algebraica de las condiciones de primer orden, no un supuesto. Vale para las columnas incluidas en X, aunque el modelo esté mal especificado.</p><ul><li><b>Cuándo se usa:</b> para verificar una regresión y para separar la variación explicada de la residual.</li><li><b>Error típico:</b> extenderla a variables omitidas o a los errores poblacionales.</li><li><b>Conexión:</b> sostiene Σû = 0 con constante y la descomposición SCT = SCE + SCR.</li></ul>" },
+      { title: "Insesgamiento", eq: "E(β̂ | X) = β", note: "Sale de β̂ = β + (X′X)<sup>−1</sup>X′u y de E(u|X) = 0.", more: "<p>Se obtiene reemplazando Y = Xβ + u y tomando esperanza condicional. El término (X′X)⁻¹X′u desaparece porque E(u|X) = 0.</p><ul><li><b>Cuándo se usa:</b> para justificar que MCO apunta en promedio al parámetro.</li><li><b>Error típico:</b> creer que hace falta normalidad; el resultado no la requiere.</li><li><b>Conexión:</b> si falla la exogeneidad, aparece el sesgo por omisión de la clase 9.</li></ul>" },
+      { title: "Varianza", eq: "Var(β̂ | X) = σ<sup>2</sup>(X′X)<sup>−1</sup>", note: "Bajo homocedasticidad. La diagonal contiene las varianzas de los estimadores.", more: "<p>Describe la dispersión del vector de estimadores alrededor de su media. La matriz X′X concentra la información: más variación independiente en los regresores, menor varianza.</p><ul><li><b>Cuándo se usa:</b> para construir errores estándar bajo homocedasticidad.</li><li><b>Error típico:</b> aplicarla con errores heterocedásticos o autocorrelacionados.</li><li><b>Conexión:</b> el FIV mide cuánto se agranda cada elemento de la diagonal por colinealidad.</li></ul>" },
+      { title: "Varianza estimada", eq: "Var(β̂) = σ̂<sup>2</sup>(X′X)<sup>−1</sup>", note: "σ̂<sup>2</sup> = SCR/(n − k − 1). La raíz de la diagonal da los errores estándar.", more: "<p>Es la versión que se calcula con datos. σ̂² = SCR/(n − k − 1) estima la varianza del error y corrige por los k + 1 parámetros estimados.</p><ul><li><b>Cuándo se usa:</b> para reportar errores estándar e intervalos de confianza.</li><li><b>Error típico:</b> dividir por n o por n − 1; el estimador queda sesgado hacia abajo.</li><li><b>Conexión:</b> la raíz de la diagonal da el error estándar que usa el contraste t de la clase 3A.</li></ul>" },
+      { title: "Errores no esféricos", eq: "Var(β̂<sub>MCO</sub>) = σ̂<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>", note: "Es la versión general cuando Var(u|X) ≠ σ<sup>2</sup>I.", more: "<p>Cuando Var(u|X) no es σ²I, la varianza de MCO cambia de forma. La matriz Ω describe cómo varían y cómo se correlacionan los errores entre observaciones.</p><ul><li><b>Cuándo se usa:</b> para entender por qué los errores estándar habituales fallan con heterocedasticidad o autocorrelación.</li><li><b>Error típico:</b> seguir usando σ̂²(X′X)⁻¹ como si los errores fueran esféricos.</li><li><b>Conexión:</b> es el punto de partida de las clases 6 y 8 y de los estimadores robustos.</li></ul>" },
+      { title: "FIV", eq: "FIV<sub>j</sub> = 1/(1 − R<sub>j</sub><sup>2</sup>)", note: "La multicolinealidad imperfecta no viola Gauss-Markov; la perfecta impide estimar.", more: "<p>Mide cuánto se infla la varianza de un coeficiente por la relación lineal de su regresor con los demás. Con FIV = 1 no hay relación; con FIV = 10 la varianza se multiplica por diez.</p><ul><li><b>Cuándo se usa:</b> para diagnosticar multicolinealidad imperfecta, junto con tolerancia e índices de condición.</li><li><b>Error típico:</b> tomarlo como test o eliminar variables solo por superar 10.</li><li><b>Conexión:</b> depende de la muestra y de los controles incluidos, no solo de la naturaleza de las variables.</li></ul>" }
     ],
     drills: [
       { q: "Escribí el modelo matricial e indicá las dimensiones.", a: "Y = Xβ + u; Y: n × 1; X: n × (k + 1); β: (k + 1) × 1; u: n × 1." },

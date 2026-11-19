@@ -447,12 +447,65 @@ window.CLASE_CONTENIDOS["clase-08"] = {
           html: 'La decisión de fondo no es estadística, es económica. Si el objetivo es estimar una relación contemporánea y hacer inferencia, un modelo estático con errores HAC o con MCGF puede ser suficiente. Si la dinámica importa —porque Y depende de su propio pasado o porque los efectos de X se distribuyen en el tiempo—, corregir el error no alcanza: hay que volver a especificar el modelo con rezagos. La autocorrelación puede ser un síntoma de dinámica omitida, no solo un problema de la matriz de covarianzas.'
         }
       ]
+    },
+    {
+      id: 'c08-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        {
+          type: 'p',
+          id: 'c08-s08-p01',
+          html: 'La clase dejó tres frases al pasar que en el parcial vuelven como preguntas: que con ρ = 1 el marco cambia, que la autocorrelación puede ser un síntoma de dinámica omitida y que el rezago L de Newey-West es una decisión. Las tres merecen un párrafo propio. Acá las desarrollo, y agrego una cuarta: qué cosas no arregla ninguna corrección, por más prolija que sea la salida de R. La idea es que puedas decidir antes de apretar el botón.'
+        },
+        {
+          type: 'p',
+          id: 'c08-s08-p02',
+          html: 'Cuando ρ = 1, el error no vuelve a ningún nivel: cada shock se suma al anterior y la serie se va como un paseo aleatorio. La varianza crece con t, la autocorrelación no decae y el supuesto de estacionariedad se cae. En ese caso, DW no es una prueba válida: su distribución supone estacionariedad y el estadístico se va cerca de cero aunque no haya un AR(1) estable. Tampoco sirve la transformación de MCG, porque (1 − ρ) se anula y el intercepto desaparece. El camino es otro: primeras diferencias, contrastes de raíz unitaria y mucha cautela con las regresiones en niveles. Dos series que pasean sin rumbo pueden mostrar un R² alto y t enormes sin ninguna relación real. Eso se llama regresión espuria.'
+        },
+        {
+          type: 'formula',
+          main: 'Y<sub>t</sub> − Y<sub>t−1</sub> = β<sub>1</sub>(X<sub>t</sub> − X<sub>t−1</sub>) + e<sub>t</sub> &nbsp;·&nbsp; ρ = 1',
+          legend: [
+            { key: 'Qué queda', text: 'Con ρ = 1, la cuasi-diferencia es una primera diferencia: se trabaja con cambios, no con niveles.' },
+            { key: 'Intercepto', text: 'El término (1 − ρ)β<sub>0</sub> se anula. Si hay tendencia, hay que decidir cómo modelarla.' },
+            { key: 'Lectura', text: 'Los coeficientes describen cambios. La interpretación económica y la escala cambian.' }
+          ]
+        },
+        {
+          type: 'p',
+          id: 'c08-s08-p03',
+          html: 'La segunda frase es la más rendidora en el parcial. Si los residuos muestran un ciclo que se repite cada doce meses, el problema no es la matriz de covarianzas: falta una dummy estacional. Si muestran una tendencia suave, tal vez falte una tendencia o una variable que crece con el tiempo. Y si la variable dependiente depende de su propio pasado, el modelo estático está mal especificado. Corregir el error con HAC o con Prais-Winsten deja el modelo igual de incompleto: solo cambia el tamaño del margen. La autocorrelación es, muchas veces, una alarma sobre la especificación, no sobre el error. Antes de transformar, preguntate qué variable falta y si el rezago de Y tiene sentido económico. Agregar Y<sub>t−1</sub> cambia la interpretación: el coeficiente de X pasa a ser el efecto inmediato y aparece un efecto de largo plazo.'
+        },
+        {
+          type: 'p',
+          id: 'c08-s08-p04',
+          html: 'En Newey-West, L decide hasta qué distancia se acumulan las covarianzas. Un L chico deja autocorrelación sin corregir y subestima el error estándar; un L grande agrega ruido y puede sobreestimarlo. La regla habitual es L ≈ 4(n/100)<sup>2/9</sup>, que con n = 108 da 4, el valor del laboratorio. Pero la regla no reemplaza el criterio: conviene reportar el L usado y, si el resultado cambia mucho al moverlo, decirlo. En series cortas o con ρ cercano a 1, HAC puede portarse peor que el error estándar de MCO. No es una corrección mágica: es un estimador que también tiene varianza.'
+        },
+        {
+          type: 'callout',
+          variant: 'ochre',
+          label: 'Lo que ninguna corrección arregla',
+          html: 'HAC, MCG y MCGF corrigen la inferencia o la eficiencia, pero no la endogeneidad. Si X está correlacionada con el error contemporáneo, el coeficiente sigue siendo sesgado aunque los errores estándar estén impecables. Tampoco arreglan una variable omitida, un modo funcional equivocado ni una raíz unitaria. La secuencia correcta es primero la especificación y después el error. Si el modelo está mal, corregir el error es maquillar la salida.'
+        },
+        {
+          type: 'miniCheck',
+          id: 'c08-check-08',
+          question: 'Una serie tiene DW = 0,4, pero un contraste de raíz unitaria no rechaza. ¿Aplicás Prais-Winsten?',
+          intro: 'Pensá qué supone la corrección AR(1) sobre la serie.',
+          answer: 'No. Un DW muy bajo es compatible con un AR(1) fuerte y también con una raíz unitaria, y en el segundo caso la distribución tabulada de DW no sirve. Antes de corregir, contrastá la raíz unitaria. Si no se rechaza, el modelo en niveles es sospechoso: la transformación de MCG con ρ = 1 se vuelve una primera diferencia y el intercepto desaparece. Aplicar Prais-Winsten con ρ̂ cercano a 0,8 trataría como estacionaria una serie que no lo es y produciría intervalos demasiado optimistas.'
+        }
+      ]
     }
   ],
   concepts: {
     autocorrelacion: {
       title: 'Autocorrelación',
       sub: 'Errores de períodos distintos que se mueven juntos.',
+      simple: `<p>Pensá en una semana de lluvia: si hoy llueve, mañana es más probable que también llueva que si hoy salió el sol. Con los errores de un modelo pasa algo parecido: los de meses cercanos se parecen entre sí. Esa memoria no se ve en el tamaño del error, sino en el orden: rachas para arriba y rachas para abajo. Si podés reordenar las filas de tu base sin que cambie nada, entonces no hay autocorrelación que valga.</p>`,
+      viz: "trend-season",
+      vizIntro: "Subí la tendencia y la amplitud estacional y mirá la serie de arriba. Abajo ves el componente estacional, que se repite cada doce meses.",
+      vizHint: "Una tendencia o una estacionalidad que no están en el modelo quedan en el residuo y producen rachas parecidas a la autocorrelación. Antes de corregir el error, preguntate si falta una variable de tiempo.",
       esencia: `
         <div class="definition">Hay autocorrelación, o correlación serial, cuando los errores de un modelo de series de tiempo están correlacionados entre períodos: Cov(u<sub>t</sub>, u<sub>s</sub>) ≠ 0 para algún t ≠ s. El orden de las observaciones importa y no se pueden reordenar.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -487,6 +540,10 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     ar1: {
       title: 'Modelo AR(1)',
       sub: 'El error de hoy depende del error de ayer.',
+      simple: `<p>Imaginá que cada mes el error hereda una parte del error del mes anterior, como una deuda que se paga de a poco. Si la herencia es grande, un mal mes se siente durante mucho tiempo; si es chica, se olvida rápido. El signo también importa: con herencia negativa, un mes bueno suele venir seguido de uno malo, como un péndulo. Ese único número, cuánto se hereda, es lo que resume el modelo AR(1).</p>`,
+      viz: "ar1",
+      vizIntro: "Movés ρ y mirás dos cosas a la vez: la serie de residuos y la nube de cada residuo contra el anterior. La pendiente de la recta es el ρ que elegiste.",
+      vizHint: "Con ρ positivo ves rachas y una nube inclinada hacia arriba; con ρ negativo, zigzag y pendiente negativa. El DW que aparece abajo se mueve en espejo: por debajo de 2 con ρ positivo, por encima con ρ negativo.",
       esencia: `
         <div class="definition">u<sub>t</sub> = ρu<sub>t−1</sub> + e<sub>t</sub>, con |ρ| &lt; 1 y e<sub>t</sub> iid(0, σ<sub>e</sub><sup>2</sup>). Es el modelo de autocorrelación más usado: un solo parámetro resume la persistencia.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -521,6 +578,7 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     consecuencias: {
       title: 'Consecuencias sobre MCO',
       sub: 'Insesgado no es lo mismo que eficiente ni que inferencia válida.',
+      simple: `<p>Pensá en un estudiante que saca siempre alrededor de la nota que merece, pero estudia en rachas: una semana rinde mucho y la siguiente casi nada. El promedio de sus notas puede estar bien y, aun así, no podés predecir con precisión qué pasará en una semana cualquiera. Con MCO y autocorrelación pasa eso: el coeficiente suele estar centrado, pero el error estándar que reportás no refleja la incertidumbre real. Por eso el t deja de ser confiable aunque el número estimado sea razonable.</p>`,
       esencia: `
         <div class="definition">Con errores autocorrelacionados, MCO es insesgado si las X son estrictamente exógenas y consistente si son contemporáneamente exógenas. Pero deja de ser ELIO, la varianza habitual está mal calculada y los t y F dejan de ser válidos.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -555,6 +613,7 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     'durbin-watson': {
       title: 'Durbin-Watson',
       sub: 'Un número entre 0 y 4 para detectar AR(1).',
+      simple: `<p>Pensá en una fila de personas esperando el colectivo: si cada una mide casi lo mismo que la anterior, la fila es pareja; si alternan altos y bajos, no. Durbin-Watson mira cuánto se parecen los residuos consecutivos y lo resume en un número. Cerca de 2, cada residuo parece un sorteo nuevo; abajo de 2 hay rachas; arriba de 2, alternancia. Es una herramienta de un solo chico: detecta memoria de un período, no de varios.</p>`,
       esencia: `
         <div class="definition">El estadístico d compara las diferencias entre residuos consecutivos con la suma de los residuos al cuadrado: d = Σ(û<sub>t</sub> − û<sub>t−1</sub>)²/Σû<sub>t</sub>². Se relaciona con ρ mediante d ≈ 2(1 − ρ̂).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -589,6 +648,7 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     'breusch-godfrey': {
       title: 'Breusch-Godfrey',
       sub: 'Autocorrelación de orden p, con o sin Y rezagada.',
+      simple: `<p>Si sospechás que el error recuerda más de un período, o que el modelo tiene la variable dependiente rezagada, necesitás una prueba que mire varios rezagos a la vez. Breusch-Godfrey revisa si los residuos de hoy se explican por los de ayer, anteayer y así. Es como revisar el historial completo de una cuenta en lugar de mirar solo el último movimiento. Si el conjunto de rezagos aporta, hay evidencia de memoria en el error.</p>`,
       esencia: `
         <div class="definition">Contrasta H<sub>0</sub>: no hay autocorrelación de orden hasta p. Se estima el modelo por MCO, se corren los residuos sobre las X y sus p rezagos, y se contrasta la significancia conjunta de los rezagos con un F o con el LM = (n − p)R².</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -623,6 +683,7 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     hac: {
       title: 'Errores HAC / Newey-West',
       sub: 'Inferencia válida sin cambiar los coeficientes.',
+      simple: `<p>Imaginá que pesás una muestra con una balanza que a veces vibra. El peso que reportás puede ser correcto, pero el margen de error que declarás no. Los errores HAC hacen eso con la regresión: no tocan los coeficientes, solo recalculan cuánta incertidumbre tienen. Sirven cuando querés conservar el modelo y necesitás que los t y los intervalos digan la verdad sobre la precisión.</p>`,
       esencia: `
         <div class="definition">Los errores HAC son errores estándar robustos a heterocedasticidad y autocorrelación de forma desconocida. Se calculan con la matriz de Newey-West y dejan los coeficientes MCO intactos: corrigen la varianza, no la estimación.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -657,6 +718,10 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     mcg: {
       title: 'MCG y MCGF',
       sub: 'Transformar el modelo para eliminar la autocorrelación.',
+      simple: `<p>Si sabés que el error de cada mes arrastra parte del anterior, podés restar esa parte antes de estimar. Es como descontar la humedad de una pared antes de medir si la pintura cubre bien: trabajás con una versión más limpia de los datos. MCG hace esa resta con un coeficiente que resume la persistencia y después estima sobre las variables transformadas. Si el coeficiente se estima en lugar de conocerse, el método cambia de nombre y pierde la garantía de insesgadez exacta.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Poné el sesgo en cero para representar MCG con ρ conocido. Subilo para representar el sesgo de muestra finita de MCGF, donde ρ se estima. Movés n para ver qué pasa con el centro y con el ancho.",
+      vizHint: "Con ρ conocido, el estimador está centrado. Con ρ estimado, el centro puede desplazarse en muestras chicas, pero el desplazamiento se diluye cuando n crece: MCGF es consistente. Más muestra también angosta la distribución.",
       esencia: `
         <div class="definition">MCG estima por MCO la ecuación cuasi-diferenciada Y<sub>t</sub> − ρY<sub>t−1</sub> = (1 − ρ)β<sub>0</sub> + β<sub>1</sub>(X<sub>t</sub> − ρX<sub>t−1</sub>) + e<sub>t</sub>. Si ρ es conocido, es GLS; si se estima, es MCGF.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -692,6 +757,7 @@ window.CLASE_CONTENIDOS["clase-08"] = {
     'prais-winsten': {
       title: 'Prais-Winsten',
       sub: 'MCGF que no desperdicia la primera observación.',
+      simple: `<p>Cuando transformás la serie para quitarle la memoria, la primera observación queda sin período anterior y muchos métodos la tiran. Prais-Winsten no la tira: la ajusta para que pese lo mismo que las demás. Es como empezar a contar desde el primer día en lugar de esperar al segundo y perder información. Con series cortas, ese dato extra puede mover los resultados y por eso suele preferirse frente a Cochrane-Orcutt.</p>`,
       esencia: `
         <div class="definition">Prais-Winsten estima por MCGF el modelo AR(1) transformando también la primera observación por √(1 − ρ<sup>2</sup>). Cochrane-Orcutt aplica la misma idea, pero omite esa primera observación.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -972,18 +1038,18 @@ dic         -0.045824315  0.063634857`,
     title: 'Kit de repaso: autocorrelación',
     intro: 'Empezá por las fórmulas, seguí con los drills y la sesión de 90 minutos, y cerrá con el plan de 7 días. La idea es tener una hoja de ruta para diagnosticar, corregir y reportar sin volver a leer todo desde cero.',
     formulas: [
-      { title: 'AR(1)', eq: 'u<sub>t</sub> = ρu<sub>t−1</sub> + e<sub>t</sub>, &nbsp; |ρ| &lt; 1', note: 'e<sub>t</sub> es iid(0, σ<sub>e</sub>²). ρ mide la persistencia; el signo decide rachas o zigzag.' },
-      { title: 'Varianza AR(1)', eq: 'Var(u<sub>t</sub>) = σ<sub>e</sub><sup>2</sup>/(1 − ρ<sup>2</sup>)', note: 'Finita si |ρ| &lt; 1. Si ρ = 1, hay raíz unitaria y el marco no aplica.' },
-      { title: 'Autocorrelación de orden j', eq: 'Corr(u<sub>t</sub>, u<sub>t−j</sub>) = ρ<sup>j</sup>', note: 'Decae geométricamente. Con ρ = 0,9, a diez períodos todavía queda 0,35.' },
-      { title: 'Varianza MCO con Ω', eq: 'var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>', note: 'La fórmula habitual es el caso Ω = I. Si Ω ≠ I, los e.e. de la salida están mal.' },
-      { title: 'Varianza AR(1) de β̂₁', eq: 'σ<sup>2</sup>/SCT<sub>x</sub> + (2σ<sup>2</sup>/SCT<sub>x</sub><sup>2</sup>)ΣΣρ<sup>j</sup>X<sub>t</sub>X<sub>t+j</sub>', note: 'El segundo término recoge la autocorrelación. No se calcula a mano: explica el sesgo del e.e.' },
-      { title: 'Durbin-Watson', eq: 'd = Σ(û<sub>t</sub> − û<sub>t−1</sub>)<sup>2</sup>/Σû<sub>t</sub><sup>2</sup>', note: 'Rango 0–4. d ≈ 2: sin evidencia de AR(1); d &lt; 2: positiva; d &gt; 2: negativa.' },
-      { title: 'Relación d–ρ', eq: 'd ≈ 2(1 − ρ̂) &nbsp;→&nbsp; ρ̂ ≈ 1 − d/2', note: 'Aproximación para muestras moderadas. En el laboratorio, d = 1,4298 implica ρ ≈ 0,285.' },
-      { title: 'Breusch-Godfrey', eq: 'LM = (n − p)R̂<sub>u</sub><sup>2</sup> ~ χ<sub>p</sub><sup>2</sup>', note: 'Regresión auxiliar de û sobre X y p rezagos. Sirve con Y rezagada y órdenes mayores.' },
-      { title: 'Newey-West', eq: 'Ω̂<sub>NW</sub> = Σû<sub>t</sub><sup>2</sup>x<sub>t</sub>x<sub>t</sub>′ + Σ<sub>l=1</sub><sup>L</sup>w<sub>l</sub>Σ[(x<sub>t</sub>û<sub>t</sub>)(x<sub>t−l</sub>û<sub>t−l</sub>)′ + …]', note: 'w<sub>l</sub> = 1 − l/(L + 1). Corrige e.e.; no cambia coeficientes ni eficiencia.' },
-      { title: 'Cuasi-diferencia MCG', eq: 'Y<sub>t</sub> − ρY<sub>t−1</sub> = (1 − ρ)β<sub>0</sub> + β<sub>1</sub>(X<sub>t</sub> − ρX<sub>t−1</sub>) + e<sub>t</sub>', note: 'El intercepto transformado es (1 − ρ)β<sub>0</sub>. No lo interpretes como β<sub>0</sub>.' },
-      { title: 'Estimador MCG', eq: 'β̂<sub>MCG</sub> = (X′Ω<sup>−1</sup>X)<sup>−1</sup>X′Ω<sup>−1</sup>Y', note: 'Con ρ conocido es insesgado y eficiente. Con ρ estimado es MCGF: consistente, no insesgado.' },
-      { title: 'Primera observación PW', eq: '√(1 − ρ<sup>2</sup>)Y<sub>1</sub> = √(1 − ρ<sup>2</sup>)β<sub>0</sub> + β<sub>1</sub>√(1 − ρ<sup>2</sup>)X<sub>1</sub> + √(1 − ρ<sup>2</sup>)u<sub>1</sub>', note: 'Iguala la varianza de la primera observación. Cochrane-Orcutt, en cambio, la omite.' }
+      { title: 'AR(1)', eq: 'u<sub>t</sub> = ρu<sub>t−1</sub> + e<sub>t</sub>, &nbsp; |ρ| &lt; 1', note: 'e<sub>t</sub> es iid(0, σ<sub>e</sub>²). ρ mide la persistencia; el signo decide rachas o zigzag.', more: '<p>Descompone el error en dos partes: lo que queda del período anterior y un shock nuevo. Con |ρ| &lt; 1 la memoria se agota y la serie vuelve a su nivel medio.</p><ul><li><b>Cuándo se usa:</b> para justificar DW, la prueba t de ρ y la transformación MCG.</li><li><b>Error típico:</b> aplicarlo a residuos con tendencia o estacionalidad, donde el patrón no es AR(1).</li><li><b>Conexión:</b> si ρ = 1 el modelo deja de ser estacionario y el camino pasa a ser primeras diferencias.</li></ul>' },
+      { title: 'Varianza AR(1)', eq: 'Var(u<sub>t</sub>) = σ<sub>e</sub><sup>2</sup>/(1 − ρ<sup>2</sup>)', note: 'Finita si |ρ| &lt; 1. Si ρ = 1, hay raíz unitaria y el marco no aplica.', more: '<p>El denominador mide cuánta memoria acumula el proceso. Cuando ρ se acerca a 1, la varianza crece sin techo y un shock pequeño se vuelve enorme con el tiempo.</p><ul><li><b>Cuándo se usa:</b> para entender el tratamiento especial de la primera observación en Prais-Winsten.</li><li><b>Error típico:</b> calcularla con ρ̂ y tratarla como si fuera el valor poblacional.</li><li><b>Conexión:</b> explica por qué la varianza de u<sub>1</sub> es mayor y por qué hace falta el factor √(1 − ρ²).</li></ul>' },
+      { title: 'Autocorrelación de orden j', eq: 'Corr(u<sub>t</sub>, u<sub>t−j</sub>) = ρ<sup>j</sup>', note: 'Decae geométricamente. Con ρ = 0,9, a diez períodos todavía queda 0,35.', more: '<p>La correlación decae en forma geométrica: cada período extra multiplica por ρ. Con ρ negativo, el signo alterna según la paridad del rezago y la serie parece un péndulo.</p><ul><li><b>Cuándo se usa:</b> para leer cuánto dura un shock y para armar la matriz Ω de MCG.</li><li><b>Error típico:</b> suponer que la autocorrelación alta dura para siempre o que baja de a una constante.</li><li><b>Conexión:</b> la persistencia estimada orienta el orden p de BG y el rezago L de Newey-West.</li></ul>' },
+      { title: 'Varianza MCO con Ω', eq: 'var(β̂) = σ<sup>2</sup>(X′X)<sup>−1</sup>X′ΩX(X′X)<sup>−1</sup>', note: 'La fórmula habitual es el caso Ω = I. Si Ω ≠ I, los e.e. de la salida están mal.', more: '<p>Muestra que la varianza del estimador depende de la dispersión del error y del patrón de covarianzas resumido en Ω. El sándwich central es exactamente lo que el software ignora cuando reporta σ̂²(X′X)⁻¹.</p><ul><li><b>Cuándo se usa:</b> para diagnosticar el sesgo de los e.e. y para definir qué corrigen HAC y MCG.</li><li><b>Error típico:</b> creer que Ω solo importa con heterocedasticidad; también captura la autocorrelación.</li><li><b>Conexión:</b> Newey-West estima Ω con rezagos; MCG la usa entera bajo el supuesto AR(1).</li></ul>' },
+      { title: 'Varianza AR(1) de β̂₁', eq: 'σ<sup>2</sup>/SCT<sub>x</sub> + (2σ<sup>2</sup>/SCT<sub>x</sub><sup>2</sup>)ΣΣρ<sup>j</sup>X<sub>t</sub>X<sub>t+j</sub>', note: 'El segundo término recoge la autocorrelación. No se calcula a mano: explica el sesgo del e.e.', more: '<p>El primer término es la varianza que tendrías sin memoria. El segundo depende de cómo covarían X<sub>t</sub> y X<sub>t+j</sub>: si ρ &gt; 0 y X es persistente, se suma y la fórmula habitual queda corta.</p><ul><li><b>Cuándo se usa:</b> para explicar en el parcial en qué dirección falla el e.e. de la salida.</li><li><b>Error típico:</b> calcularla a mano con ρ̂ y creer que eso reemplaza a Newey-West.</li><li><b>Conexión:</b> es el puente entre el supuesto Ω = I y la práctica de los errores HAC.</li></ul>' },
+      { title: 'Durbin-Watson', eq: 'd = Σ(û<sub>t</sub> − û<sub>t−1</sub>)<sup>2</sup>/Σû<sub>t</sub><sup>2</sup>', note: 'Rango 0–4. d ≈ 2: sin evidencia de AR(1); d &lt; 2: positiva; d &gt; 2: negativa.', more: '<p>Compara la suma de las diferencias al cuadrado con la suma de los niveles al cuadrado. Si los residuos se parecen, el numerador es chico y d cae; si no se parecen, el numerador duplica al denominador y d tiende a 2.</p><ul><li><b>Cuándo se usa:</b> con modelo estático, intercepto, errores normales y homocedásticos, sin Y rezagada.</li><li><b>Error típico:</b> leer la zona inconcluyente como un no rechazo.</li><li><b>Conexión:</b> d y la prueba t de ρ son la misma idea con distinto empaquetado.</li></ul>' },
+      { title: 'Relación d–ρ', eq: 'd ≈ 2(1 − ρ̂) &nbsp;→&nbsp; ρ̂ ≈ 1 − d/2', note: 'Aproximación para muestras moderadas. En el laboratorio, d = 1,4298 implica ρ ≈ 0,285.', more: '<p>La relación sale de expandir el cuadrado de la diferencia y suponer que las sumas de residuos al cuadrado en t y t−1 son parecidas. No es exacta, pero traduce d a un ρ interpretable.</p><ul><li><b>Cuándo se usa:</b> para reportar la persistencia implícita y compararla con el ρ̂ de Prais-Winsten.</li><li><b>Error típico:</b> aplicarla con series muy cortas, con Y rezagada o con raíz unitaria.</li><li><b>Conexión:</b> en TRAFICO, d = 1,4298 implica 0,285 y PW estima 0,2886: la aproximación funciona.</li></ul>' },
+      { title: 'Breusch-Godfrey', eq: 'LM = (n − p)R̂<sub>u</sub><sup>2</sup> ~ χ<sub>p</sub><sup>2</sup>', note: 'Regresión auxiliar de û sobre X y p rezagos. Sirve con Y rezagada y órdenes mayores.', more: '<p>Combina el R² de la regresión auxiliar con las observaciones efectivas. Si los rezagos de los residuos explican poco, LM es chico; si explican mucho, crece y se compara con una chi-cuadrado de p grados de libertad.</p><ul><li><b>Cuándo se usa:</b> con Y rezagada, con órdenes mayores a uno o cuando DW queda en zona inconcluyente.</li><li><b>Error típico:</b> usar n en lugar de n − p u omitir las X en la regresión auxiliar.</li><li><b>Conexión:</b> generaliza la prueba t de ρ y reemplaza a DW en modelos dinámicos.</li></ul>' },
+      { title: 'Newey-West', eq: 'Ω̂<sub>NW</sub> = Σû<sub>t</sub><sup>2</sup>x<sub>t</sub>x<sub>t</sub>′ + Σ<sub>l=1</sub><sup>L</sup>w<sub>l</sub>Σ[(x<sub>t</sub>û<sub>t</sub>)(x<sub>t−l</sub>û<sub>t−l</sub>)′ + …]', note: 'w<sub>l</sub> = 1 − l/(L + 1). Corrige e.e.; no cambia coeficientes ni eficiencia.', more: '<p>Suma las contribuciones contemporáneas y las de cada rezago hasta L, con pesos que decrecen. El peso de Bartlett asegura que la matriz resultante sea semidefinida positiva y que no aparezcan varianzas negativas.</p><ul><li><b>Cuándo se usa:</b> con muestras grandes y modelos estáticos donde no querés imponer un AR(1).</li><li><b>Error típico:</b> elegir L sin justificarlo o usar un L enorme en series cortas.</li><li><b>Conexión:</b> HAC corrige la inferencia; MCG reestima y gana eficiencia si el AR(1) es correcto.</li></ul>' },
+      { title: 'Cuasi-diferencia MCG', eq: 'Y<sub>t</sub> − ρY<sub>t−1</sub> = (1 − ρ)β<sub>0</sub> + β<sub>1</sub>(X<sub>t</sub> − ρX<sub>t−1</sub>) + e<sub>t</sub>', note: 'El intercepto transformado es (1 − ρ)β<sub>0</sub>. No lo interpretes como β<sub>0</sub>.', more: '<p>Restar ρ veces la ecuación anterior elimina la parte del error que se repite. El costo es que el intercepto se multiplica por (1 − ρ); la pendiente sigue siendo β<sub>1</sub> y se interpreta igual, aunque la ecuación ya no está en niveles.</p><ul><li><b>Cuándo se usa:</b> cuando el AR(1) es plausible y querés estimadores más eficientes que MCO.</li><li><b>Error típico:</b> olvidar transformar el intercepto o comparar el R² con el de MCO.</li><li><b>Conexión:</b> es la base de Cochrane-Orcutt y de Prais-Winsten.</li></ul>' },
+      { title: 'Estimador MCG', eq: 'β̂<sub>MCG</sub> = (X′Ω<sup>−1</sup>X)<sup>−1</sup>X′Ω<sup>−1</sup>Y', note: 'Con ρ conocido es insesgado y eficiente. Con ρ estimado es MCGF: consistente, no insesgado.', more: '<p>Es el análogo de MCO con la métrica de Ω<sup>−1</sup>: en lugar de tratar todos los desvíos por igual, pondera cada observación según su precisión. Eso la vuelve eficiente cuando Ω se conoce.</p><ul><li><b>Cuándo se usa:</b> para demostrar propiedades y para entender qué hace el software al estimar por MCG.</li><li><b>Error típico:</b> aplicarla con ρ̂ y seguir hablando de insesgadez exacta; eso ya es MCGF.</li><li><b>Conexión:</b> con Ω = I se reduce a MCO; con Ω AR(1) produce la cuasi-diferencia.</li></ul>' },
+      { title: 'Primera observación PW', eq: '√(1 − ρ<sup>2</sup>)Y<sub>1</sub> = √(1 − ρ<sup>2</sup>)β<sub>0</sub> + β<sub>1</sub>√(1 − ρ<sup>2</sup>)X<sub>1</sub> + √(1 − ρ<sup>2</sup>)u<sub>1</sub>', note: 'Iguala la varianza de la primera observación. Cochrane-Orcutt, en cambio, la omite.', more: '<p>Multiplicar la primera ecuación por la raíz de uno menos ρ al cuadrado iguala su varianza con la de las observaciones transformadas. Sin ese ajuste, la primera observación tendría un error más disperso y rompería la homocedasticidad.</p><ul><li><b>Cuándo se usa:</b> en Prais-Winsten, para usar las n observaciones en lugar de n − 1.</li><li><b>Error típico:</b> aplicar el factor a Y pero no a X ni al intercepto.</li><li><b>Conexión:</b> Cochrane-Orcutt evita el problema omitiendo la primera observación.</li></ul>' }
     ],
     drills: [
       { q: '¿Qué es la autocorrelación y por qué no tiene sentido en corte transversal?', a: 'Es la correlación entre errores de períodos distintos. En corte transversal no hay un orden temporal natural que defina “períodos”; por eso el concepto se aplica a series de tiempo.' },

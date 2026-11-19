@@ -8,6 +8,8 @@
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Visualizaciones interactivas en clases 1 a 10:** curva de la SCR, sesgo por omisión, FIV y precisión, distribuciones t y F, familia de formas funcionales, cuadrática y efecto marginal, bandas de predicción, dummies y composición, heterocedasticidad, tendencia y estacionalidad, AR(1), proxy y MC2E con instrumentos débiles.
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E. Cada una con práctica, laboratorio de R y kit de repaso.
+- **Mejoras de comprensión:** cada ficha de concepto incluye una explicación en palabras simples; las fichas que lo admiten tienen pestaña de visualización interactiva; cada clase suma una sección de profundización; las fórmulas del repaso se despliegan con información ampliada y se pueden comentar.
+- **Anotaciones ampliadas:** se puede subrayar o comentar en cualquier pestaña, incluidos títulos, fórmulas, tarjetas, tablas y fuentes. Hay cuatro colores (amarillo, verde, celeste y rosa) y la selección funciona también con eventos táctiles en tablet y celular.
 - **App live:** https://econometria-estudio.vercel.app
 - **Hub Fukuro:** https://fukuro-sable.vercel.app (tile “Econometría I”)
 - **Repo público:** https://github.com/Cecchi96/econometria-estudio
@@ -19,9 +21,10 @@
 - `assets/store.js` usa Supabase si existe `window.storage`; si no, IndexedDB/localStorage.
 - `content/clase-01.js`, `content/clase-02a.js`, `content/clase-02b.js`, `content/clase-03a.js`, `content/clase-03b.js`, `content/clase-04a.js`, `content/clase-04b.js`, `content/clase-05.js`, `content/clase-06.js`, `content/clase-07.js`, `content/clase-08.js`, `content/clase-09.js` y `content/clase-10.js` contienen el contenido de las clases disponibles.
 - `guia/Guía-TP-Eco-I-2026.html` es la guía de TP integrada, con enlaces profundos por ejercicio.
-- `assets/app.js` renderiza, navega y maneja conceptos, anotaciones, gráfico, laboratorios de R y kit de fórmulas.
-- `assets/viz.js` monta las visualizaciones interactivas; `assets/viz.css` contiene sus estilos. El contenido las invoca con bloques `{ type: "interactive", kind, title, intro, hint }`.
-- `supabase/eco_annotations.sql` documenta la tabla y las políticas RLS.
+- `assets/app.js` renderiza, navega y maneja conceptos, anotaciones globales, gráfico, laboratorios de R y kit de fórmulas.
+- `assets/viz.js` monta las visualizaciones interactivas; `assets/viz.css` contiene sus estilos. El contenido las invoca con bloques `{ type: "interactive", kind, title, intro, hint }` o con el campo `viz` de una ficha de concepto.
+- `docs/MEJORAS-CONTENIDO.md` documenta los campos `simple`, `viz`, `vizIntro`, `vizHint`, `more` y la sección de profundización.
+- `supabase/eco_annotations.sql` documenta la tabla y las políticas RLS. La migración de colores está al final del archivo.
 
 ## Supabase
 
@@ -50,8 +53,11 @@
 2. Definir política de registros:
    - dejar “Allow new users to sign up” abierto, o
    - cerrarlo y crear cuentas manualmente / usar allowlist.
-3. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
-4. Opcional: dominio propio, capturas para el README, licencia.
+3. Ejecutar en Supabase la migración de `supabase/eco_annotations.sql` para habilitar
+   los colores `blue` y `rose` (si no se ejecuta, esas anotaciones se guardan solo
+   en el dispositivo).
+4. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
+5. Opcional: dominio propio, capturas para el README, licencia.
 
 ## Cómo trabajar
 

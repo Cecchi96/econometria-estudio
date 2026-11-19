@@ -649,12 +649,89 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
           ]
         }
       ]
+    },
+    {
+      id: 'c04b-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        {
+          type: 'p',
+          id: 'c04b-s08-p01',
+          html: 'La clase dejó tres cosas apenas esbozadas. Primero, qué pasa cuando predecís con un modelo en logaritmos y volvés a niveles. Segundo, si omitir una variable relevante siempre sesga. Tercero, qué parte de la incertidumbre no aparece en el intervalo de predicción. Cada idea completa un concepto: forma funcional, sesgo por omisión e intervalo de predicción. Las tres vuelven en el parcial y en el TP 7, y se explican con las herramientas que ya tenés.'
+        },
+        {
+          type: 'cards',
+          items: [
+            {
+              sym: 'log',
+              title: 'Volver a niveles',
+              text: 'Exponenciar una predicción en logs no devuelve la media de Y. Devuelve algo parecido a la mediana si los errores son simétricos. Para la media hace falta una corrección.'
+            },
+            {
+              sym: 'δ = 0',
+              title: 'Omitir sin sesgar',
+              text: 'Si la omitida no está correlacionada con las X incluidas, el coeficiente sigue centrado. Lo que se pierde es precisión, no insesgamiento.'
+            },
+            {
+              sym: 'Modelo',
+              title: 'Incertidumbre no contada',
+              text: 'El intervalo supone que la especificación es correcta. Si elegiste el modelo mirando los mismos datos, esa incertidumbre queda afuera.'
+            }
+          ]
+        },
+        {
+          type: 'formula',
+          main: 'E(Y | X) = exp(X′β) · E[exp(u) | X] &nbsp;&nbsp;·&nbsp;&nbsp; factor ≈ exp(σ̂<sup>2</sup>/2)',
+          legend: [
+            {
+              key: 'exp(X′β)',
+              text: 'Lo que predice el modelo en escala logarítmica, ya retransformado.'
+            },
+            {
+              key: 'E[exp(u) | X]',
+              text: 'El factor que falta si solo aplicás exp. Bajo log-normalidad y u independiente de X vale exp(σ²/2).'
+            },
+            {
+              key: 'Smearing',
+              text: '(1/n)·Σ exp(ûᵢ) estima ese factor sin suponer normalidad.'
+            }
+          ]
+        },
+        {
+          type: 'p',
+          id: 'c04b-s08-p02',
+          html: 'El modelo log-log del laboratorio predice log(foodexp). Si aplicás exp a esa predicción, obtenés un valor en pesos, pero no es la media del gasto: es más cercano a la mediana. La diferencia crece cuando σ̂² es grande. Con σ̂ = 0,17, la corrección exp(σ̂²/2) es chica, cerca de 1,5%, y por eso en este ejercicio casi no se nota. En otros, puede ser enorme. La corrección habitual supone log-normalidad. Si no querés ese supuesto, usá el estimador de smearing: promediás exp(residuo) y multiplicás. Es consistente y no exige normalidad. El error típico es exponenciar y presentar el resultado como E(Y | X) sin aclarar qué estás estimando. Si tu pregunta es por la mediana o por un ranking, el valor sin corregir puede alcanzar; si es por el gasto total esperado, no.'
+        },
+        {
+          type: 'callout',
+          variant: 'ochre',
+          label: 'Omitir no siempre es sesgar',
+          html: 'La fórmula del sesgo tiene dos factores: el efecto de la omitida sobre Y y su correlación con las X incluidas. Si cualquiera de los dos es cero, el sesgo desaparece. Omitir una variable relevante pero incorrelacionada deja el coeficiente centrado; lo que sube es la varianza del error y baja la precisión, porque esa variable sigue aportando ruido que el modelo no explicita. Ese es el caso que el 2P 2024 usa para preguntar cuándo el estimador sigue siendo consistente. La asimetría con la inclusión no es “omitir siempre es peor”: es “omitir una relevante y correlacionada es peor”. En el parcial, nombrá las dos condiciones antes de decir “hay sesgo”.'
+        },
+        {
+          type: 'p',
+          id: 'c04b-s08-p03',
+          html: 'El intervalo de predicción mide incertidumbre de muestreo y, en el caso individual, la del error. No mide la incertidumbre de haber elegido mal la forma funcional, de haber omitido una variable o de haber probado veinte modelos y quedarte con el mejor. Si elegiste la especificación con los mismos datos que usás para predecir, el intervalo nominal es optimista. No hay una corrección simple con t y ee. Lo que sí podés hacer es fijar la teoría antes de mirar los datos, reportar varias especificaciones, separar una muestra para validar o usar validación cruzada. En el parcial, la respuesta esperada es distinguir “incertidumbre del parámetro” de “incertidumbre del modelo”. El intervalo cubre la primera; la segunda queda como advertencia explícita.'
+        },
+        {
+          type: 'miniCheck',
+          id: 'c04b-check-09',
+          question: 'Predecís log(foodexp) y obtenés 6,84. ¿Podés decir que el gasto esperado es exp(6,84)?',
+          intro: 'Pensá qué escala estás usando y qué objeto estás estimando.',
+          answer: 'No directamente. exp(6,84) es una predicción en niveles, pero de la mediana condicional, no de la media. Para la media hace falta multiplicar por E[exp(u)], que bajo log-normalidad se estima con exp(σ̂²/2) y, sin ese supuesto, con el smearing. Además, el intervalo en escala logarítmica no se traslada tal cual a niveles: al exponenciar, los extremos cambian. Si la pregunta es por el gasto promedio de la subpoblación, reportá la corrección y aclará el supuesto.'
+        }
+      ]
     }
   ],
   concepts: {
     'aic-bic': {
       title: 'AIC y BIC',
       sub: 'Comparar modelos con una multa por complejidad.',
+      simple: `<p>Imaginá que comparás dos heladerías por la cantidad de gustos que ofrecen. La que tiene más gustos no es automáticamente mejor: cada gusto extra cuesta mantenimiento. AIC y BIC hacen algo parecido con los modelos: premian el ajuste, pero cobran una multa por cada parámetro.</p><p>El modelo con el número más bajo gana, y la multa evita que elijas el más grande solo porque ajusta un poco mejor.</p>`,
+      viz: "aic-bic",
+      vizIntro: "Compará los tres modelos y cambiá entre AIC y BIC. Después mové el tamaño de muestra y mirá cómo se separan las multas.",
+      vizHint: "BIC castiga más cada parámetro cuando n crece; AIC mantiene una multa fija. Ninguno de los dos convierte la diferencia en un valor p.",
       esencia: `
         <div class="definition">AIC y BIC comparan modelos sumando a la falta de ajuste una penalización por cantidad de parámetros. Se elige el modelo con el criterio más bajo. No son contrastes: no tienen H<sub>0</sub> ni valor p.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -691,6 +768,10 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'forma-funcional': {
       title: 'Forma funcional',
       sub: 'Niveles, logaritmos, cuadráticas e interacciones.',
+      simple: `<p>La forma funcional es la decisión sobre cómo se relacionan las variables: si un año más de educación suma siempre lo mismo al salario o si suma cada vez menos. Es como elegir el mapa correcto antes de viajar: si el mapa está mal, llegar rápido no sirve de nada.</p><p>Podés probar niveles, logaritmos, cuadráticas o interacciones. La teoría y la interpretación que puedas defender pesan más que el ajuste.</p>`,
+      viz: "forms",
+      vizIntro: "Cambiá entre niveles, logaritmos y cuadrática con los mismos datos. Mirá qué le pasa al ajuste y a la forma de la relación.",
+      vizHint: "La misma nube de puntos admite varias formas. El ajuste no elige por vos: la interpretación y la teoría tienen que sostener la que adoptás.",
       esencia: `
         <div class="definition">La forma funcional es la relación que se postula entre Y y las X. MCO puede estimar relaciones no lineales en las variables si son lineales en los parámetros: logaritmos, cuadráticas e interacciones.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -727,6 +808,7 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     reset: {
       title: 'Prueba RESET',
       sub: '¿Quedaron no linealidades que el modelo no captura?',
+      simple: `<p>RESET es como revisar una foto con zoom: si al ampliar aparecen detalles que el primer vistazo no mostraba, algo quedó afuera. La prueba agrega potencias de lo que el modelo ya predijo y fija si aportan algo nuevo.</p><p>Si aportan, la forma elegida no alcanza. Si no aportan, no podés declarar que el modelo sea perfecto: solo que no encontraste esa falla.</p>`,
       esencia: `
         <div class="definition">RESET estima una regresión ampliada con Ŷ² y Ŷ³ y contrasta H<sub>0</sub>: δ<sub>1</sub> = δ<sub>2</sub> = 0. Un F o un LM con q = 2 evalúa si las potencias de los valores ajustados aportan explicación adicional.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -763,6 +845,10 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'sesgo-omision': {
       title: 'Sesgo por omisión',
       sub: 'La variable relevante que queda en el error.',
+      simple: `<p>Imaginá que querés explicar el salario con educación y te olvidás de la habilidad. Como la habilidad también sube el salario y suele venir con más educación, el efecto de la educación queda inflado. Eso es el sesgo por omisión.</p><p>El problema no se arregla juntando más datos: si la variable omitida sigue correlacionada con la incluida, el error te acompaña aunque la muestra sea enorme.</p>`,
+      viz: "ovb",
+      vizIntro: "Ajustá la correlación entre la variable omitida y la incluida y mirá cómo se desplaza el coeficiente estimado.",
+      vizHint: "Si la correlación es cero, no hay sesgo aunque la variable sea relevante. Si no es cero, el desplazamiento tiene el signo del producto entre el efecto de la omitida y esa correlación.",
       esencia: `
         <div class="definition">Si se omite una variable relevante correlacionada con alguna incluida, el estimador de MCO es sesgado e inconsistente. En el caso simple, E(β̃<sub>1</sub>) = β<sub>1</sub> + β<sub>2</sub>·δ, donde δ es la pendiente de X<sub>2</sub> sobre X<sub>1</sub>.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -799,6 +885,7 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'sesgo-inclusion': {
       title: 'Sesgo por inclusión',
       sub: 'Incluir de más: insesgado, pero ineficiente.',
+      simple: `<p>Es como llevar un paraguas de más a un viaje corto: no te mojás, pero cargás peso innecesario. Incluir una variable que no aporta no desplaza el coeficiente de las demás; lo que hace es gastar información y volver las estimaciones menos precisas.</p><p>El nombre asusta, pero el costo real es la pérdida de eficiencia, no un sesgo.</p>`,
       esencia: `
         <div class="definition">Incluir una variable irrelevante no sesga los coeficientes de las demás, pero aumenta su varianza. Se estiman más parámetros con el mismo n, se pierden grados de libertad y los errores estándar crecen.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -835,6 +922,10 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'prediccion-promedio': {
       title: 'Predicción promedio',
       sub: 'El valor esperado de Y para un vector X dado.',
+      simple: `<p>Pensá en el gasto promedio en alimentos de las familias que ganan 1500. No te interesa una familia en particular: te interesa el promedio de ese grupo, y eso estima la predicción promedio.</p><p>Como es un promedio, el intervalo es más angosto y se vuelve más preciso cerca del centro de los datos. No sirve para decir cuánto gasta una familia concreta.</p>`,
+      viz: "prediction",
+      vizIntro: "Mové X₀ y mirá cómo se abre el intervalo de la media. La predicción puntual es una sola; la banda mide su precisión.",
+      vizHint: "El intervalo promedio se angosta cerca de X̄ y se abre en los extremos. No incluye la variabilidad de una familia concreta.",
       esencia: `
         <div class="definition">La predicción promedio estima θ<sub>0</sub> = β<sub>0</sub> + β<sub>1</sub>c<sub>1</sub> + β<sub>2</sub>c<sub>2</sub>, la media de Y en la subpoblación con X = c. Su intervalo es θ̂<sub>0</sub> ± t<sub>n−k−1, α/2</sub>·ee(θ̂<sub>0</sub>).</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -871,6 +962,10 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'prediccion-individual': {
       title: 'Predicción individual',
       sub: 'Un valor concreto, no el promedio de la subpoblación.',
+      simple: `<p>Ahora la pregunta cambia: no cuánto gasta en promedio una familia que gana 1500, sino cuánto podría gastar una familia concreta. Esa familia tiene gustos, tamaño y costumbres que el modelo no ve. Por eso la predicción individual es más incierta.</p><p>Aunque el valor predicho sea el mismo, el intervalo tiene que cubrir además el error propio de esa unidad.</p>`,
+      viz: "prediction",
+      vizIntro: "Compará la banda individual con la del promedio para el mismo X₀. La diferencia es la varianza del error no observado.",
+      vizHint: "La banda individual no se cierra aunque n crezca: siempre queda el error de la unidad. Por eso predecir a una persona es más incierto que predecir la media de su grupo.",
       esencia: `
         <div class="definition">La predicción individual agrega la varianza del error no observado: Var(ê<sub>0</sub>) = σ<sup>2</sup>[1 + X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>]. El intervalo es más ancho que el de la predicción promedio.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -907,6 +1002,7 @@ window.CLASE_CONTENIDOS["clase-04b"] = {
     'intervalo-prediccion': {
       title: 'Intervalo de predicción',
       sub: 'Incertidumbre muestral más incertidumbre del error.',
+      simple: `<p>El intervalo de predicción es el margen de error que acompañás a una predicción. Es como decir “el gasto estimado es 938, pero puede moverse bastante según la familia”.</p><p>Hay dos versiones: una para el promedio del grupo y otra para una unidad concreta. La individual siempre es más ancha, y ninguna de las dos cubre el error de haber elegido mal el modelo.</p>`,
       esencia: `
         <div class="definition">El intervalo de predicción tiene la forma Ŷ<sub>0</sub> ± t<sub>n−k−1, α/2</sub>·ee(ê<sub>0</sub>). Para el promedio, la varianza es σ²X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>; para una observación individual, σ²[1 + X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>].</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -1269,62 +1365,74 @@ I(income^2)  -0.000100043 -0.0000411055`,
       {
         title: 'AIC',
         eq: 'AIC = log(SCR/n) + 2k/n',
-        note: 'Menor es mejor. Misma Y y mismo n.'
+        note: 'Menor es mejor. Misma Y y mismo n.',
+        more: `<p>El criterio castiga el ajuste con una multa lineal en k. Cuanto más grande es la muestra, más barato resulta cada parámetro en la escala de AIC, porque la multa se divide por n.</p><ul><li><b>Cuándo se usa:</b> para ordenar modelos con la misma Y y el mismo n.</li><li><b>Error típico:</b> leer la diferencia como significación estadística o comparar modelos con distinta transformación de Y.</li><li><b>Conexión:</b> dialoga con el R² ajustado, que también descuenta complejidad, pero AIC no está acotado entre 0 y 1.</li></ul>`
       },
       {
         title: 'BIC',
         eq: 'BIC = log(SCR/n) + (k/n)·log(n)',
-        note: 'Penaliza más que AIC cuando n > 7; favorece la parsimonia.'
+        note: 'Penaliza más que AIC cuando n > 7; favorece la parsimonia.',
+        more: `<p>La multa por parámetro crece con log(n), no con una constante. Por eso, en muestras grandes, BIC se vuelve mucho más exigente que AIC y tiende a quedarse con el modelo más chico.</p><ul><li><b>Cuándo se usa:</b> cuando querés una regla conservadora y creés que el modelo verdadero está entre los candidatos.</li><li><b>Error típico:</b> usarlo como prueba de que el modelo elegido es el verdadero, o compararlo entre transformaciones de Y.</li><li><b>Conexión:</b> su penalización explica por qué, con una diferencia de ajuste chica, BIC puede quedarse con el modelo más simple.</li></ul>`
       },
       {
         title: 'RESET',
         eq: 'Y = β<sub>0</sub> + β<sub>1</sub>X<sub>1</sub> + … + β<sub>k</sub>X<sub>k</sub> + δ<sub>1</sub>Ŷ<sup>2</sup> + δ<sub>2</sub>Ŷ<sup>3</sup> + v',
-        note: 'H₀: δ₁ = δ₂ = 0; q = 2; F con n − k − 3 en el denominador.'
+        note: 'H₀: δ₁ = δ₂ = 0; q = 2; F con n − k − 3 en el denominador.',
+        more: `<p>La regresión ampliada agrega potencias de los valores ajustados para ver si el modelo base dejó estructura sin capturar. Bajo H₀, esas potencias no aportan y el ajuste no mejora más de lo que explica el azar.</p><ul><li><b>Cuándo se usa:</b> después de elegir una forma funcional, sobre todo si sospechás curvatura o un logaritmo mal elegido.</li><li><b>Error típico:</b> creer que el rechazo identifica la alternativa correcta.</li><li><b>Conexión:</b> el F de restricciones conjuntas de la clase 3B es el mismo mecanismo, aplicado a δ₁ y δ₂.</li></ul>`
       },
       {
         title: 'Sesgo por omisión',
         eq: 'E(β̃<sub>1</sub>) = β<sub>1</sub> + β<sub>2</sub>·Cov(X<sub>1</sub>,X<sub>2</sub>)/Var(X<sub>1</sub>)',
-        note: 'Sesgo = β₂·δ. Es sesgado e inconsistente si la covarianza no es cero.'
+        note: 'Sesgo = β₂·δ. Es sesgado e inconsistente si la covarianza no es cero.',
+        more: `<p>La esperanza del coeficiente equivale al efecto verdadero más un término que mezcla el efecto de la omitida con su relación lineal con la incluida. Ese segundo término no desaparece al crecer n.</p><ul><li><b>Cuándo se usa:</b> para anticipar el signo y la magnitud del sesgo antes de estimar o para explicar por qué dos modelos difieren.</li><li><b>Error típico:</b> olvidar que δ se calcula regresando la omitida sobre todas las X incluidas, no solo sobre X₁.</li><li><b>Conexión:</b> si β₂ o δ son cero, no hay sesgo; por eso omitir no siempre equivale a sesgar.</li></ul>`
       },
       {
         title: 'Sesgo por inclusión',
         eq: 'E(β̂<sub>j</sub>) = β<sub>j</sub>, pero Var(β̂<sub>j</sub>) ↑',
-        note: 'Insesgado pero ineficiente: más parámetros y menos grados de libertad.'
+        note: 'Insesgado pero ineficiente: más parámetros y menos grados de libertad.',
+        more: `<p>La igualdad dice que la esperanza no se mueve cuando la variable agregada tiene coeficiente poblacional cero. Lo que sí cambia es la dispersión del estimador, porque se gasta un grado de libertad y aparece colinealidad.</p><ul><li><b>Cuándo se usa:</b> para discutir el costo de sobreajustar y para comparar con el sesgo por omisión.</li><li><b>Error típico:</b> decir que el coeficiente se sesga; el problema es de varianza, no de centro.</li><li><b>Conexión:</b> AIC y BIC cobran esa pérdida de precisión con la multa por k.</li></ul>`
       },
       {
         title: 'Predicción promedio',
         eq: 'θ<sub>0</sub> = β<sub>0</sub> + β<sub>1</sub>c<sub>1</sub> + β<sub>2</sub>c<sub>2</sub>',
-        note: 'Media condicional de Y para X = c.'
+        note: 'Media condicional de Y para X = c.',
+        more: `<p>θ₀ es un parámetro poblacional: la media de Y en el subgrupo con X = c. No es el valor de una unidad ni el promedio de los Y observados en la muestra.</p><ul><li><b>Cuándo se usa:</b> para responder por el gasto medio, el salario medio o cualquier media condicional.</li><li><b>Error típico:</b> presentarlo como predicción de una persona concreta.</li><li><b>Conexión:</b> su intervalo se construye reparametrizando el modelo, no sumando errores estándar.</li></ul>`
       },
       {
         title: 'Reparametrización',
         eq: 'Y = θ<sub>0</sub> + β<sub>1</sub>(X<sub>1</sub> − c<sub>1</sub>) + β<sub>2</sub>(X<sub>2</sub> − c<sub>2</sub>) + u',
-        note: 'El intercepto es θ₀; su ee es el de la predicción promedio.'
+        note: 'El intercepto es θ₀; su ee es el de la predicción promedio.',
+        more: `<p>Al centrar cada X en el punto que querés predecir, el intercepto deja de ser el valor cuando todo vale cero y pasa a ser exactamente θ₀. El software calcula su error estándar sin cuentas adicionales.</p><ul><li><b>Cuándo se usa:</b> para obtener el intervalo de la predicción promedio con cualquier cantidad de variables.</li><li><b>Error típico:</b> centrar solo una X o usar c en unidades distintas de las de la variable.</li><li><b>Conexión:</b> es la misma idea de cambio de escala de la clase 4A, aplicada al origen.</li></ul>`
       },
       {
         title: 'Varianza promedio (matricial)',
         eq: 'Var(Ŷ<sub>0</sub>) = σ<sup>2</sup>X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>',
-        note: 'Solo variabilidad muestral de β̂.'
+        note: 'Solo variabilidad muestral de β̂.',
+        more: `<p>La varianza depende de la posición de X₀ respecto de la nube de datos, resumida en X₀′(X′X)⁻¹X₀. Cuanto más lejos está el punto, mayor es ese producto y más ancho el intervalo.</p><ul><li><b>Cuándo se usa:</b> con varias X, donde la fórmula simple no alcanza.</li><li><b>Error típico:</b> confundir σ² con la varianza de la predicción; σ² es solo el ruido del modelo.</li><li><b>Conexión:</b> la matriz (X′X)⁻¹ vuelve a aparecer en la varianza de cualquier combinación lineal de β̂.</li></ul>`
       },
       {
         title: 'Varianza individual (matricial)',
         eq: 'Var(ê<sub>0</sub>) = σ<sup>2</sup>[1 + X<sub>0</sub>′(X′X)<sup>−1</sup>X<sub>0</sub>]',
-        note: 'Agrega la varianza del error no observado.'
+        note: 'Agrega la varianza del error no observado.',
+        more: `<p>El corchete suma dos piezas: la incertidumbre por estimar β y la varianza del error de la nueva unidad. La segunda no se reduce con más observaciones.</p><ul><li><b>Cuándo se usa:</b> para predecir una persona, una empresa o una familia concreta.</li><li><b>Error típico:</b> omitir el 1 del corchete y reportar un intervalo demasiado angosto.</li><li><b>Conexión:</b> la predicción individual comparte el valor puntual con la promedio, pero no la precisión.</li></ul>`
       },
       {
         title: 'Varianza promedio (simple)',
         eq: 'σ̂<sup>2</sup>[1/n + (c − X̄)<sup>2</sup>/Σ(X<sub>i</sub> − X̄)<sup>2</sup>]',
-        note: 'Mínima en c = X̄; crece al alejarse.'
+        note: 'Mínima en c = X̄; crece al alejarse.',
+        more: `<p>En regresión simple, la varianza de la predicción promedio tiene tres piezas: el ruido σ̂², el 1/n de estimar el nivel y la distancia al centro. Las tres se suman dentro del corchete.</p><ul><li><b>Cuándo se usa:</b> para ver a mano por qué el intervalo se abre en los extremos.</li><li><b>Error típico:</b> olvidar el término de distancia y suponer que el ancho es constante.</li><li><b>Conexión:</b> el denominador Σ(Xᵢ − X̄)² es el mismo que hace precisa la pendiente.</li></ul>`
       },
       {
         title: 'Varianza individual (simple)',
         eq: 'σ̂<sup>2</sup>[1 + 1/n + (c − X̄)<sup>2</sup>/Σ(X<sub>i</sub> − X̄)<sup>2</sup>]',
-        note: 'La individual agrega 1 dentro del corchete.'
+        note: 'La individual agrega 1 dentro del corchete.',
+        more: `<p>Es la fórmula promedio más un 1 dentro del corchete. Ese 1 representa la varianza del error de la unidad que querés predecir, expresada en unidades de σ̂².</p><ul><li><b>Cuándo se usa:</b> para construir el intervalo individual en regresión simple.</li><li><b>Error típico:</b> creer que el intervalo se cierra con n grande; el 1 permanece.</li><li><b>Conexión:</b> explica por qué el intervalo individual del laboratorio es varias veces más ancho.</li></ul>`
       },
       {
         title: 'Intervalo de predicción',
         eq: 'Ŷ<sub>0</sub> ± t<sub>n−k−1, α/2</sub>·ee(ê<sub>0</sub>)',
-        note: 'Cambia el ee según sea promedio o individual.'
+        note: 'Cambia el ee según sea promedio o individual.',
+        more: `<p>El intervalo combina una predicción puntual con un t y el error estándar del error de predicción. El ee cambia según la pregunta: media condicional o nueva observación.</p><ul><li><b>Cuándo se usa:</b> siempre que reportes una predicción y quieras decir cuánta incertidumbre tiene.</li><li><b>Error típico:</b> interpretarlo como la probabilidad de que el próximo valor caiga adentro, o como una banda que cubre al 95% de la población.</li><li><b>Conexión:</b> supone el modelo correcto; no cubre variables omitidas ni forma funcional equivocada.</li></ul>`
       }
     ],
     drills: [

@@ -333,6 +333,58 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
           ]
         }
       ]
+    },
+    {
+      id: "c02a-s08",
+      number: "08",
+      title: "Profundización: lo que suele quedar en el aire",
+      blocks: [
+        {
+          type: "p",
+          id: "c02a-s08-p01",
+          html: 'Tres puntos de esta clase suelen quedar en una frase suelta: qué significa convivir con multicolinealidad alta, qué casos concretos producen colinealidad perfecta y cuánto cuesta agregar controles. Los tres vuelven en el parcial y en la clase 2B, y cambian la forma de leer una salida de regresión.'
+        },
+        {
+          type: "p",
+          id: "c02a-s08-p02",
+          html: 'Un error frecuente es mirar un R² alto, ver que ningún coeficiente individual es significativo y concluir que el modelo no sirve. Esa combinación es posible y tiene una lectura precisa: el conjunto de regresores explica bastante de Y, pero la muestra no alcanza para separar el aporte de cada uno. El estadístico F puede rechazar que todas las pendientes sean cero mientras los t individuales no rechazan nada. Si los regresores están muy relacionados entre sí, hay información conjunta pero poca información exclusiva de cada variable. La salida de R muestra ese patrón sin ninguna contradicción.'
+        },
+        {
+          type: "formula",
+          main: "t<sub>j</sub> = β̂<sub>j</sub> / EE(β̂<sub>j</sub>) = β̂<sub>j</sub> / √[ σ̂<sup>2</sup> / (SCT<sub>j</sub>(1 − R<sub>j</sub><sup>2</sup>)) ]",
+          legend: [
+            { key: "β̂ⱼ", text: "El coeficiente estimado. La multicolinealidad no lo mueve." },
+            { key: "EE(β̂ⱼ)", text: "Crece con el FIV. Es el canal por el que la colinealidad afecta al t." },
+            { key: "Rⱼ²", text: "Qué tan bien se explica Xⱼ con el resto. Si se acerca a 1, el denominador se achica." }
+          ]
+        },
+        {
+          type: "cards",
+          items: [
+            { sym: "×2", title: "La misma variable dos veces", text: "Duplicar una columna deja dos regresores idénticos. X′X no tiene inversa y MCO no puede estimar." },
+            { sym: "λ", title: "Una combinación lineal", text: "Si una X es suma o múltiplo exacto de otra, hay dependencia exacta. No es un problema de magnitud: falta identificación." },
+            { sym: "1", title: "Una binaria sin variación", text: "Si una variable ficticia toma un solo valor en la muestra, equivale a una constante y compite con el intercepto." },
+            { sym: "D", title: "Todas las categorías y la constante", text: "Con una ficticia por categoría, las columnas suman la de unos. El software elimina una y la convierte en referencia." }
+          ]
+        },
+        {
+          type: "p",
+          id: "c02a-s08-p03",
+          html: 'La trampa de las ficticias merece un párrafo aparte porque vuelve en la clase 5. Si una variable tiene tres categorías, no incluyas las tres ficticias y el intercepto: hay colinealidad perfecta. El software va a omitir una categoría, y esa omisión no es un error: es la referencia. Cada coeficiente de las otras ficticias se lee como diferencia respecto de esa categoría. Si en cambio estimás sin intercepto, podés incluir todas y cada coeficiente estima el nivel del grupo, no una diferencia. Las dos parametrizaciones producen el mismo ajuste; lo que cambia es la pregunta que responde cada número.'
+        },
+        {
+          type: "p",
+          id: "c02a-s08-p04",
+          html: 'Agregar controles tampoco es gratis. Un control relevante reduce el sesgo por omisión, pero consume un grado de libertad y puede estar correlacionado con las otras X, así que sube la varianza. Un control irrelevante no reduce sesgo y solo empeora la precisión. Y hay un tercer caso que conviene tener presente: si el control es una consecuencia de X, el coeficiente de X deja de medir el efecto total y pasa a medir el efecto que no pasa por ese canal. Antes de sumar una variable, preguntate si es previa a X, si la teoría la justifica y qué pregunta querés responder. En el parcial, esto aparece como la pregunta de si más controles garantizan causalidad.'
+        },
+        {
+          type: "miniCheck",
+          id: "c02a-check-09",
+          question: "Un modelo con cinco regresores tiene R² = 0,86 y un F significativo, pero ninguno de los t individuales rechaza H0. ¿Cómo puede ser y qué harías?",
+          intro: "Pensá en la diferencia entre información conjunta e información exclusiva de cada regresor.",
+          answer: "Puede pasar si los regresores están muy correlacionados entre sí: en conjunto explican mucho de Y, pero la muestra no alcanza para atribuir el aporte a cada uno por separado. El F contrasta restricciones conjuntas; los t, una por una. No conviene borrar variables en cadena por un FIV alto: primero revisá la teoría, la correlación entre regresores y si hay suficiente variación limpia. También podés testear restricciones conjuntas o buscar más datos."
+        }
+      ]
     }
   ],
 
@@ -340,6 +392,10 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     parcial: {
       title: "Efecto parcial y ceteris paribus",
       sub: "Lo que cambia en Y cuando una X se mueve y las demás quedan fijas.",
+      simple: `<p>Pensá en dos personas con la misma experiencia y el mismo tipo de puesto, pero una estudió un año más. El coeficiente de educación compara esas dos personas, no a cualquiera de la muestra. Esa diferencia que queda cuando el resto de las variables del modelo está fijo es el efecto parcial.</p><p>Si esa comparación no existe en los datos, el número se puede calcular igual, pero conviene aclarar qué se mantuvo constante y qué no.</p>`,
+      viz: "partial-effect",
+      vizIntro: "Mové X₁ y X₂ y mirá qué cambia: la pendiente de la recta o su altura.",
+      vizHint: "Mover X₁ te lleva a lo largo de la misma recta; mover X₂ corre la recta entera sin tocar la pendiente. Esa es la diferencia entre un efecto parcial y un cambio de nivel.",
       esencia: `
         <div class="definition">En un modelo lineal múltiple, β<sub>j</sub> es el cambio esperado en Y ante una unidad más de X<sub>j</sub>, manteniendo constantes las demás variables explicativas incluidas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -376,6 +432,10 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     frisch: {
       title: "Frisch-Waugh",
       sub: "Regresar Y sobre la parte de X₁ que no se explica por las demás X.",
+      simple: `<p>Querés saber qué aporta la educación al salario, pero la educación y la experiencia suelen venir juntas. La idea de Frisch-Waugh es separar: primero borrás de la educación todo lo que explica la experiencia y te quedás con la parte que sobra. Después mirás cómo esa parte sobrante se relaciona con el salario.</p><p>Es como separar la harina del azúcar antes de pesar: recién ahí podés ver cuánto aporta cada ingrediente.</p>`,
+      viz: "frisch-waugh",
+      vizIntro: "Cambiá la correlación entre X₁ y X₂ y compará la regresión simple con la regresión sobre residuos.",
+      vizHint: "Cuanto más correlacionadas están las X, más se aleja la pendiente simple de la parcial. La regresión sobre residuos recupera el coeficiente múltiple.",
       esencia: `
         <div class="definition">El coeficiente β̂<sub>1</sub> de una regresión múltiple se obtiene regresando X<sub>1</sub> sobre las demás variables explicativas, tomando sus residuos r̂<sub>i1</sub>, y regresando Y sobre esos residuos.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -412,6 +472,10 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     omision: {
       title: "Sesgo por variable omitida",
       sub: "La diferencia entre el coeficiente simple y el múltiple tiene una fórmula.",
+      simple: `<p>Imaginá que medís el efecto de la educación sobre el salario y te olvidás de la experiencia. Si la experiencia sube el salario y además viene de la mano con la educación, la educación carga con una parte del mérito que no le corresponde. La diferencia entre el número que obtenés y el que obtendrías con la variable incluida es el sesgo por omisión.</p><p>El sesgo puede ir para cualquier lado: no siempre infla el coeficiente; a veces lo atenúa o invierte su signo.</p>`,
+      viz: "ovb",
+      vizIntro: "Mové el efecto de la variable omitida sobre Y y su relación con X₁. Las barras muestran dónde queda la pendiente simple.",
+      vizHint: "El sesgo es el producto de los dos movimientos. Si alguno es cero, simple y múltiple coinciden; si tienen signos opuestos, el sesgo cambia de dirección.",
       esencia: `
         <div class="definition">Si el modelo verdadero incluye X₂ pero se estima una regresión simple sin ella, <em>β̃<sub>1,RS</sub> = β̂<sub>1,RM</sub> + δ̃<sub>1</sub>β̂<sub>2,RM</sub></em>. El segundo término es el sesgo por omisión.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -447,6 +511,10 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     fiv: {
       title: "FIV y multicolinealidad",
       sub: "Cuánto se infla la varianza cuando los regresores se mueven juntos.",
+      simple: `<p>Si dos variables explicativas se mueven casi siempre juntas, separar el aporte de cada una es como distinguir el sabor de dos ingredientes que siempre usaste en la misma proporción. El FIV mide cuánto se complica esa separación: cuanto más se parecen los movimientos de las variables, más grande es el número.</p><p>Un FIV alto no significa que el modelo esté mal; significa que los coeficientes individuales se estiman con menos precisión.</p>`,
+      viz: "vif",
+      vizIntro: "Subí el R² de la regresión auxiliar y mirá cómo crece el FIV y se ensancha el intervalo.",
+      vizHint: "El FIV no mueve el coeficiente: mueve el error estándar. Un FIV alto dice que hay poca variación limpia para separar ese efecto del resto.",
       esencia: `
         <div class="definition">El factor de inflación de varianza es <em>FIV<sub>j</sub> = 1 / (1 − R<sub>j</sub><sup>2</sup>)</em>, donde R<sub>j</sub><sup>2</sup> es el R² de regresar X<sub>j</sub> sobre las demás variables explicativas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -483,6 +551,10 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     r2adj: {
       title: "R² ajustado",
       sub: "Una medida de ajuste que penaliza agregar regresores.",
+      simple: `<p>El R² común siempre sube cuando agregás variables, incluso si no aportan nada. Es como sumar materias fáciles al promedio: el número mejora aunque no hayas aprendido más. El R² ajustado descuenta ese premio fácil y te dice si la variable nueva se ganó su lugar.</p><p>Sirve para comparar modelos con la misma variable dependiente, no para decidir si un modelo es causalmente válido.</p>`,
+      viz: "r2-parts",
+      vizIntro: "Movés la pendiente y ves cómo se reparte la variación de Y entre lo explicado y lo residual, la base del R².",
+      vizHint: "El R² ajustado parte de esta repartición y le descuenta grados de libertad. Por eso puede bajar aunque la porción explicada suba apenas.",
       esencia: `
         <div class="definition">R̄² = 1 − [SCR/(n − k − 1)] / [SCT/(n − 1)]. Corrige el R² por los grados de libertad y puede disminuir cuando se agrega una variable que aporta poco.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -519,6 +591,7 @@ window.CLASE_CONTENIDOS["clase-02a"] = {
     elio: {
       title: "Gauss-Markov en regresión múltiple",
       sub: "Cinco supuestos y una propiedad: MCO es ELIO.",
+      simple: `<p>Imaginá que tenés varios termómetros para medir la misma temperatura. Todos dan un número parecido, pero algunos se dispersan más que otros. Entre los que no tienen un sesgo fijo, el mejor es el que menos se dispersa. Eso es lo que promete Gauss-Markov: dentro de los estimadores lineales e insesgados, MCO es el de menor varianza.</p><p>No promete el mejor estimador posible en absoluto, ni que el modelo sea causal.</p>`,
       esencia: `
         <div class="definition">Bajo linealidad en parámetros, muestra aleatoria, E(u | X) = 0, ausencia de colinealidad perfecta y homocedasticidad, MCO es el mejor estimador lineal e insesgado.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -729,17 +802,17 @@ X2          -1.1677218  0.8677218`,
     title: "Kit de repaso y sesión de 90 minutos",
     intro: "Empezá por el formulario, seguí con el drill y la sesión, y cerrá con el plan de 7 días. La idea es repasar sin volver a leer todo desde cero.",
     formulas: [
-      { title: "Modelo múltiple", eq: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>1i</sub> + … + β<sub>k</sub>X<sub>ki</sub> + u<sub>i</sub>", note: "k pendientes y un intercepto. La linealidad es en los parámetros, no necesariamente en las variables." },
-      { title: "Efecto parcial", eq: "∂E(Y | X) / ∂X<sub>j</sub> = β<sub>j</sub>", note: "Cambio esperado en Y ante una unidad más de X<sub>j</sub>, manteniendo fijas las demás X incluidas." },
-      { title: "Cambio lineal", eq: "ΔŶ<sub>i</sub> = β̂<sub>1</sub>ΔX<sub>1i</sub> + … + β̂<sub>k</sub>ΔX<sub>ki</sub>", note: "Con ΔX<sub>2</sub> = … = ΔX<sub>k</sub> = 0, ΔŶ = β̂<sub>1</sub>ΔX<sub>1</sub>." },
-      { title: "Frisch-Waugh", eq: "β̂<sub>1</sub> = Σ r̂<sub>i1</sub>Y<sub>i</sub> / Σ r̂<sub>i1</sub><sup>2</sup>", note: "r̂<sub>i1</sub> son los residuos de regresar X<sub>1</sub> sobre las demás variables explicativas." },
-      { title: "Simple vs múltiple", eq: "β̃<sub>1,RS</sub> = β̂<sub>1,RM</sub> + δ̃<sub>1</sub>β̂<sub>2,RM</sub>", note: "El segundo término es el sesgo por omisión. Depende de δ<sub>1</sub> y β<sub>2</sub>." },
-      { title: "Coincidencia", eq: "β̃<sub>1,RS</sub> = β̂<sub>1,RM</sub> si β<sub>2</sub> = 0 o δ<sub>1</sub> = 0", note: "Si los regresores son ortogonales, coinciden todos los coeficientes." },
-      { title: "Varianza del estimador", eq: "Var(β̂<sub>j</sub>) = σ<sup>2</sup> / [SCT<sub>j</sub>(1 − R<sub>j</sub><sup>2</sup>)]", note: "Más ruido o más colinealidad aumentan la varianza; más variación de X<sub>j</sub> la reduce." },
-      { title: "FIV", eq: "FIV<sub>j</sub> = 1 / (1 − R<sub>j</sub><sup>2</sup>)", note: "R<sub>j</sub><sup>2</sup> es el R² de X<sub>j</sub> sobre las demás X. FIV > 10 es una regla de pulgar." },
-      { title: "Varianza estimada", eq: "σ̂<sup>2</sup> = SCR / (n − k − 1)", note: "Pierde k + 1 grados de libertad: intercepto y k pendientes." },
-      { title: "R² ajustado", eq: "R̄<sup>2</sup> = 1 − (1 − R<sup>2</sup>)(n − 1)/(n − k − 1)", note: "Puede bajar al agregar una variable irrelevante. Sirve para comparar modelos con la misma Y." },
-      { title: "Gauss-Markov", eq: "GM 1–5 ⇒ MCO es ELIO", note: "Linealidad, muestra aleatoria, E(u|X) = 0, no colinealidad perfecta y homocedasticidad." }
+      { title: "Modelo múltiple", eq: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>1i</sub> + … + β<sub>k</sub>X<sub>ki</sub> + u<sub>i</sub>", note: "k pendientes y un intercepto. La linealidad es en los parámetros, no necesariamente en las variables.", more: "<p>La ecuación general escribe Y como una parte lineal en k regresores más un error no observable. El subíndice i recorre las observaciones y k no cuenta el intercepto. La linealidad es en los parámetros: podés tener X al cuadrado o logaritmos y el modelo sigue siendo lineal.</p><ul><li><b>Cuándo se usa:</b> para fijar la notación de toda la clase.</li><li><b>Error típico:</b> contar k como cantidad total de parámetros y olvidar el intercepto al calcular grados de libertad.</li><li><b>Conexión:</b> de acá salen las k+1 condiciones de primer orden de MCO.</li></ul>" },
+      { title: "Efecto parcial", eq: "∂E(Y | X) / ∂X<sub>j</sub> = β<sub>j</sub>", note: "Cambio esperado en Y ante una unidad más de X<sub>j</sub>, manteniendo fijas las demás X incluidas.", more: "<p>La derivada parcial dice que βⱼ es la pendiente de Y respecto de Xⱼ cuando las demás X no se mueven. En un modelo lineal esa pendiente es la misma en todos los puntos: no depende del nivel de Xⱼ ni del resto.</p><ul><li><b>Cuándo se usa:</b> para interpretar cada coeficiente y para responder qué se mantiene constante.</li><li><b>Error típico:</b> leerlo como efecto total de Xⱼ, como si las variables omitidas también estuvieran fijas.</li><li><b>Conexión:</b> Frisch-Waugh muestra cómo se aísla esa variación.</li></ul>" },
+      { title: "Cambio lineal", eq: "ΔŶ<sub>i</sub> = β̂<sub>1</sub>ΔX<sub>1i</sub> + … + β̂<sub>k</sub>ΔX<sub>ki</sub>", note: "Con ΔX<sub>2</sub> = … = ΔX<sub>k</sub> = 0, ΔŶ = β̂<sub>1</sub>ΔX<sub>1</sub>.", more: "<p>La expresión traduce el modelo a cambios finitos: si varias X se mueven a la vez, los efectos se suman ponderados por sus coeficientes. Es la versión discreta de la derivada y sirve para hacer cuentas sin cálculo.</p><ul><li><b>Cuándo se usa:</b> para predecir el cambio de Ŷ ante movimientos conjuntos o para resolver ejercicios numéricos.</li><li><b>Error típico:</b> sumar los cambios sin respetar el signo del coeficiente; una caída de X₂ con β₂ negativo aumenta Ŷ.</li><li><b>Conexión:</b> con ΔX₂ = 0 recuperás la lectura ceteris paribus.</li></ul>" },
+      { title: "Frisch-Waugh", eq: "β̂<sub>1</sub> = Σ r̂<sub>i1</sub>Y<sub>i</sub> / Σ r̂<sub>i1</sub><sup>2</sup>", note: "r̂<sub>i1</sub> son los residuos de regresar X<sub>1</sub> sobre las demás variables explicativas.", more: "<p>El coeficiente múltiple se puede reconstruir en dos etapas: primero limpiás X₁ de las demás variables y después regresás Y sobre esa parte limpia. El numerador es la covariación entre residuos y Y; el denominador, la variación de esos residuos.</p><ul><li><b>Cuándo se usa:</b> para explicar qué significa controlar y para interpretar el coeficiente múltiple.</li><li><b>Error típico:</b> omitir la constante en la primera etapa y confundir estos residuos con los del modelo de Y.</li><li><b>Conexión:</b> si la primera etapa explica mucho a X₁, queda poca variación y sube el FIV.</li></ul>" },
+      { title: "Simple vs múltiple", eq: "β̃<sub>1,RS</sub> = β̂<sub>1,RM</sub> + δ̃<sub>1</sub>β̂<sub>2,RM</sub>", note: "El segundo término es el sesgo por omisión. Depende de δ<sub>1</sub> y β<sub>2</sub>.", more: "<p>La pendiente simple contiene la múltiple más un término de sesgo. Ese término es el producto de dos cosas: cuánto afecta la omitida a Y y cuánto se mueve la omitida con X₁. La fórmula supone que X₂ es la única variable que falta y que la muestra es la misma.</p><ul><li><b>Cuándo se usa:</b> para comparar dos salidas y explicar por qué cambió un coeficiente al agregar un control.</li><li><b>Error típico:</b> aplicarla cuando cambian la muestra, la transformación de Y o el conjunto de controles.</li><li><b>Conexión:</b> es la bisagra entre la clase 1 y la 2.</li></ul>" },
+      { title: "Coincidencia", eq: "β̃<sub>1,RS</sub> = β̂<sub>1,RM</sub> si β<sub>2</sub> = 0 o δ<sub>1</sub> = 0", note: "Si los regresores son ortogonales, coinciden todos los coeficientes.", more: "<p>La igualdad entre estimadores tiene dos caminos: que la variable omitida no afecte a Y en la muestra o que no esté correlacionada con X₁. Ninguna de las dos condiciones se cumple por decreto; hay que verificarlas o argumentarlas.</p><ul><li><b>Cuándo se usa:</b> para responder cuándo una regresión simple alcanza y cuándo no.</li><li><b>Error típico:</b> creer que dos coeficientes parecidos prueban que no hay variables omitidas.</li><li><b>Conexión:</b> con regresores ortogonales coinciden todos los coeficientes, incluido el intercepto.</li></ul>" },
+      { title: "Varianza del estimador", eq: "Var(β̂<sub>j</sub>) = σ<sup>2</sup> / [SCT<sub>j</sub>(1 − R<sub>j</sub><sup>2</sup>)]", note: "Más ruido o más colinealidad aumentan la varianza; más variación de X<sub>j</sub> la reduce.", more: "<p>La varianza del coeficiente depende del ruido, de la variación propia de Xⱼ y de su relación lineal con el resto. Los tres factores entran multiplicándose o dividiendo: más ruido o más colinealidad la aumentan; más dispersión de Xⱼ la reducen.</p><ul><li><b>Cuándo se usa:</b> para explicar por qué un coeficiente es impreciso y para leer su error estándar.</li><li><b>Error típico:</b> pensar que solo el tamaño de muestra importa; también importa cuánta variación limpia hay.</li><li><b>Conexión:</b> es la base del intervalo y del estadístico t de la clase 3A.</li></ul>" },
+      { title: "FIV", eq: "FIV<sub>j</sub> = 1 / (1 − R<sub>j</sub><sup>2</sup>)", note: "R<sub>j</sub><sup>2</sup> es el R² de X<sub>j</sub> sobre las demás X. FIV > 10 es una regla de pulgar.", more: "<p>El FIV mide cuántas veces se infla la varianza respecto de un regresor ortogonal. Sale de la regresión auxiliar de Xⱼ sobre todas las demás X, incluida la constante. Cuanto más cerca de uno esté ese R², más grande es el factor.</p><ul><li><b>Cuándo se usa:</b> como diagnóstico descriptivo de multicolinealidad, no como test.</li><li><b>Error típico:</b> eliminar una variable solo porque supera 10 y generar sesgo por omisión.</li><li><b>Conexión:</b> un FIV alto alarga el intervalo pero no sesga el coeficiente.</li></ul>" },
+      { title: "Varianza estimada", eq: "σ̂<sup>2</sup> = SCR / (n − k − 1)", note: "Pierde k + 1 grados de libertad: intercepto y k pendientes.", more: "<p>σ̂² estima la varianza del error con los residuos, corregida por los grados de libertad que se pierden al estimar el intercepto y las k pendientes. Es la pieza que alimenta todos los errores estándar.</p><ul><li><b>Cuándo se usa:</b> para construir errores estándar, t e intervalos.</li><li><b>Error típico:</b> dividir por n; el estimador queda sesgado hacia abajo y los errores estándar demasiado chicos.</li><li><b>Conexión:</b> cada regresor adicional reduce la SCR pero también n−k−1.</li></ul>" },
+      { title: "R² ajustado", eq: "R̄<sup>2</sup> = 1 − (1 − R<sup>2</sup>)(n − 1)/(n − k − 1)", note: "Puede bajar al agregar una variable irrelevante. Sirve para comparar modelos con la misma Y.", more: "<p>El R² ajustado corrige el ajuste por los grados de libertad. Compara la varianza residual con la varianza total, ambas divididas por sus grados de libertad. Puede bajar al agregar una variable que aporta poco.</p><ul><li><b>Cuándo se usa:</b> para comparar modelos con la misma Y y la misma forma funcional.</li><li><b>Error típico:</b> compararlo entre Y en niveles y Y en logaritmos, o usarlo como prueba de validez.</li><li><b>Conexión:</b> anticipa los criterios de selección de la clase 4.</li></ul>" },
+      { title: "Gauss-Markov", eq: "GM 1–5 ⇒ MCO es ELIO", note: "Linealidad, muestra aleatoria, E(u|X) = 0, no colinealidad perfecta y homocedasticidad.", more: "<p>El teorema dice que, si se cumplen los cinco supuestos, ningún otro estimador lineal e insesgado tiene menor varianza que MCO. Mejor es relativo a esa clase: no descarta estimadores no lineales ni garantiza causalidad.</p><ul><li><b>Cuándo se usa:</b> para justificar MCO y para saber qué propiedad se pierde cuando falla un supuesto.</li><li><b>Error típico:</b> incluir la normalidad en la lista; no es un supuesto de Gauss-Markov.</li><li><b>Conexión:</b> E(u|X)=0 sostiene el insesgamiento; la homocedasticidad, la eficiencia.</li></ul>" }
     ],
     drills: [
       { q: "Escribí el modelo de regresión múltiple y explicá qué es cada término.", a: "Y<sub>i</sub> = β<sub>0</sub> + β<sub>1</sub>X<sub>1i</sub> + … + β<sub>k</sub>X<sub>ki</sub> + u<sub>i</sub>. β<sub>0</sub> es el intercepto; β<sub>j</sub>, el efecto parcial de X<sub>j</sub>; u, el error no observable." },

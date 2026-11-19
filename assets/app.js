@@ -10,6 +10,9 @@
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[char]));
+  const cssEscape = (value) => (window.CSS && typeof window.CSS.escape === "function")
+    ? window.CSS.escape(String(value ?? ""))
+    : String(value ?? "").replace(/["\\]/g, "\\$&");
   const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
   const truncate = (value, size) => value.length > size ? value.slice(0, size).trimEnd() + "…" : value;
   const pad = (value) => String(value).padStart(2, "0");
@@ -25,6 +28,17 @@
     fuentes: "Fuentes"
   };
 
+  const HIGHLIGHT_COLORS = ["yellow", "green", "blue", "rose"];
+  const COLOR_LABELS = {
+    yellow: "amarillo",
+    green: "verde",
+    blue: "celeste",
+    rose: "rosa"
+  };
+  const isCoarsePointer = () => Boolean(
+    window.matchMedia && window.matchMedia("(pointer: coarse)").matches
+  );
+
   const state = {
     content: null,
     activeTab: "teoria",
@@ -39,7 +53,12 @@
     pendingBlock: null,
     commentRange: null,
     commentBlock: null,
-    storeMode: "indexeddb"
+    selectedColor: "yellow",
+    commentColor: "yellow",
+    storeMode: "indexeddb",
+    selectionTimer: null,
+    popoverAnchor: null,
+    toolbarGuardUntil: 0
   };
 
   const els = {
@@ -76,10 +95,19 @@
   function init() {
     renderNavigation();
     initTheme();
+    initHighlightColor();
     syncTopbarHeight();
     bindEvents();
     initUser();
     route();
+  }
+
+  function initHighlightColor() {
+    try {
+      const saved = localStorage.getItem("eco-highlight-color");
+      if (HIGHLIGHT_COLORS.includes(saved)) state.selectedColor = saved;
+    } catch (error) {}
+    updateColorSelection();
   }
 
   function syncTopbarHeight() {
@@ -196,6 +224,7 @@
       <section class="tab-panel" id="panel-fuentes">${renderSources(content)}</section>
       ${renderFooter(content)}
     `;
+    ensureAnnotationTargets();
     updateAnnotationCount();
     initChart();
     initVisuals();
@@ -443,7 +472,13 @@
             <span class="card-num">${pad(index + 1)}</span>
             <h3>${concept.title}</h3>
             <p>${concept.sub}</p>
-            <span class="card-source">Clase ${content.num} · ficha de concepto</span>
+            <span class="card-meta">
+              <span class="card-source">Clase ${content.num} · ficha de concepto</span>
+              <span class="card-flags">
+                ${concept.simple ? '<span class="card-flag">En simple</span>' : ""}
+                ${concept.viz ? '<span class="card-flag visual">Visual</span>' : ""}
+              </span>
+            </span>
           </button>
         `).join("")}
       </div>
@@ -589,11 +624,21 @@
           </div>
         </div>
         <div class="formula-kit">
-          ${review.formulas.map(formula => `
-            <article class="formula-card">
-              <span class="formula-title">${formula.title}</span>
+          ${review.formulas.map((formula, index) => `
+            <article class="formula-card" data-formula-card>
+              <div class="formula-head" data-formula-toggle role="button" tabindex="0" aria-expanded="false" aria-controls="formula-more-${content.id}-${index}">
+                <span class="formula-title">${formula.title}</span>
+                <span class="formula-plus" aria-hidden="true">+</span>
+              </div>
               <div class="eq">${formula.eq}</div>
-              <p>${formula.note}</p>
+              <p class="formula-note">${formula.note}</p>
+              <div class="formula-more" id="formula-more-${content.id}-${index}">
+                <span class="mini-label">Más información</span>
+                ${formula.more || `<p>Volvé a la sección de la clase donde aparece esta fórmula y escribila sin mirar. Si podés explicar qué mide cada símbolo y cuándo no se puede usar, ya la tenés.</p>`}
+              </div>
+              <div class="formula-card-actions">
+                <button class="text-btn" data-comment-formula type="button">Comentar esta fórmula</button>
+              </div>
             </article>
           `).join("")}
         </div>
@@ -838,9 +883,9 @@
 
   // ---------- Visualizaciones interactivas ----------
 
-  function initVisuals() {
+  function initVisuals(scope = document) {
     if (!window.ECO_VIZ || !window.ECO_VIZ.mounts) return;
-    $$("[data-viz]").forEach(figure => {
+    $$("[data-viz]", scope).forEach(figure => {
       if (figure.dataset.vizReady) return;
       const body = $(".viz-body", figure);
       const mount = window.ECO_VIZ.mounts[figure.dataset.viz];
@@ -879,15 +924,16 @@
     state.annotations.forEach(annotation => {
       annotation._orphan = false;
       if (!state.content) return;
-      const block = els.app.querySelector(`[data-block-id="${annotation.blockId}"]`);
+      const block = els.app.querySelector(`[data-block-id="${cssEscape(annotation.blockId)}"]`);
       if (!block) { annotation._orphan = true; return; }
       const mark = applyAnnotation(annotation, block);
       if (!mark) annotation._orphan = true;
+      else annotation._tab = tabForBlock(block);
     });
   }
 
   function applyAnnotation(annotation, block) {
-    if (document.querySelector(`mark[data-annotation-id="${annotation.id}"]`)) return true;
+    if (document.querySelector(`mark[data-annotation-id="${cssEscape(annotation.id)}"]`)) return true;
     let range = rangeFromOffsets(block, annotation.start, annotation.end);
     if (!range || normalize(range.toString()) !== normalize(annotation.quote)) {
       const index = block.textContent.indexOf(annotation.quote);
@@ -899,11 +945,14 @@
   }
 
   function wrapRange(block, range, annotation) {
+    const color = HIGHLIGHT_COLORS.includes(annotation.color) ? annotation.color : "yellow";
     const mark = document.createElement("mark");
-    mark.className = `annot ${annotation.color === "green" ? "hl-green" : "hl-yellow"}`;
+    mark.className = `annot hl-${color}`;
+    if (annotation.note && annotation.note.trim()) mark.classList.add("has-note");
     mark.dataset.annotationId = annotation.id;
+    mark.dataset.color = color;
     mark.tabIndex = 0;
-    mark.title = "Abrir anotación";
+    mark.title = annotation.note && annotation.note.trim() ? "Abrir comentario" : "Abrir anotación";
     try {
       mark.appendChild(range.extractContents());
       range.insertNode(mark);
@@ -911,6 +960,7 @@
       return null;
     }
     mark.addEventListener("click", event => {
+      event.preventDefault();
       event.stopPropagation();
       openAnnotation(annotation.id);
     });
@@ -922,6 +972,114 @@
       }
     });
     return mark;
+  }
+
+  // ---------- Annotation targets ----------
+
+  const ANNOT_TARGET_SELECTOR = [
+    "h1", "h2", "h3", "h4", "p", "li", "dt", "dd", "blockquote", "figcaption",
+    "td", "th",
+    ".formula-main", ".formula-legend > div", ".eq", ".definition",
+    ".mini-label", ".formula-title", ".formula-note",
+    ".interpret b", ".interpret p",
+    ".assumption-row b", ".assumption-row span",
+    ".map-step b", ".map-step span",
+    ".r-row b", ".r-row span",
+    ".kit-card h3", ".kit-card p",
+    ".plan-day b", ".plan-day p",
+    ".session-block h3", ".session-block p",
+    ".error-row b", ".error-row span",
+    ".source-card h3", ".source-card p", ".source-card .loc",
+    ".exercise-card h3", ".exercise-card p",
+    ".qa-answer", ".qa-card summary > span:not(.qa-num)", ".question-card p",
+    ".check-list li", ".source-guide b", ".source-guide span",
+    ".card-source", ".partial-note", ".ex-label", ".eyebrow",
+    ".r-note", ".demo-note", ".time", ".source-chip", ".app-footer",
+    ".hero .lead"
+  ].join(",");
+
+  function hashText(text) {
+    let hash = 0;
+    for (let index = 0; index < text.length; index += 1) {
+      hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0;
+    }
+    return Math.abs(hash).toString(36).slice(0, 7);
+  }
+
+  function tabForBlock(block) {
+    const panel = block && block.closest(".tab-panel");
+    return panel ? panel.id.replace("panel-", "") : "app";
+  }
+
+  function tabForAnnotation(annotation) {
+    if (annotation._tab) return annotation._tab;
+    const auto = /^auto:[^:]+:([^:]+):/.exec(annotation.blockId || "");
+    if (auto) return auto[1];
+    return "teoria";
+  }
+
+  function ensureAnnotationTargets(scope = els.app) {
+    if (!scope || !state.content) return;
+    const used = new Map();
+    $$(ANNOT_TARGET_SELECTOR, scope).forEach(candidate => {
+      if (!candidate || candidate.closest("mark.annot, .viz, .chart-lab, pre, code, textarea, input, select, button, a, [data-concept], .r-code, .r-console")) return;
+      if (candidate.hasAttribute("data-block-id")) return;
+      if (candidate.closest("[data-block-id]")) return;
+      if (candidate.querySelector("p, div, ul, ol, li, section, article, table, tr, td, th, blockquote, pre, h1, h2, h3, h4")) return;
+      const text = normalize(candidate.textContent);
+      if (text.length < 2) return;
+      const tab = tabForBlock(candidate);
+      const count = used.get(tab) || 0;
+      used.set(tab, count + 1);
+      const id = `auto:${state.content.id}:${tab}:${count}:${hashText(text.slice(0, 90))}`;
+      candidate.setAttribute("data-block-id", id);
+      candidate.setAttribute("data-annot-tab", tab);
+    });
+  }
+
+  function ensureBlockId(block) {
+    if (!block) return null;
+    if (block.dataset.blockId) return block.dataset.blockId;
+    ensureAnnotationTargets(block.closest(".tab-panel") || els.app);
+    if (block.dataset.blockId) return block.dataset.blockId;
+    const tab = tabForBlock(block);
+    const id = `auto:${state.content.id}:${tab}:manual:${hashText(normalize(block.textContent))}`;
+    block.setAttribute("data-block-id", id);
+    return id;
+  }
+
+  function annotationTargetForRange(range) {
+    if (!range || !els.app || !els.app.contains(range.commonAncestorContainer)) return null;
+    const startEl = range.startContainer.nodeType === 3 ? range.startContainer.parentElement : range.startContainer;
+    const endEl = range.endContainer.nodeType === 3 ? range.endContainer.parentElement : range.endContainer;
+    if (!startEl || !endEl) return null;
+    const blocked = "mark.annot, .viz, .chart-lab, pre, code, textarea, input, select, button, a, .r-code, .r-console, .selection-toolbar, .comment-popover";
+    if (startEl.closest(blocked) || endEl.closest(blocked)) return null;
+    const startBlock = startEl.closest("[data-block-id]");
+    const endBlock = endEl.closest("[data-block-id]");
+    let block = startBlock && startBlock === endBlock ? startBlock : null;
+    if (!block) {
+      const commonEl = range.commonAncestorContainer.nodeType === 3
+        ? range.commonAncestorContainer.parentElement
+        : range.commonAncestorContainer;
+      const commonBlock = commonEl && commonEl.closest && commonEl.closest("[data-block-id]");
+      if (commonBlock && commonBlock.contains(range.startContainer) && commonBlock.contains(range.endContainer)) {
+        block = commonBlock;
+      }
+    }
+    if (!block) return null;
+    if (!block.contains(range.startContainer) || !block.contains(range.endContainer)) return null;
+    return block;
+  }
+
+  function updateAnnotationMarks(annotation) {
+    const color = HIGHLIGHT_COLORS.includes(annotation.color) ? annotation.color : "yellow";
+    document.querySelectorAll(`mark[data-annotation-id="${cssEscape(annotation.id)}"]`).forEach(mark => {
+      HIGHLIGHT_COLORS.forEach(item => mark.classList.toggle(`hl-${item}`, item === color));
+      mark.classList.toggle("has-note", Boolean(annotation.note && annotation.note.trim()));
+      mark.dataset.color = color;
+      mark.title = annotation.note && annotation.note.trim() ? "Abrir comentario" : "Abrir anotación";
+    });
   }
 
   function getOffsets(block, range) {
@@ -958,10 +1116,11 @@
     return range;
   }
 
-  function createAnnotation(range, block, note) {
+  function createAnnotation(range, block, note, color = state.selectedColor) {
     if (!range || !block) return null;
     const quote = normalize(range.toString());
     if (!quote) { showToast("No hay texto seleccionado."); return null; }
+    ensureBlockId(block);
     const offsets = getOffsets(block, range);
     const id = (crypto.randomUUID && crypto.randomUUID()) || `a-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const annotation = {
@@ -972,12 +1131,12 @@
       end: offsets.end,
       quote,
       note: note || "",
-      color: note ? "green" : "yellow",
+      color: HIGHLIGHT_COLORS.includes(color) ? color : "yellow",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     const mark = wrapRange(block, range, annotation);
-    if (!mark) { showToast("No se pudo marcar ese fragmento. Probá con una frase dentro de un mismo párrafo."); return null; }
+    if (!mark) { showToast("No se pudo marcar ese fragmento. Probá con una frase dentro del mismo bloque."); return null; }
     state.annotations.unshift(annotation);
     updateAnnotationCount();
     window.AnnotationStore.put(annotation).then(() => {
@@ -993,30 +1152,33 @@
   }
 
   function goToAnnotation(id) {
-    if (state.activeTab !== "teoria") switchTab("teoria");
+    const annotation = state.annotations.find(item => item.id === id);
+    const tab = annotation ? tabForAnnotation(annotation) : "teoria";
+    if (TAB_LABELS[tab] && state.activeTab !== tab) switchTab(tab);
     closeDrawer();
     setTimeout(() => {
-      const mark = document.querySelector(`mark[data-annotation-id="${id}"]`);
+      const mark = document.querySelector(`mark[data-annotation-id="${cssEscape(id)}"]`);
       if (!mark) { showToast("No se encontró el fragmento en el texto."); return; }
+      const formulaCard = mark.closest(".formula-card");
+      if (formulaCard && !formulaCard.classList.contains("open")) toggleFormulaCard(formulaCard, true);
       mark.scrollIntoView({ behavior: "smooth", block: "center" });
       mark.classList.remove("flash");
       void mark.offsetWidth;
       mark.classList.add("flash");
       setTimeout(() => mark.classList.remove("flash"), 1900);
-    }, 240);
+    }, 260);
   }
 
   function deleteAnnotation(id) {
     const annotation = state.annotations.find(item => item.id === id);
     if (!annotation) return;
     if (!window.confirm("¿Eliminar esta anotación?")) return;
-    const mark = document.querySelector(`mark[data-annotation-id="${id}"]`);
-    if (mark) {
+    document.querySelectorAll(`mark[data-annotation-id="${cssEscape(id)}"]`).forEach(mark => {
       const parent = mark.parentNode;
       while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
       parent.removeChild(mark);
       parent.normalize();
-    }
+    });
     state.annotations = state.annotations.filter(item => item.id !== id);
     state.focusAnnotation = null;
     state.editingId = null;
@@ -1067,9 +1229,17 @@
     const concept = state.content && state.content.concepts[state.conceptKey];
     if (!concept) return;
     const tabs = [
-      ["esencia", "Esencia"], ["ejemplo", "Ejemplo"], ["errores", "Errores"],
+      ["esencia", "Esencia"],
+      ...(concept.viz ? [["visual", "Visualizar"]] : []),
+      ["ejemplo", "Ejemplo"], ["errores", "Errores"],
       ["conexiones", "Conexiones"], ["fuentes", "Fuentes"]
     ];
+    const simple = concept.simple && state.conceptTab === "esencia"
+      ? `<div class="simple-explanation"><span class="mini-label">En palabras simples</span>${concept.simple}</div>`
+      : "";
+    const visual = state.conceptTab === "visual" && concept.viz
+      ? renderConceptVisual(concept)
+      : "";
     els.drawerHead.innerHTML = `
       <div class="eyebrow">Concepto clave</div>
       <h2>${concept.title}</h2>
@@ -1082,11 +1252,31 @@
           <button class="drawer-tab ${state.conceptTab === id ? "active" : ""}" data-ctab="${id}" role="tab" aria-selected="${state.conceptTab === id}" type="button">${label}</button>
         `).join("")}
       </div>
-      <div id="conceptContent">${concept[state.conceptTab] || ""}</div>
+      <div id="conceptContent">
+        ${simple}
+        ${visual || concept[state.conceptTab] || ""}
+      </div>
       <div class="drawer-footer">
         <div><span class="mini-label">Cómo leer esta barra</span><p>Lo marcado como “siempre” es el mínimo para entender el concepto. Lo “opcional” se despliega según lo que necesites.</p></div>
         <button class="text-btn" data-action="close" type="button">Volver a la lectura →</button>
       </div>
+    `;
+    if (state.conceptTab === "visual") {
+      initVisuals(els.drawerBody);
+    }
+  }
+
+  function renderConceptVisual(concept) {
+    return `
+      <p class="concept-viz-intro">${concept.vizIntro || "Movés los controles para ver cómo cambia el concepto. La idea es que la fórmula deje de ser una frase memorizada y pase a ser algo que podés mirar funcionar."}</p>
+      <figure class="viz compact" data-viz="${concept.viz}">
+        <figcaption class="viz-head">
+          <span class="mini-label">Visualización del concepto</span>
+          <h3>${concept.title}</h3>
+        </figcaption>
+        <div class="viz-body"></div>
+        ${concept.vizHint ? `<p class="viz-hint">${concept.vizHint}</p>` : ""}
+      </figure>
     `;
   }
 
@@ -1116,7 +1306,13 @@
             ? `<textarea class="annot-edit" data-edit-input="${annotation.id}">${esc(annotation.note)}</textarea>
                <div class="annot-actions"><button class="text-btn" data-action="save-edit" data-id="${annotation.id}" type="button">Guardar</button><button class="text-btn" data-action="cancel-edit" data-id="${annotation.id}" type="button">Cancelar</button></div>`
             : `${annotation.note ? `<p class="annot-note">${esc(annotation.note)}</p>` : `<p class="annot-empty">Subrayado sin comentario</p>`}
-               <div class="annot-meta">${formatDate(annotation.createdAt)} · Clase ${state.content ? state.content.num : ""}</div>
+               <div class="annot-color-row">
+                 <span>Color</span>
+                 ${HIGHLIGHT_COLORS.map(color => `
+                   <button class="annot-color swatch-${color} ${annotation.color === color ? "active" : ""}" data-action="color" data-id="${annotation.id}" data-color="${color}" type="button" aria-label="Cambiar a ${COLOR_LABELS[color]}" aria-pressed="${annotation.color === color}" title="${COLOR_LABELS[color]}"></button>
+                 `).join("")}
+               </div>
+               <div class="annot-meta">${formatDate(annotation.createdAt)} · Clase ${state.content ? state.content.num : ""} · ${TAB_LABELS[tabForAnnotation(annotation)] || "Sección"}</div>
                <div class="annot-actions">
                  <button class="text-btn" data-action="go" data-id="${annotation.id}" type="button">Ir al fragmento</button>
                  <button class="text-btn" data-action="edit" data-id="${annotation.id}" type="button">Editar</button>
@@ -1134,12 +1330,12 @@
         <button class="filter ${state.annotationFilter === "highlights" ? "active" : ""}" data-filter="highlights" type="button">Subrayados (${highlights.length})</button>
       </div>
       <div class="annot-list">
-        ${items || `<div class="empty-annot">No hay anotaciones en este filtro.<br>Seleccioná un fragmento de la teoría para crear una.</div>`}
+        ${items || `<div class="empty-annot">No hay anotaciones en este filtro.<br>Seleccioná texto en cualquier sección, un título o una fórmula para crear una.</div>`}
       </div>
       <div class="demo-note">${storeStatus(true)}</div>
       <div class="drawer-footer">
-        <div><span class="mini-label">Para crear una</span><p>Cerrá este panel, seleccioná una frase de la teoría y elegí “Comentar”.</p></div>
-        <button class="text-btn" data-action="close" type="button">Volver a la teoría →</button>
+        <div><span class="mini-label">Para crear una</span><p>Cerrá este panel, seleccioná el fragmento que quieras y elegí “Subrayar” o “Comentar”.</p></div>
+        <button class="text-btn" data-action="close" type="button">Volver a la lectura →</button>
       </div>
     `;
 
@@ -1184,12 +1380,24 @@
     return Boolean(range.cloneContents().querySelector("mark.annot"));
   }
 
+  function selectionRect(range) {
+    const rects = [...range.getClientRects()].filter(rect => rect.width > 0 || rect.height > 0);
+    return rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+  }
+
   function showToolbar(rect) {
+    const mobile = isCoarsePointer() || window.innerWidth <= 820;
+    els.toolbar.classList.toggle("mobile", mobile);
     els.toolbar.classList.add("show");
-    const width = els.toolbar.offsetWidth || 190;
+    if (mobile || !rect) {
+      els.toolbar.style.left = "";
+      els.toolbar.style.top = "";
+      return;
+    }
+    const width = els.toolbar.offsetWidth || 260;
     let left = rect.left + rect.width / 2 - width / 2;
     left = Math.max(12, Math.min(window.innerWidth - width - 12, left));
-    let top = rect.top - 46;
+    let top = rect.top - 52;
     if (top < 12) top = rect.bottom + 10;
     els.toolbar.style.left = `${left}px`;
     els.toolbar.style.top = `${top}px`;
@@ -1201,8 +1409,36 @@
     state.pendingBlock = null;
   }
 
+  function updateColorSelection() {
+    $$("[data-color]", els.toolbar).forEach(button => {
+      const active = button.dataset.color === state.selectedColor;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  function viewportBottomOffset() {
+    const viewport = window.visualViewport;
+    if (!viewport) return 12;
+    const hidden = Math.max(0, window.innerHeight - (viewport.height + viewport.offsetTop));
+    return Math.round(hidden + 12);
+  }
+
   function positionPopover(rect) {
+    state.popoverAnchor = rect || null;
+    const mobile = isCoarsePointer() || window.innerWidth <= 700;
+    els.popover.classList.toggle("mobile", mobile);
     els.popover.classList.add("show");
+    if (mobile) {
+      const viewport = window.visualViewport;
+      els.popover.style.left = "";
+      els.popover.style.top = "";
+      els.popover.style.bottom = `${viewportBottomOffset()}px`;
+      els.popover.style.maxHeight = viewport ? `${Math.max(220, viewport.height - 24)}px` : "";
+      return;
+    }
+    els.popover.style.bottom = "";
+    els.popover.style.maxHeight = "";
     const width = els.popover.offsetWidth || 340;
     const height = els.popover.offsetHeight || 220;
     let left = rect.left + rect.width / 2 - width / 2;
@@ -1211,6 +1447,75 @@
     if (top + height > window.innerHeight - 12) top = Math.max(12, rect.top - height - 12);
     els.popover.style.left = `${left}px`;
     els.popover.style.top = `${top}px`;
+  }
+
+  function refreshPopoverPosition() {
+    if (!els.popover.classList.contains("show") || !els.popover.classList.contains("mobile")) return;
+    const viewport = window.visualViewport;
+    els.popover.style.bottom = `${viewportBottomOffset()}px`;
+    if (viewport) els.popover.style.maxHeight = `${Math.max(220, viewport.height - 24)}px`;
+  }
+
+  function checkSelection() {
+    if (!state.content) return;
+    const guarded = Date.now() < state.toolbarGuardUntil;
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || !selection.rangeCount) {
+      if (!guarded) hideToolbar();
+      return;
+    }
+    const range = selection.getRangeAt(0);
+    const text = normalize(selection.toString());
+    if (text.length < 2) { hideToolbar(); return; }
+    if (selectionTouchesMark(range)) {
+      hideToolbar();
+      return;
+    }
+    const block = annotationTargetForRange(range);
+    if (!block) { hideToolbar(); return; }
+    const active = document.activeElement;
+    if (active && (active.tagName === "TEXTAREA" || active.tagName === "INPUT" || active.isContentEditable)) return;
+    state.pendingRange = range.cloneRange();
+    state.pendingBlock = block;
+    updateColorSelection();
+    showToolbar(selectionRect(range));
+  }
+
+  function scheduleSelectionCheck(delay = 280) {
+    clearTimeout(state.selectionTimer);
+    state.selectionTimer = setTimeout(checkSelection, delay);
+  }
+
+  function toggleFormulaCard(card, forceOpen) {
+    if (!card) return;
+    const willOpen = typeof forceOpen === "boolean" ? forceOpen : !card.classList.contains("open");
+    card.classList.toggle("open", willOpen);
+    const head = $("[data-formula-toggle]", card);
+    if (head) head.setAttribute("aria-expanded", String(willOpen));
+    const plus = $(".formula-plus", card);
+    if (plus) plus.textContent = willOpen ? "−" : "+";
+  }
+
+  function commentFormula(card) {
+    if (!card || !state.content) return;
+    const eq = $(".eq", card) || $(".formula-title", card);
+    if (!eq) return;
+    if (eq.querySelector("mark.annot")) {
+      showToast("Esta fórmula ya tiene una anotación. Abrila desde “Anotaciones”.");
+      return;
+    }
+    ensureBlockId(eq);
+    const block = eq.closest("[data-block-id]") || eq;
+    const range = document.createRange();
+    range.selectNodeContents(eq);
+    state.commentRange = range.cloneRange();
+    state.commentBlock = block;
+    state.commentColor = state.selectedColor;
+    els.popQuote.textContent = `“${truncate(normalize(range.toString()), 150)}”`;
+    els.popTextarea.value = "";
+    els.toolbar.classList.remove("show");
+    positionPopover(range.getBoundingClientRect());
+    setTimeout(() => els.popTextarea.focus({ preventScroll: true }), 40);
   }
 
   // ---------- Events ----------
@@ -1236,7 +1541,27 @@
         }
         const check = closestEl(event.target, "[data-check]");
         if (check) { toggleCheck(check); return; }
-        if (closestEl(event.target, "#toggleAllQA")) { toggleAllQA(); }
+        if (closestEl(event.target, "#toggleAllQA")) { toggleAllQA(); return; }
+        const assessmentSummary = closestEl(event.target, ".qa-card summary");
+        if (assessmentSummary) {
+          const selection = window.getSelection();
+          if (selection && !selection.isCollapsed) {
+            event.preventDefault();
+            return;
+          }
+        }
+        const formulaComment = closestEl(event.target, "[data-comment-formula]");
+        if (formulaComment) {
+          event.preventDefault();
+          commentFormula(formulaComment.closest(".formula-card"));
+          return;
+        }
+        const formulaCard = closestEl(event.target, ".formula-card");
+        if (formulaCard && !closestEl(event.target, "[data-comment-formula], mark.annot")) {
+          const selection = window.getSelection();
+          if (selection && !selection.isCollapsed) return;
+          toggleFormulaCard(formulaCard);
+        }
       });
     }
 
@@ -1257,6 +1582,12 @@
         if (state.content && state.content.concepts[concept.dataset.concept]) {
           openDrawer("concept", concept.dataset.concept);
         }
+        return;
+      }
+      const formulaHead = closestEl(event.target, "[data-formula-toggle]");
+      if (formulaHead && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        toggleFormulaCard(formulaHead.closest(".formula-card"));
       }
     });
 
@@ -1275,6 +1606,19 @@
         if (action === "edit") { state.editingId = id; state.focusAnnotation = id; renderAnnotations(); return; }
         if (action === "cancel-edit") { state.editingId = null; renderAnnotations(); return; }
         if (action === "delete") { deleteAnnotation(id); return; }
+        if (action === "color") {
+          const annotation = state.annotations.find(item => item.id === id);
+          if (annotation) {
+            annotation.color = actionEl.dataset.color;
+            annotation.updatedAt = new Date().toISOString();
+            updateAnnotationMarks(annotation);
+            window.AnnotationStore.put(annotation).then(() => {
+              state.storeMode = window.AnnotationStore.getMode();
+            });
+            renderAnnotations();
+          }
+          return;
+        }
         if (action === "save-edit") {
           const input = els.drawerBody.querySelector(`[data-edit-input="${id}"]`);
           const annotation = state.annotations.find(item => item.id === id);
@@ -1347,48 +1691,48 @@
       }
     });
 
-    document.addEventListener("mouseup", event => {
-      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs, .hero")) return;
-      setTimeout(() => {
-        const selection = window.getSelection();
-        if (!selection || selection.isCollapsed || !selection.rangeCount) { hideToolbar(); return; }
-        const range = selection.getRangeAt(0);
-        const reading = $("#reading");
-        if (!reading || !reading.contains(range.commonAncestorContainer)) { hideToolbar(); return; }
-        const startEl = range.startContainer.nodeType === 3 ? range.startContainer.parentElement : range.startContainer;
-        const endEl = range.endContainer.nodeType === 3 ? range.endContainer.parentElement : range.endContainer;
-        const startBlock = startEl && startEl.closest("[data-block-id]");
-        const endBlock = endEl && endEl.closest("[data-block-id]");
-        if (!startBlock || startBlock !== endBlock) { hideToolbar(); return; }
-        const text = selection.toString().trim();
-        if (text.length < 3) { hideToolbar(); return; }
-        if (selectionTouchesMark(range)) {
-          hideToolbar();
-          showToast("Ese fragmento ya tiene una anotación.");
-          return;
-        }
-        state.pendingRange = range.cloneRange();
-        state.pendingBlock = startBlock;
-        showToolbar(range.getBoundingClientRect());
-      }, 10);
+    document.addEventListener("pointerup", event => {
+      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs")) return;
+      if (els.popover.classList.contains("show")) return;
+      setTimeout(checkSelection, event.pointerType === "mouse" ? 10 : 260);
+    });
+
+    document.addEventListener("selectionchange", () => {
+      if (els.popover.classList.contains("show")) return;
+      if (Date.now() < state.toolbarGuardUntil) return;
+      scheduleSelectionCheck(isCoarsePointer() ? 420 : 320);
     });
 
     if (els.toolbar) {
-      els.toolbar.addEventListener("mousedown", event => event.preventDefault());
+      els.toolbar.addEventListener("mousedown", event => {
+        state.toolbarGuardUntil = Date.now() + 900;
+        event.preventDefault();
+      });
+      els.toolbar.addEventListener("pointerdown", () => {
+        state.toolbarGuardUntil = Date.now() + 900;
+      });
       els.toolbar.addEventListener("click", event => {
+        const colorButton = closestEl(event.target, "[data-color]");
+        if (colorButton) {
+          state.selectedColor = colorButton.dataset.color;
+          try { localStorage.setItem("eco-highlight-color", state.selectedColor); } catch (error) {}
+          updateColorSelection();
+          return;
+        }
         const button = closestEl(event.target, "button");
         if (!button) return;
         if (button.dataset.action === "highlight") {
           if (!state.pendingRange || !state.pendingBlock) return;
-          createAnnotation(state.pendingRange, state.pendingBlock, "");
+          createAnnotation(state.pendingRange, state.pendingBlock, "", state.selectedColor);
           hideToolbar();
           window.getSelection()?.removeAllRanges();
-          showToast("Fragmento subrayado.", "Ver anotaciones", () => openDrawer("annotations"));
+          showToast(`Fragmento subrayado (${COLOR_LABELS[state.selectedColor]}).`, "Ver anotaciones", () => openDrawer("annotations"));
         }
         if (button.dataset.action === "comment") {
           if (!state.pendingRange || !state.pendingBlock) return;
           state.commentRange = state.pendingRange.cloneRange();
           state.commentBlock = state.pendingBlock;
+          state.commentColor = state.selectedColor;
           els.popQuote.textContent = `“${truncate(normalize(state.commentRange.toString()), 150)}”`;
           els.popTextarea.value = "";
           els.toolbar.classList.remove("show");
@@ -1412,7 +1756,7 @@
         const note = els.popTextarea.value.trim();
         if (!note) { els.popTextarea.focus(); return; }
         if (!state.commentRange || !state.commentBlock) return;
-        createAnnotation(state.commentRange, state.commentBlock, note);
+        createAnnotation(state.commentRange, state.commentBlock, note, state.commentColor);
         els.popover.classList.remove("show");
         state.commentRange = null;
         state.commentBlock = null;
@@ -1421,7 +1765,7 @@
       });
     }
 
-    document.addEventListener("mousedown", event => {
+    document.addEventListener("pointerdown", event => {
       if (!closestEl(event.target, ".selection-toolbar") && !closestEl(event.target, ".comment-popover")) {
         hideToolbar();
         if (els.popover.classList.contains("show") && !closestEl(event.target, ".drawer")) {
@@ -1431,6 +1775,11 @@
         }
       }
     });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", refreshPopoverPosition);
+      window.visualViewport.addEventListener("scroll", refreshPopoverPosition);
+    }
 
     if (els.closeHint) {
       els.closeHint.addEventListener("click", () => { els.hint.style.display = "none"; });

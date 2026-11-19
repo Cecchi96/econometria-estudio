@@ -145,7 +145,13 @@ Reglas para usarlo:
 
 ## Fichas de concepto
 
-`concepts` es un objeto clave → ficha. Cada ficha:
+Además de los campos de abajo, cada ficha puede incluir:
+
+- `simple`: explicación en lenguaje cotidiano, sin fórmulas, de 2 a 4 oraciones.
+- `viz`, `vizIntro`, `vizHint`: visualización interactiva dentro de la ficha. `viz`
+  debe ser una clave registrada en `assets/viz.js`.
+
+Cada ficha:
 
 ```js
 clave: {
@@ -279,7 +285,7 @@ review: {
   eyebrow: "Cierre y consolidación",
   title: "Kit de repaso y sesión de 90 minutos",
   intro: "…",
-  formulas: [{ title, eq, note }],          // 10 a 13
+  formulas: [{ title, eq, note, more }],    // 10 a 13; more es opcional y se despliega
   drills: [{ q, a }],                      // 10 a 12
   sourceGuide: [{ stuck, source }],        // 8 a 10
   session: [{ time, title, text }],        // 6, de 0–10 a 85–90

@@ -336,12 +336,46 @@ window.CLASE_CONTENIDOS["clase-10"] = {
           answer: 'Porque el Sargan se calcula con los residuos de la ecuación estimada por MC2E. Si la primera etapa es débil, esos residuos y el estimador no son confiables, así que el contraste tampoco. Además, el Sargan solo existe si hay sobreidentificación: con un instrumento y una endógena, q = 0 y no hay nada que testear. La secuencia correcta es identificación, fuerza y después validez. Un Sargan con F bajo no rescata la estimación.'
         }
       ]
+    },
+    {
+      id: 'c10-s08',
+      number: '08',
+      title: 'Profundización: lo que suele quedar en el aire',
+      blocks: [
+        { type: 'p', id: 'c10-s08-p01', html: 'La clase deja cuatro ideas al borde del camino. La primera es qué pasa cuando el instrumento no es perfectamente exógeno: el daño no es binario y depende de la fuerza de la primera etapa. La segunda es a quién representa el coeficiente de MC2E cuando el efecto no es igual para todos. La tercera es el signo del sesgo de MCO, que no siempre es el que sugiere el relato de la habilidad. La cuarta es qué hacer con la inferencia cuando el F no llega a 10. Ninguna cambia la fórmula del estimador, pero las cuatro cambian cómo se defiende un resultado en el parcial.' },
+        {
+          type: 'formula',
+          main: 'plim β̂<sub>VI</sub> = β + Cov(Z, u) / Cov(Z, X)',
+          legend: [
+            { key: 'Cov(Z, u)', text: 'La parte del instrumento que no es limpia. Si es cero, el estimador es consistente.' },
+            { key: 'Cov(Z, X)', text: 'La fuerza de la primera etapa. Si es chica, el cociente se agranda.' },
+            { key: 'Lectura', text: 'No hace falta una correlación enorme con el error para arruinar la estimación: alcanza con que la relevancia sea chica.' },
+            { key: 'Alcance', text: 'Vale para el caso simple, con un instrumento y una endógena. Con controles, las covarianzas se leen después de descontar las exógenas.' },
+            { key: 'Caso exacto', text: 'Con un solo instrumento no se puede estimar Cov(Z, u). La validez se argumenta, no se mide.' }
+          ]
+        },
+        { type: 'p', id: 'c10-s08-p02', html: 'La fórmula ordena la discusión. Un instrumento inválido no arruina todo por igual: el daño es la correlación con el error dividida por la fuerza de la primera etapa. Si Cov(Z, X) es grande, una contaminación pequeña se diluye. Si la primera etapa es flaca, la misma contaminación se multiplica. Por eso validez y fuerza no son dos capítulos separados: son un cociente. En Card, CERCANIA4 tiene F = 13,26 y CERCANIA2 baja el conjunto a 7,89. Si CERCANIA2 tuviera además una relación tenue con la habilidad no observada, por ejemplo porque las familias cerca de universidades de dos años son distintas, esa contaminación pesaría más con el F bajo. El Sargan no la detecta si la invalidez es común a los dos instrumentos.' },
+        { type: 'p', id: 'c10-s08-p03', html: 'El segundo punto es a quién representa el coeficiente. MC2E estima un promedio ponderado de efectos para los cumplidores: quienes cambian de educación porque el instrumento se los permite. No es el retorno promedio de toda la población, ni el de quienes ya iban a estudiar igual. Si el retorno es mayor para ese grupo, MC2E puede superar al efecto medio; si es menor, puede quedar por debajo. Y si el instrumento empuja a algunos en la dirección contraria, el estimador pierde interpretación causal. La frase correcta al reportar no es el retorno de la educación, sino el retorno para quienes responden a este instrumento. Esa distinción separa una lectura honesta de una afirmación demasiado general.' },
+        { type: 'p', id: 'c10-s08-p04', html: 'El tercer punto es el signo del sesgo de MCO. El relato habitual dice que la habilidad no observada infla el coeficiente de educación, porque la gente más capaz estudia más y gana más. Es plausible, pero no es toda la historia. La educación se mide con error: los años declarados no coinciden perfectamente con los años reales. El error de medida clásico atenúa el coeficiente hacia cero. Los dos problemas empujan en direcciones opuestas. Por eso que MC2E dé más que MCO no prueba por sí solo que la habilidad sesga hacia arriba: puede convivir con un error de medida que compensa parte del efecto. La conclusión defendible es que hay una diferencia, no cuál de los dos mecanismos la produce.' },
+        { type: 'callout', variant: 'ochre', label: 'Cuando el F no llega a 10', html: 'La regla de 10 es una convención para el caso simple: un instrumento excluido y un regresor endógeno. Con varios instrumentos, el umbral relevante es más alto y depende de cuántos hay. Si el F queda corto, el t convencional no es la respuesta. Existen intervalos robustos a instrumentos débiles, como el de Anderson-Rubin, que no dependen de que la primera etapa sea fuerte. En el parcial no hace falta calcularlos, pero sí decir que existen y que el t habitual no se reporta como si nada. La estimación puntual se comenta; la inferencia se presenta como frágil.' },
+        {
+          type: 'miniCheck',
+          id: 'c10-check-08',
+          question: 'Un instrumento tiene Cov(Z, X) chica y Cov(Z, u) apenas distinta de cero. ¿Por qué el sesgo puede ser grande?',
+          intro: 'Mirá el cociente de la fórmula y pensá qué pasa cuando el denominador se achica.',
+          answer: 'Porque el sesgo asintótico es Cov(Z, u) dividido por Cov(Z, X). Una correlación pequeña con el error no se traduce en un sesgo pequeño si la primera etapa también es débil: el cociente se agranda. Es la misma advertencia del F bajo, vista desde el sesgo. Por eso no alcanza con decir que el instrumento es casi exógeno; hay que mostrar que mueve a la endógena. Y como Cov(Z, u) no se observa, la exclusión sigue siendo un argumento teórico.'
+        }
+      ]
     }
   ],
   concepts: {
     mc2e: {
       title: 'MC2E',
       sub: 'Variable instrumental para la regresión múltiple.',
+      simple: `<p>Pensá que querés saber cuánto suma un año más de escuela al salario, pero la gente con más estudios también suele venir de familias con más contactos. Comparar personas con distinta educación mezcla las dos cosas. MC2E busca un grupo que cambie de educación por un motivo que no tenga que ver con esos contactos —vivir cerca de una universidad, por ejemplo— y compara usando solo esa parte. Es como mirar el tramo de la película donde el cambio lo produjo un hecho externo y no el personaje.</p>`,
+      viz: "weak-iv",
+      vizIntro: "Cambiá la fuerza del segundo instrumento y el grado de endogeneidad. Arriba comparás MCO con MC2E; abajo ves el F de la primera etapa.",
+      vizHint: "Con instrumentos fuertes, MC2E corrige el sesgo de MCO. Si el instrumento es débil, la estimación se vuelve errática y el F de la primera etapa lo delata. Más instrumentos no reemplazan relevancia.",
       esencia: `
         <div class="definition">Mínimos cuadrados en dos etapas estima una ecuación estructural con regresores endógenos usando, como instrumento de cada uno, su proyección sobre todas las variables exógenas. Es el estimador de VI cuando hay más instrumentos que variables endógenas.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -376,6 +410,7 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     'forma-reducida': {
       title: 'Forma reducida',
       sub: 'La endógena explicada por todas las exógenas.',
+      simple: `<p>La forma reducida es una cuenta preliminar: agarrás la variable sospechosa y la explicás con todo lo que considerás limpio, más las variables que funcionan como instrumento. No te dice qué efecto tiene la educación sobre el salario; te dice qué parte de la educación se puede predecir con esos datos. Es como armar un pronóstico de la variable endógena usando solo información que no está contaminada.</p>`,
       esencia: `
         <div class="definition">La forma reducida expresa cada variable endógena en función de todas las variables exógenas del sistema, incluidas las que no están en la ecuación estructural. Es la regresión auxiliar que produce el instrumento óptimo.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -410,6 +445,7 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     identificacion: {
       title: 'Identificación',
       sub: 'Orden, rango y el supuesto que no se testea.',
+      simple: `<p>Identificar es poder distinguir el valor verdadero de otro que produciría los mismos datos. Pensalo como una balanza con dos pesas iguales: si no hay nada que las diferencie, no podés saber cuál es cuál. Los instrumentos son las pesas que rompen ese empate; si no alcanzan o están pegadas entre sí, el parámetro queda confundido.</p>`,
       esencia: `
         <div class="definition">Un modelo está identificado si los datos permiten distinguir el parámetro verdadero de otros valores. Con regresores endógenos hacen falta instrumentos excluidos: la condición de orden cuenta cuántos y la de rango exige que aporten variación independiente.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -444,6 +480,7 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     'primera-etapa': {
       title: 'Primera etapa',
       sub: 'La regresión que mide la fuerza de los instrumentos.',
+      simple: `<p>La primera etapa es el chequeo de si el instrumento tiene algo para decir. Antes de usar la cercanía a una universidad como instrumento, mirás cuánto se relaciona de verdad con los años de educación. Si la relación es fuerte, el instrumento sirve como brújula; si es apenas un susurro, la estimación se apoya en muy poca información.</p>`,
       esencia: `
         <div class="definition">La primera etapa regresa la variable endógena sobre todas las exógenas —incluidas las excluidas— y produce los valores ajustados que usa MC2E. Su F conjunto contrasta si los instrumentos excluidos explican a la endógena.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -478,6 +515,10 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     hausman: {
       title: 'Contraste de Hausman',
       sub: '¿La diferencia entre MCO y MC2E es sistemática?',
+      simple: `<p>Hausman se pregunta si vale la pena pagar el costo de MC2E. Compara lo que dice MCO con lo que dice MC2E: si la variable es sana, los dos deberían coincidir; si MCO está contaminado, se van a separar. Es como comparar dos balanzas: si una marca muy distinto, hay una que está corrida. Si la diferencia es grande, mirá a MCO con sospecha; si es chica, no tenés evidencia suficiente para abandonarlo.</p>`,
+      viz: "sampling-bias",
+      vizIntro: "Subí el sesgo para representar a MCO cuando la variable es endógena. La curva fantasma es el estimador consistente; cambiá n y mirá qué se mueve.",
+      vizHint: "Hausman detecta un desplazamiento sistemático, no una diferencia de precisión. Más n da más potencia al contraste, pero no corrige el sesgo.",
       esencia: `
         <div class="definition">El contraste de Hausman de exogeneidad compara los estimadores de MCO y MC2E. Bajo H<sub>0</sub> la variable es exógena y ambos son consistentes; si la diferencia es estadísticamente significativa, hay evidencia de endogeneidad.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -512,6 +553,10 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     'instrumento-debil': {
       title: 'Instrumento débil',
       sub: 'Poca relevancia, mala inferencia.',
+      simple: `<p>Un instrumento débil es un instrumento que casi no mueve a la variable endógena. Imaginate que querés abrir una puerta trabada y usás una llave que apenas roza la cerradura: hace ruido, pero no abre. Con instrumentos débiles el coeficiente se mueve mucho de una muestra a otra y los errores estándar dejan de ser confiables.</p>`,
+      viz: "weak-iv",
+      vizIntro: "Cambiá la fuerza del segundo instrumento y la endogeneidad de X. Arriba ves cómo se mueven MCO y MC2E; abajo, el F de la primera etapa.",
+      vizHint: "El F es el termómetro de la relevancia. Debajo de 10, el t de MC2E no se sostiene; agregar un instrumento débil puede bajar el F en lugar de subirlo.",
       esencia: `
         <div class="definition">Un instrumento es débil cuando está poco correlacionado con la variable endógena. El estimador MC2E pierde la distribución normal asintótica, los errores estándar convencionales quedan chicos y el sesgo se aproxima al de MCO.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -546,6 +591,7 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     sobreidentificacion: {
       title: 'Sobreidentificación',
       sub: 'Cuando sobran instrumentos y se pueden contrastar.',
+      simple: `<p>Sobreidentificar es tener más instrumentos que variables endógenas. Es como pedirle la misma dirección a dos personas: si te dicen cosas incompatibles, al menos una se equivoca. Esa abundancia permite un chequeo; con un solo instrumento no hay con qué comparar y la validez queda como una apuesta teórica.</p>`,
       esencia: `
         <div class="definition">Hay sobreidentificación cuando la cantidad de instrumentos excluidos supera la de regresores endógenos. Entonces quedan q = m − k restricciones que se pueden contrastar para evaluar si los instrumentos extra son exógenos.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -580,6 +626,7 @@ window.CLASE_CONTENIDOS["clase-10"] = {
     sargan: {
       title: 'Contraste de Sargan',
       sub: '¿Los instrumentos extra están correlacionados con el error?',
+      simple: `<p>Sargan revisa si los instrumentos que sobran se comportan como si no tuvieran nada que ver con el error. Pensalo como controlar la lista de invitados después de una fiesta: si aparece gente que no figuraba, algo no cierra. Si todos son válidos, los residuos del modelo no deberían poder explicarse con ellos. Un resultado que no rechaza no es un certificado de honestidad; solo dice que, con estos datos, no se detectó la trampa.</p>`,
       esencia: `
         <div class="definition">El contraste de Sargan evalúa las restricciones de sobreidentificación. Se estima la ecuación por MC2E, se regresan los residuos sobre todas las exógenas y se calcula LM = nR<sup>2</sup>, que se distribuye χ<sup>2</sup> con q = m − k grados de libertad.</div>
         <div class="mini-label">Qué tenés que entender</div>
@@ -873,17 +920,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     title: 'Kit de repaso: MC2E en una página',
     intro: 'Empezá por las fórmulas, seguí con los drills y la sesión de 90 minutos, y cerrá con el plan de 7 días. La idea es tener el mapa completo antes de volver a los ejercicios.',
     formulas: [
-      { title: 'Ecuación estructural', eq: 'Y<sub>1i</sub> = β<sub>0</sub> + β<sub>1</sub>Z<sub>1i</sub> + β<sub>2</sub>Y<sub>2i</sub> + u<sub>1i</sub>', note: 'Y₂ es endógena: Cov(Y₂, u₁) ≠ 0. Z₁ son los controles exógenos.' },
-      { title: 'Forma reducida', eq: 'Y<sub>2i</sub> = π<sub>0</sub> + π<sub>1</sub>Z<sub>1i</sub> + π<sub>2</sub>Z<sub>2i</sub> + π<sub>3</sub>Z<sub>3i</sub> + v<sub>2i</sub>', note: 'Regresión auxiliar. Relevancia: πⱼ ≠ 0 para los instrumentos excluidos.' },
-      { title: 'Condición de orden', eq: 'm ≥ k', note: 'Instrumentos excluidos al menos igual a regresores endógenos.' },
-      { title: 'Condición de rango', eq: 'rango(Π) = k', note: 'Π reúne los coeficientes de los instrumentos excluidos en las formas reducidas.' },
-      { title: 'Estimador MC2E', eq: 'β̂<sub>MC2E</sub> = (X̂′X)<sup>−1</sup>X̂′Y<sub>1</sub>', note: 'Coincide con la segunda etapa manual; con m = k se reduce a (Z′X)⁻¹Z′Y₁. La diferencia con MCO está en la varianza.' },
-      { title: 'Varianza MC2E', eq: 'Var(β̂<sub>MC2E</sub>) = σ̂<sup>2</sup>(X′Z(Z′Z)<sup>−1</sup>Z′X)<sup>−1</sup>', note: 'σ̂² se calcula con los residuos estructurales, no con Ŷ₂.' },
-      { title: 'Varianza en forma simple', eq: 'Var(β̂<sub>MC2E</sub>) = σ̂<sup>2</sup>/[SCT<sub>2</sub>(1 − R̂<sup>2</sup><sub>2</sub>)]', note: 'SCT₂ es de Ŷ₂; R̂²₂ mide su colinealidad con las demás exógenas.' },
-      { title: 'Hausman clásico', eq: 'H = (β̂<sub>MC2E</sub> − β̂<sub>MCO</sub>)′[Var(β̂<sub>MC2E</sub>) − Var(β̂<sub>MCO</sub>)]<sup>−1</sup>(β̂<sub>MC2E</sub> − β̂<sub>MCO</sub>)', note: 'Bajo H₀ de exogeneidad se distribuye χ² con k grados de libertad.' },
-      { title: 'Hausman aumentado', eq: 'Y<sub>1i</sub> = β<sub>0</sub> + β<sub>1</sub>Z<sub>1i</sub> + β<sub>2</sub>Y<sub>2i</sub> + δv̂<sub>2i</sub> + u<sub>i</sub>', note: 'H₀: δ = 0. Un t sobre δ; con varias endógenas, un contraste conjunto.' },
-      { title: 'F de primera etapa', eq: 'F = [(SCR<sub>r</sub> − SCR<sub>nr</sub>)/q] / [SCR<sub>nr</sub>/(n − k − 1)]', note: 'H₀: los instrumentos excluidos no explican a Y₂. Regla práctica: F &gt; 10.' },
-      { title: 'Sargan', eq: 'LM = n·R<sup>2</sup><sub>aux</sub> ~ χ<sup>2</sup><sub>q</sub>, con q = m − k', note: 'Residuos de MC2E sobre todas las exógenas. H₀: instrumentos exógenos.' }
+      { title: 'Ecuación estructural', eq: 'Y<sub>1i</sub> = β<sub>0</sub> + β<sub>1</sub>Z<sub>1i</sub> + β<sub>2</sub>Y<sub>2i</sub> + u<sub>1i</sub>', note: 'Y₂ es endógena: Cov(Y₂, u₁) ≠ 0. Z₁ son los controles exógenos.', more: `<p>Es la ecuación que responde la pregunta económica: cómo cambia Y cuando cambia Y₂, manteniendo Z₁ fijo. La endogeneidad no se ve en la fórmula; se declara en el supuesto sobre u₁.</p><ul><li><b>Cuándo se usa:</b> para fijar qué coeficiente querés interpretar antes de elegir instrumentos.</li><li><b>Error típico:</b> meter el instrumento como regresor y cambiar el significado de β₂.</li><li><b>Conexión:</b> la forma reducida proyecta Y₂ sobre las Z para poder estimarla.</li></ul>` },
+      { title: 'Forma reducida', eq: 'Y<sub>2i</sub> = π<sub>0</sub> + π<sub>1</sub>Z<sub>1i</sub> + π<sub>2</sub>Z<sub>2i</sub> + π<sub>3</sub>Z<sub>3i</sub> + v<sub>2i</sub>', note: 'Regresión auxiliar. Relevancia: πⱼ ≠ 0 para los instrumentos excluidos.', more: `<p>Es una proyección, no una relación causal: reparte la variación de Y₂ entre todo lo exógeno y deja un residuo v₂. Ese residuo es la parte que puede estar contaminada.</p><ul><li><b>Cuándo se usa:</b> para construir Ŷ₂ y para leer la relevancia de cada instrumento.</li><li><b>Error típico:</b> interpretar π₂ como el efecto de Z₂ sobre Y₁.</li><li><b>Conexión:</b> sus residuos alimentan el Hausman aumentado.</li></ul>` },
+      { title: 'Condición de orden', eq: 'm ≥ k', note: 'Instrumentos excluidos al menos igual a regresores endógenos.', more: `<p>Cuenta cabezas: no podés estimar dos endógenas con un solo instrumento. La condición es necesaria y se verifica antes de tocar el software.</p><ul><li><b>Cuándo se usa:</b> al diseñar el modelo, para saber si falta conseguir instrumentos.</li><li><b>Error típico:</b> creer que agregar controles exógenos suma instrumentos; ya están en la ecuación.</li><li><b>Conexión:</b> con m &gt; k aparece la sobreidentificación y el Sargan.</li></ul>` },
+      { title: 'Condición de rango', eq: 'rango(Π) = k', note: 'Π reúne los coeficientes de los instrumentos excluidos en las formas reducidas.', more: `<p>Exige que los instrumentos muevan a las endógenas en direcciones distintas. Dos variables que miden lo mismo suman conteo pero no información.</p><ul><li><b>Cuándo se usa:</b> cuando hay varios instrumentos o varias endógenas.</li><li><b>Error típico:</b> mirar solo la correlación de cada instrumento con la endógena y no la matriz completa.</li><li><b>Conexión:</b> una falla de rango se parece a un instrumento débil: coeficientes inestables y errores grandes.</li></ul>` },
+      { title: 'Estimador MC2E', eq: 'β̂<sub>MC2E</sub> = (X̂′X)<sup>−1</sup>X̂′Y<sub>1</sub>', note: 'Coincide con la segunda etapa manual; con m = k se reduce a (Z′X)⁻¹Z′Y₁. La diferencia con MCO está en la varianza.', more: `<p>La fórmula reemplaza X por su proyección sobre Z. La segunda etapa manual da el mismo número porque la proyección ya contiene la parte de X que las Z pueden explicar.</p><ul><li><b>Cuándo se usa:</b> para entender qué hace ivreg y para replicar el coeficiente del TP 12.</li><li><b>Error típico:</b> quedarse con el coeficiente y usar los errores de lm().</li><li><b>Conexión:</b> con m = k se reduce a la fórmula de VI simple.</li></ul>` },
+      { title: 'Varianza MC2E', eq: 'Var(β̂<sub>MC2E</sub>) = σ̂<sup>2</sup>(X′Z(Z′Z)<sup>−1</sup>Z′X)<sup>−1</sup>', note: 'σ̂² se calcula con los residuos estructurales, no con Ŷ₂.', more: `<p>Es la varianza correcta porque mide los residuos con Y₂, no con Ŷ₂, y reconoce que X y Z son matrices distintas. El sándwich central es lo que el software agrega.</p><ul><li><b>Cuándo se usa:</b> para construir t, intervalos y contrastes de MC2E.</li><li><b>Error típico:</b> usar la varianza de la segunda etapa manual, que subestima σ².</li><li><b>Conexión:</b> la versión simple con SCT₂ y R̂²₂ muestra de dónde viene la pérdida de precisión.</li></ul>` },
+      { title: 'Varianza en forma simple', eq: 'Var(β̂<sub>MC2E</sub>) = σ̂<sup>2</sup>/[SCT<sub>2</sub>(1 − R̂<sup>2</sup><sub>2</sub>)]', note: 'SCT₂ es de Ŷ₂; R̂²₂ mide su colinealidad con las demás exógenas.', more: `<p>Desarma la varianza en dos piezas: cuánta variación propia aporta Ŷ₂ y cuánta comparte con los controles. Si el instrumento explica poco, el denominador se achica.</p><ul><li><b>Cuándo se usa:</b> para explicar por qué MC2E es más impreciso que MCO.</li><li><b>Error típico:</b> leer R̂²₂ como el R² de la primera etapa.</li><li><b>Conexión:</b> el mismo mecanismo aparece en la fórmula de varianza de la clase 2B.</li></ul>` },
+      { title: 'Hausman clásico', eq: 'H = (β̂<sub>MC2E</sub> − β̂<sub>MCO</sub>)′[Var(β̂<sub>MC2E</sub>) − Var(β̂<sub>MCO</sub>)]<sup>−1</sup>(β̂<sub>MC2E</sub> − β̂<sub>MCO</sub>)', note: 'Bajo H₀ de exogeneidad se distribuye χ² con k grados de libertad.', more: `<p>Compara dos estimadores con la diferencia de sus varianzas como escala. Si ambos son consistentes, la diferencia tiende a cero; si MCO está corrido, el estadístico crece.</p><ul><li><b>Cuándo se usa:</b> para decidir si MC2E se justifica frente a MCO.</li><li><b>Error típico:</b> aplicar la versión clásica con heterocedasticidad o instrumentos débiles.</li><li><b>Conexión:</b> la versión aumentada testea δ = 0 con un t y es más fácil de robustecer.</li></ul>` },
+      { title: 'Hausman aumentado', eq: 'Y<sub>1i</sub> = β<sub>0</sub> + β<sub>1</sub>Z<sub>1i</sub> + β<sub>2</sub>Y<sub>2i</sub> + δv̂<sub>2i</sub> + u<sub>i</sub>', note: 'H₀: δ = 0. Un t sobre δ; con varias endógenas, un contraste conjunto.', more: `<p>Agrega los residuos de la primera etapa a la ecuación estructural. Si δ es distinto de cero, la parte no explicada de Y₂ está correlacionada con u.</p><ul><li><b>Cuándo se usa:</b> en el laboratorio y en el TP, porque se lee como un t común.</li><li><b>Error típico:</b> olvidar que los residuos son estimados y no corregir los errores estándar.</li><li><b>Conexión:</b> es la misma lógica del Hausman clásico, escrita como regresión.</li></ul>` },
+      { title: 'F de primera etapa', eq: 'F = [(SCR<sub>r</sub> − SCR<sub>nr</sub>)/q] / [SCR<sub>nr</sub>/(n − k − 1)]', note: 'H₀: los instrumentos excluidos no explican a Y₂. Regla práctica: F &gt; 10.', more: `<p>Contrasta si los instrumentos excluidos explican conjuntamente a la endógena. El cociente compara cuánto mejora el ajuste al agregarlos con el ruido que queda.</p><ul><li><b>Cuándo se usa:</b> antes de interpretar cualquier t de MC2E.</li><li><b>Error típico:</b> reportar el F global de la regresión en lugar del F de los instrumentos.</li><li><b>Conexión:</b> con F bajo, Hausman y Sargan pierden respaldo.</li></ul>` },
+      { title: 'Sargan', eq: 'LM = n·R<sup>2</sup><sub>aux</sub> ~ χ<sup>2</sup><sub>q</sub>, con q = m − k', note: 'Residuos de MC2E sobre todas las exógenas. H₀: instrumentos exógenos.', more: `<p>Usa los residuos de MC2E para ver si los instrumentos extra todavía explican algo. Si los instrumentos son válidos, no deberían tener resto para explicar.</p><ul><li><b>Cuándo se usa:</b> solo con q &gt; 0, es decir, con sobreidentificación.</li><li><b>Error típico:</b> leer un p alto como prueba de validez de todos los instrumentos.</li><li><b>Conexión:</b> con heterocedasticidad conviene el J de Hansen, que generaliza la idea.</li></ul>` }
     ],
     drills: [
       { q: 'Escribí la ecuación estructural y la forma reducida de un modelo con una endógena.', a: 'Estructural: Y₁ = β₀ + β₁Z₁ + β₂Y₂ + u₁. Reducida: Y₂ = π₀ + π₁Z₁ + π₂Z₂ + π₃Z₃ + v₂. Z₂ y Z₃ son los instrumentos excluidos.' },
