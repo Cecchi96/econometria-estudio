@@ -76,9 +76,26 @@
   function init() {
     renderNavigation();
     initTheme();
+    syncTopbarHeight();
     bindEvents();
     initUser();
     route();
+  }
+
+  function syncTopbarHeight() {
+    const topbar = $(".topbar");
+    if (!topbar) return;
+    const setHeight = () => {
+      const height = Math.ceil(topbar.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--topbar-h", `${height}px`);
+    };
+    setHeight();
+    if (window.ResizeObserver) {
+      new ResizeObserver(setHeight).observe(topbar);
+    } else {
+      window.addEventListener("resize", setHeight);
+    }
+    window.addEventListener("load", setHeight);
   }
 
   function initTheme() {
