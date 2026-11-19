@@ -13,9 +13,10 @@
     document.documentElement.setAttribute("data-theme", theme);
   })();
 </script>
-<link rel="stylesheet" href="assets/styles.css?v=21">
+<link rel="stylesheet" href="assets/styles.css?v=24">
 <link rel="stylesheet" href="assets/viz.css?v=23">
 <link rel="stylesheet" href="assets/feedback.css?v=2">
+<link rel="stylesheet" href="assets/search.css?v=4">
 </head>
 <body>
 <div class="layout">
@@ -29,6 +30,11 @@
     <div class="side-label">Mi recorrido</div>
     <nav class="class-nav" id="classNav"></nav>
     <div class="side-label">Herramientas</div>
+    <button class="side-tool" data-open-search type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+      Buscar
+      <kbd class="side-key" data-search-key>Ctrl K</kbd>
+    </button>
     <button class="side-tool" data-tool="guia" type="button">▤ &nbsp; Guía de ejercicios</button>
     <button class="side-tool" data-tool="parciales" type="button">◇ &nbsp; Preparar parciales</button>
     <button class="side-tool" data-tool="fuentes" type="button">⌘ &nbsp; Mapa de fuentes</button>
@@ -43,6 +49,11 @@
     <header class="topbar">
       <div class="crumbs"><span class="hide-mobile">Econometría I</span> <i class="hide-mobile">/</i> <span id="crumbClass">Clase 1</span> <i>/</i> <b id="crumbTab">Teoría</b> <span class="mock-badge">ESTUDIO</span></div>
       <div class="top-actions">
+        <button class="search-trigger" data-open-search type="button" aria-label="Buscar en el cuaderno" title="Buscar (Ctrl+K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+          <span class="search-trigger-label">Buscar</span>
+          <kbd data-search-key>Ctrl K</kbd>
+        </button>
         <button class="annotations-btn" id="annotationsBtn" aria-haspopup="dialog" aria-expanded="false">
           Anotaciones <span class="count" id="annotCount">0</span>
         </button>
@@ -97,6 +108,7 @@
     <li>Seleccioná texto en cualquier sección, título o fórmula.</li>
     <li>Elegí un color y subrayá, o agregá un comentario.</li>
     <li>Abrí “Anotaciones” para volver al fragmento.</li>
+    <li>Buscá un concepto o una palabra con <b>Buscar</b> (Ctrl+K).</li>
     <li>En Repaso, desplegá una fórmula para ver más información.</li>
     <li>Mové los sliders de los laboratorios visuales.</li>
   </ul>
@@ -119,7 +131,9 @@
 <script src="content/clase-10.js?v=23"></script>
 <script src="assets/store.js?v=23"></script>
 <script src="assets/viz.js?v=23"></script>
-<script src="assets/app.js?v=23"></script>
+<script src="assets/app.js?v=27"></script>
+<script src="assets/termstore.js?v=3"></script>
+<script src="assets/search.js?v=7"></script>
 <script src="assets/feedback.js?v=4"></script>
 </body>
 </html>

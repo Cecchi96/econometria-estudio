@@ -11,6 +11,7 @@
 - **Mejoras de comprensión:** cada ficha de concepto incluye una explicación en palabras simples; las fichas que lo admiten tienen pestaña de visualización interactiva; cada clase suma una sección de profundización; las fórmulas del repaso se despliegan con información ampliada y se pueden comentar.
 - **Anotaciones ampliadas:** se puede subrayar o comentar en cualquier pestaña, incluidos títulos, fórmulas, tarjetas, tablas y fuentes. Hay cuatro colores (amarillo, verde, celeste y rosa) y la selección funciona también con eventos táctiles en tablet y celular.
 - **Comentarios:** botón flotante en el cuaderno y bandeja privada en `feedback.html`, con filtros, búsqueda y estado resuelto.
+- **Buscador global:** atajo `Ctrl/Cmd + K`, índice de las 13 clases y búsqueda por concepto, palabra o fórmula. Si el concepto ya tiene ficha, la muestra primero; si no, lista todas las menciones con enlace a la clase, pestaña y fragmento. Cada término admite una nota propia, editable y sincronizada.
 - **App live:** https://econometria-estudio.vercel.app
 - **Hub Fukuro:** https://fukuro-sable.vercel.app (tile “Econometría I”)
 - **Repo público:** https://github.com/Cecchi96/econometria-estudio
@@ -25,6 +26,8 @@
 - `assets/app.js` renderiza, navega y maneja conceptos, anotaciones globales, gráfico, laboratorios de R y kit de fórmulas.
 - `assets/viz.js` monta las visualizaciones interactivas; `assets/viz.css` contiene sus estilos. El contenido las invoca con bloques `{ type: "interactive", kind, title, intro, hint }` o con el campo `viz` de una ficha de concepto.
 - `assets/feedback.js` y `assets/feedback.css` agregan el botón flotante y el formulario de comentarios.
+- `assets/search.js` construye un índice de conceptos, teoría, práctica, autoevaluación, repaso y fuentes; maneja el modal, el resaltado y la navegación a cada mención. `assets/search.css` contiene sus estilos.
+- `assets/termstore.js` guarda las notas del buscador reutilizando `eco_annotations` con el `class_id` reservado `__notas_del_buscador__`, sin tabla nueva.
 - `feedback.html` + `assets/feedback-admin.js` son la bandeja privada del administrador.
 - `docs/MEJORAS-CONTENIDO.md` documenta los campos `simple`, `viz`, `vizIntro`, `vizHint`, `more` y la sección de profundización.
 - `supabase/eco_annotations.sql` documenta la tabla y las políticas RLS. La migración de colores está al final del archivo.
@@ -36,6 +39,7 @@
 - Tablas: `public.eco_annotations` y `public.eco_feedback`.
 - Tabla privada `public.eco_admins`: solo esas cuentas leen la bandeja de comentarios.
 - RLS: cada usuario solo ve, crea, edita y borra sus propias anotaciones; los comentarios los lee únicamente el administrador.
+- Las notas del buscador usan `eco_annotations` con `class_id = '__notas_del_buscador__'` y `block_id = 'term:<clave>'`. No requieren SQL adicional y no se mezclan con las anotaciones de las clases.
 - Login: email + contraseña, reutilizando el modal de Fukuro.
 - La publishable key está en `storage.js`; es pública por diseño. Nunca subir `service_role`.
 - Para habilitar la bandeja: ejecutar `supabase/eco_feedback.sql` y después insertar la cuenta administradora:
@@ -72,8 +76,10 @@
 4. Ejecutar en Supabase la migración de `supabase/eco_annotations.sql` para habilitar
    los colores `blue` y `rose` (si no se ejecuta, esas anotaciones se guardan solo
    en el dispositivo).
-5. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
-6. Opcional: dominio propio, capturas para el README, licencia.
+5. Probar el buscador con una cuenta de compañero: búsqueda por concepto, salto a
+   una mención de otra clase y nota por término sincronizada entre dos dispositivos.
+6. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
+7. Opcional: dominio propio, capturas para el README, licencia.
 
 ## Cómo trabajar
 
@@ -99,4 +105,5 @@
 - El material bibliográfico no se incluye en el sitio por derechos de autor.
 - Las anotaciones se guardan por `class_id`: las que hubiera con `clase-03` no se reasignan automáticamente a 03A/03B.
 - Los comentarios guardan `page_class` y `page_tab` para saber desde qué sección se escribieron. El correo y el `user_id` los completa la base desde la sesión, no el navegador.
+- Las notas del buscador se guardan como anotaciones con `class_id = '__notas_del_buscador__'`; por eso no aparecen en “Anotaciones” ni cuentan en el contador de la clase.
 - El botón flotante solo aparece en el cuaderno (`index.html`), no en la guía de TP ni en la bandeja.

@@ -208,7 +208,7 @@
     display:flex;gap:28px;border-bottom:1px solid var(--line);overflow-x:auto;
     position:sticky;top:var(--topbar-h,72px);z-index:20;
     background:rgba(247,243,234,.93);backdrop-filter:blur(12px);
-    scrollbar-width:none;
+    scrollbar-width:none;padding:0 14px;
   }
   .tabs::-webkit-scrollbar{display:none}
   .tab{
@@ -870,7 +870,7 @@
     .content{padding:0 20px 70px}
     .hero{grid-template-columns:1fr;gap:22px;padding-top:34px}
     .question-card{max-width:560px}
-    .tabs{gap:22px}
+    .tabs{gap:22px;padding:0 10px}
     .chart-controls{grid-template-columns:1fr 1fr;gap:10px}
     .chart-actions{grid-column:1/-1;justify-content:flex-start}
     .exercise-card{grid-template-columns:52px 1fr;gap:12px}
@@ -1042,6 +1042,7 @@ html[data-theme="dark"] .soon-badge{color:#9fc1b9;border-color:#2f5550}
 
 .lesson-section{scroll-margin-top:130px}
 .tab-panel{scroll-margin-top:130px}
+.exercise-card,.qa-card,.formula-card,.source-card{scroll-margin-top:140px}
 
 body.focus-mode .side{display:none}
 body.focus-mode .layout{grid-template-columns:1fr}

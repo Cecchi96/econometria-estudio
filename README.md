@@ -10,6 +10,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Clases 4A y 4B completas:** 4A cubre escala, coeficientes beta, formas funcionales, logaritmos y cuadráticas; 4B cubre selección de modelos, AIC/BIC, RESET, sesgos de especificación y predicción promedio e individual. Ambas con práctica, laboratorio de R y kit de repaso.
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E, cada una con práctica, laboratorio de R y kit de repaso.
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
+- **Buscador global:** busca conceptos y palabras en las 13 clases, muestra la ficha si ya existe, enlaza cada mención y permite guardar notas propias por término.
 - **Comentarios:** botón flotante para enviar sugerencias y una bandeja privada para el administrador.
 - **Modo noche:** persistente y responsive.
 
@@ -24,6 +25,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - Selección de texto en cualquier sección, incluidos títulos, fórmulas, tarjetas, tablas y fuentes, para subrayar o comentar.
 - Cuatro colores de subrayado y cambio de color posterior desde el panel de anotaciones.
 - Panel de anotaciones con filtros, edición, borrado y “volver al fragmento”.
+- Buscador global con atajo `Ctrl/Cmd + K`: si el concepto tiene ficha, la abre; si no, muestra todas las menciones con enlace a la clase, pestaña y fragmento exacto. Cada término puede llevar una nota propia, editable y sincronizada con la cuenta.
 - Sección de profundización al final de la teoría de cada clase.
 - Formulario de repaso con fórmulas desplegables, información ampliada y comentario directo.
 - Autoevaluación con preguntas de razonamiento.
@@ -50,9 +52,12 @@ assets/
   styles.css            design system y modo noche
   viz.css               estilos de las visualizaciones interactivas
   feedback.css          estilos del botón flotante y de la bandeja
+  search.css            estilos del buscador global
   app.js                render, navegación, conceptos, anotaciones y gráfico
   viz.js                motor de visualizaciones interactivas
   store.js              adaptador Supabase + fallback local
+  termstore.js          notas del buscador sobre la tabla de anotaciones
+  search.js             índice, búsqueda, menciones y notas por término
   feedback.js           botón flotante y formulario de comentarios
   feedback-admin.js     bandeja de comentarios del administrador
 content/
@@ -106,6 +111,9 @@ La app usa el proyecto `fukuro`:
 - Si la tabla ya existía con los colores anteriores, ejecutá de nuevo el bloque de
   migración del final del archivo para habilitar `blue` y `rose`.
 - RLS: cada usuario solo puede leer, crear, editar y borrar sus propias anotaciones.
+- Las notas del buscador reutilizan `eco_annotations` con el `class_id` reservado
+  `__notas_del_buscador__`. Sincronizan con la misma cuenta y las mismas políticas
+  RLS, y no aparecen en el panel de anotaciones de las clases.
 - La tabla `eco_feedback` y la tabla privada `eco_admins` se crean con
   `supabase/eco_feedback.sql`. Cualquier usuario autenticado puede enviar
   comentarios; solo las cuentas listadas en `eco_admins` pueden leerlos.

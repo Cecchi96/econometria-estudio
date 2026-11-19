@@ -14,6 +14,10 @@
     ? window.CSS.escape(String(value ?? ""))
     : String(value ?? "").replace(/["\\]/g, "\\$&");
   const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+  const foldText = (value) => normalize(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
   const truncate = (value, size) => value.length > size ? value.slice(0, size).trimEnd() + "…" : value;
   const pad = (value) => String(value).padStart(2, "0");
 
@@ -60,6 +64,8 @@
     popoverAnchor: null,
     toolbarGuardUntil: 0
   };
+
+  let pendingNav = null;
 
   const els = {
     app: $("#app"),
@@ -190,6 +196,14 @@
     window.scrollTo(0, 0);
     if (content) renderClass(content);
     else renderPlaceholder(meta);
+    runPendingNav();
+  }
+
+  function runPendingNav() {
+    if (!pendingNav) return;
+    const action = pendingNav;
+    pendingNav = null;
+    setTimeout(action, 45);
   }
 
   function setActiveNav(id) {
@@ -290,7 +304,7 @@
   function renderBlock(block) {
     switch (block.type) {
       case "p":
-        return `<p data-block-id="${block.id}">${block.html}</p>`;
+        return `<p${block.id ? ` id="${block.id}"` : ""} data-block-id="${block.id}">${block.html}</p>`;
       case "formula":
         return `
           <div class="formula-display">
@@ -554,8 +568,8 @@
           : ""}
       </div>
       <div class="exercise-list">
-        ${practice.exercises.map(exercise => `
-          <article class="exercise-card">
+        ${practice.exercises.map((exercise, index) => `
+          <article class="exercise-card" id="ex-${content.id}-${index + 1}">
             <div class="ex-label">${exercise.label.replace(" · ", "<br>")}</div>
             <div>
               <h3>${exercise.title}</h3>
@@ -597,7 +611,7 @@
       </div>
       <div class="qa-list">
         ${assessment.questions.map((item, index) => `
-          <details class="qa-card">
+          <details class="qa-card" id="qa-${content.id}-${index + 1}">
             <summary><span class="qa-num">${pad(index + 1)}</span><span>${item.q}</span></summary>
             <div class="qa-answer">${item.a}</div>
           </details>
@@ -625,7 +639,7 @@
         </div>
         <div class="formula-kit">
           ${review.formulas.map((formula, index) => `
-            <article class="formula-card" data-formula-card>
+            <article class="formula-card" id="formula-card-${content.id}-${index + 1}" data-formula-card>
               <div class="formula-head" data-formula-toggle role="button" tabindex="0" aria-expanded="false" aria-controls="formula-more-${content.id}-${index}">
                 <span class="formula-title">${formula.title}</span>
                 <span class="formula-plus" aria-hidden="true">+</span>
@@ -717,8 +731,8 @@
         <p>${sources.intro}</p>
       </div>
       <div class="source-list">
-        ${sources.items.map(item => `
-          <article class="source-card">
+        ${sources.items.map((item, index) => `
+          <article class="source-card" id="source-${content.id}-${index + 1}">
             <span class="source-type ${item.typeClass || ""}">${item.type}</span>
             <div>
               <h3>${item.title}</h3>
@@ -742,7 +756,7 @@
 
   // ---------- Tabs ----------
 
-  function switchTab(tabId) {
+  function switchTab(tabId, shouldScroll = true) {
     if (!TAB_LABELS[tabId]) return;
     state.activeTab = tabId;
     $$(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabId));
@@ -752,6 +766,7 @@
     els.popover.classList.remove("show");
     state.commentRange = null;
     state.commentBlock = null;
+    if (!shouldScroll) return;
     const panel = document.querySelector(".tab-panel.active");
     if (panel) {
       const tabsHeight = $(".tabs")?.offsetHeight || 50;
@@ -777,6 +792,107 @@
     const button = $("#toggleAllQA");
     if (button) button.textContent = anyClosed ? "Ocultar todas" : "Mostrar todas";
   }
+
+  // ---------- Búsqueda global ----------
+
+  const SEARCH_TARGET_SELECTOR = [
+    "p", "li", "h2", "h3", "h4",
+    ".formula-main", ".formula-legend > div", ".formula-note", ".formula-card",
+    ".interpret", ".compare-card", ".assumption-row", ".error-row", ".map-step",
+    ".qa-card", ".qa-answer", ".source-card", ".exercise-card", ".kit-card", ".plan-day",
+    ".session-block", ".r-lab-head", ".r-note", ".r-row", ".r-confint", ".r-pane",
+    ".interpret-card", ".check-list li", ".callout", ".mini-check", ".source-mini",
+    ".source-chip", ".viz-head", ".lesson-section"
+  ].join(",");
+
+  function navigateToClassThen(classId, action) {
+    if (state.content && state.content.id === classId) {
+      action();
+      return;
+    }
+    pendingNav = action;
+    const current = location.hash.replace(/^#\/?/, "");
+    if (current === classId) route();
+    else location.hash = classId;
+  }
+
+  function findSearchElement(needle, panel) {
+    if (!needle || needle.length < 4) return null;
+    let best = null;
+    $$(SEARCH_TARGET_SELECTOR, panel).forEach(candidate => {
+      const text = foldText(candidate.textContent);
+      if (!text.includes(needle)) return;
+      if (!best || text.length < best.length) best = { el: candidate, length: text.length };
+    });
+    return best ? best.el : null;
+  }
+
+  function focusSearchTarget(hit) {
+    const panel = document.querySelector(".tab-panel.active");
+    if (!panel) return;
+    let target = null;
+    if (hit.anchor) {
+      const anchor = document.getElementById(hit.anchor);
+      if (anchor && panel.contains(anchor)) target = anchor;
+    }
+    const needle = foldText(normalize(hit.match || "").slice(0, 80));
+    if (needle.length >= 4) {
+      const found = findSearchElement(needle, panel);
+      if (found) target = found;
+    }
+    if (!target) target = $(".panel-intro h2", panel) || $("h2", panel) || panel;
+    const details = target.closest("details");
+    if (details) details.open = true;
+    const formulaCard = target.closest(".formula-card");
+    if (formulaCard) toggleFormulaCard(formulaCard, true);
+    const topbarHeight = $(".topbar")?.offsetHeight || 60;
+    const tabsHeight = $(".tabs")?.offsetHeight || 50;
+    const top = target.getBoundingClientRect().top + window.scrollY - topbarHeight - tabsHeight - 20;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    target.classList.remove("search-flash");
+    void target.offsetWidth;
+    target.classList.add("search-flash");
+    setTimeout(() => target.classList.remove("search-flash"), 2600);
+  }
+
+  function goToSearchHit(hit) {
+    if (!hit || !hit.classId) return;
+    navigateToClassThen(hit.classId, () => {
+      if (!state.content || state.content.id !== hit.classId) return;
+      const tab = TAB_LABELS[hit.tab] ? hit.tab : "teoria";
+      if (state.activeTab !== tab) switchTab(tab, false);
+      setTimeout(() => focusSearchTarget(hit), 80);
+    });
+  }
+
+  function openConceptAt(classId, key) {
+    navigateToClassThen(classId, () => {
+      if (!state.content || state.content.id !== classId) return;
+      if (!state.content.concepts[key]) {
+        showToast("Ese concepto no está disponible en esta clase.");
+        return;
+      }
+      if (state.activeTab !== "conceptos") switchTab("conceptos", false);
+      openDrawer("concept", key);
+    });
+  }
+
+  function dismissSelection() {
+    hideToolbar();
+    if (els.popover) els.popover.classList.remove("show");
+    state.commentRange = null;
+    state.commentBlock = null;
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+  }
+
+  window.ECO_APP = {
+    goToSearchHit,
+    openConceptAt,
+    dismissSelection,
+    closeDrawer,
+    toast: (message) => showToast(message)
+  };
 
   // ---------- Chart lab ----------
 
@@ -1457,6 +1573,7 @@
   }
 
   function checkSelection() {
+    if (document.body.classList.contains("search-open")) return;
     if (!state.content) return;
     const guarded = Date.now() < state.toolbarGuardUntil;
     const selection = window.getSelection();
@@ -1680,6 +1797,7 @@
 
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
+      if (document.body.classList.contains("search-open")) return;
       if (els.popover.classList.contains("show")) {
         els.popover.classList.remove("show");
         state.commentRange = null;
@@ -1692,7 +1810,7 @@
     });
 
     document.addEventListener("pointerup", event => {
-      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs")) return;
+      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs, .search-modal")) return;
       if (els.popover.classList.contains("show")) return;
       setTimeout(checkSelection, event.pointerType === "mouse" ? 10 : 260);
     });
