@@ -112,7 +112,7 @@ La app usa el proyecto `fukuro`:
 - Para habilitar la bandeja, después de ejecutar el SQL agregá tu cuenta:
   ```sql
   insert into public.eco_admins (user_id)
-  select id from auth.users where email = 'tu-correo@gmail.com'
+  select id from auth.users where lower(email) = lower('tu-correo@gmail.com')
   on conflict (user_id) do nothing;
   ```
 - **Nunca** subir la `service_role key` ni tokens personales al repositorio.
