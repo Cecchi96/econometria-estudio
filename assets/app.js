@@ -21,6 +21,289 @@
   const truncate = (value, size) => value.length > size ? value.slice(0, size).trimEnd() + "…" : value;
   const pad = (value) => String(value).padStart(2, "0");
 
+  // ---------- Fórmulas con fracciones ----------
+  // Convierte "numerador / denominador" en una fracción con barra horizontal.
+  // Solo se aplica al HTML de las fórmulas: respeta subíndices, superíndices,
+  // matrices y deja intacta la notación de derivadas (∂Ŷ/∂X) y los subíndices
+  // como tα/2, donde la barra oblicua es la forma habitual.
+
+  const FRACTION_TOKEN_BASE = 0xE000;
+  const FRACTION_TOKEN_MAX = 0xF8FF;
+  const FRACTION_SEPARATORS = new Set([
+    "=", "+", "−", "-", "·", "→", "≈", "~", "<", ">", "≤", "≥", "⇒", "≠", "±", ",", ";"
+  ]);
+
+  function formatFractions(html) {
+    if (!html || html.indexOf("/") === -1) return html;
+
+    const store = [];
+    const token = (raw, kind, logical) => {
+      if (store.length >= FRACTION_TOKEN_MAX - FRACTION_TOKEN_BASE + 1) {
+        throw new Error("Demasiados tokens al formatear una fórmula");
+      }
+      const char = String.fromCharCode(FRACTION_TOKEN_BASE + store.length);
+      store.push({ raw, kind, logical });
+      return char;
+    };
+    const info = (char) => {
+      const code = char.charCodeAt(0);
+      return code >= FRACTION_TOKEN_BASE && code <= FRACTION_TOKEN_MAX
+        ? store[code - FRACTION_TOKEN_BASE] || null
+        : null;
+    };
+
+    const tokenized = tokenizeFormula(html, token);
+    if (!isBalancedFormula(tokenized)) return html;
+
+    return restoreFormulaTokens(formatFormulaExpression(tokenized, info, token), info);
+  }
+
+  function tokenizeFormula(html, token) {
+    let out = "";
+    let i = 0;
+
+    while (i < html.length) {
+      const rest = html.slice(i);
+      let match;
+
+      if (rest[0] === "<") {
+        if ((match = rest.match(/^<(sub|sup)\b[^>]*>[\s\S]*?<\/\1>/i))) {
+          out += token(match[0], "protected");
+          i += match[0].length;
+          continue;
+        }
+        if ((match = rest.match(/^<table\b[^>]*>[\s\S]*?<\/table>/i))) {
+          out += token(match[0], "protected");
+          i += match[0].length;
+          continue;
+        }
+        if ((match = rest.match(/^<br\b[^>]*>/i))) {
+          out += token(match[0], "break", "\n");
+          i += match[0].length;
+          continue;
+        }
+        if ((match = rest.match(/^<\/?[^>]+>/))) {
+          out += token(match[0], "tag");
+          i += match[0].length;
+          continue;
+        }
+      }
+
+      if ((match = rest.match(/^&(nbsp|lt|gt|amp);/))) {
+        const name = match[1];
+        const kind = name === "nbsp" ? "space" : "op";
+        const logical = name === "nbsp" ? " " : name === "lt" ? "<" : name === "gt" ? ">" : "&";
+        out += token(match[0], kind, logical);
+        i += match[0].length;
+        continue;
+      }
+
+      out += html[i];
+      i += 1;
+    }
+
+    return out;
+  }
+
+  function restoreFormulaTokens(str, info) {
+    return str.replace(/[\uE000-\uF8FF]/g, (char) => {
+      const data = info(char);
+      return data ? restoreFormulaTokens(data.raw, info) : char;
+    });
+  }
+
+  function isBalancedFormula(str) {
+    const stack = [];
+    const pairs = { ")": "(", "]": "[", "}": "{" };
+    for (const char of str) {
+      if (char === "(" || char === "[" || char === "{") stack.push(char);
+      else if (pairs[char] && stack.pop() !== pairs[char]) return false;
+    }
+    return stack.length === 0;
+  }
+
+  function formatFormulaExpression(str, info, token) {
+    let out = str;
+    let previous;
+    const groupRe = /\([^()]*\)|\[[^\[\]]*\]|\{[^{}]*\}/g;
+    let guard = 0;
+
+    do {
+      previous = out;
+      out = out.replace(groupRe, (match) => {
+        const open = match[0];
+        const close = match[match.length - 1];
+        const inner = match.slice(1, -1);
+        return token(open + formatFormulaExpression(inner, info, token) + close, "group");
+      });
+    } while (out !== previous && guard++ < 100);
+
+    return wrapFormulaFractions(out, info);
+  }
+
+  function formulaCharInfo(char, info) {
+    const data = info(char);
+    if (!data) {
+      if (char === " " || char === "\u00A0" || char === "\t" || char === "\n") {
+        return { kind: "space", char: " " };
+      }
+      return { kind: "char", char };
+    }
+    if (data.kind === "space") return { kind: "space", char: " " };
+    if (data.kind === "op") return { kind: "char", char: data.logical };
+    if (data.kind === "break") return { kind: "break", char: "\n" };
+    return { kind: data.kind, char: "" };
+  }
+
+  function isFormulaSeparator(char) {
+    return FRACTION_SEPARATORS.has(char);
+  }
+
+  function previousFormulaSignificant(str, index, info) {
+    for (let i = index - 1; i >= 0; i -= 1) {
+      const current = formulaCharInfo(str[i], info);
+      if (current.kind === "space" || current.kind === "tag") continue;
+      return { index: i, ...current };
+    }
+    return null;
+  }
+
+  function isFormulaUnaryMinus(str, index, info) {
+    const previous = previousFormulaSignificant(str, index, info);
+    if (!previous) return true;
+    if (previous.kind === "break") return true;
+    if (previous.kind === "char") {
+      return isFormulaSeparator(previous.char)
+        || previous.char === "(" || previous.char === "[" || previous.char === "{";
+    }
+    return false;
+  }
+
+  function hasFormulaVisible(str, info) {
+    for (const char of str) {
+      const current = formulaCharInfo(char, info);
+      if (current.kind === "char" || current.kind === "group" || current.kind === "protected") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function firstFormulaVisibleChar(str, info) {
+    for (const char of str) {
+      const current = formulaCharInfo(char, info);
+      if (current.kind === "space" || current.kind === "tag") continue;
+      return current.kind === "char" ? current.char : "";
+    }
+    return "";
+  }
+
+  function wrapFormulaFractions(str, info) {
+    const ranges = [];
+    let i = 0;
+
+    while (i < str.length) {
+      if (str[i] !== "/") {
+        i += 1;
+        continue;
+      }
+
+      let left = i - 1;
+      while (left >= 0) {
+        const current = formulaCharInfo(str[left], info);
+        if (current.kind === "space" || current.kind === "tag") {
+          left -= 1;
+          continue;
+        }
+        if (current.kind === "break") break;
+        if (current.kind === "char" && isFormulaSeparator(current.char)) {
+          if (current.char === "−" && isFormulaUnaryMinus(str, left, info)) {
+            left -= 1;
+            continue;
+          }
+          break;
+        }
+        left -= 1;
+      }
+
+      let start = left + 1;
+      while (start < i) {
+        const current = formulaCharInfo(str[start], info);
+        if (current.kind === "space") start += 1;
+        else break;
+      }
+
+      let right = i + 1;
+      while (right < str.length) {
+        const current = formulaCharInfo(str[right], info);
+        if (current.kind === "space" || current.kind === "tag") {
+          right += 1;
+          continue;
+        }
+        if (current.kind === "break") break;
+        if (current.kind === "char" && isFormulaSeparator(current.char)) break;
+        right += 1;
+      }
+
+      let end = right;
+      while (end > i + 1) {
+        const current = formulaCharInfo(str[end - 1], info);
+        if (current.kind === "space") end -= 1;
+        else break;
+      }
+
+      let numEnd = i;
+      while (numEnd > start) {
+        const current = formulaCharInfo(str[numEnd - 1], info);
+        if (current.kind === "space") numEnd -= 1;
+        else break;
+      }
+
+      let denStart = i + 1;
+      while (denStart < end) {
+        const current = formulaCharInfo(str[denStart], info);
+        if (current.kind === "space") denStart += 1;
+        else break;
+      }
+
+      // "min Σ… / h" no es una fracción que empiece en min: el prefijo queda afuera.
+      const prefix = str.slice(start, i).match(/^(min|max)\s+/);
+      if (prefix) {
+        start += prefix[0].length;
+        while (start < i) {
+          const current = formulaCharInfo(str[start], info);
+          if (current.kind === "space") start += 1;
+          else break;
+        }
+      }
+
+      if (start < numEnd && denStart < end) {
+        const numerator = str.slice(start, numEnd);
+        const denominator = str.slice(denStart, end);
+        if (hasFormulaVisible(numerator, info) && hasFormulaVisible(denominator, info)
+          && firstFormulaVisibleChar(numerator, info) !== "∂"
+          && firstFormulaVisibleChar(denominator, info) !== "∂") {
+          ranges.push({ start, end, numerator, denominator, gap: str.slice(numEnd, denStart) });
+          i = end;
+          continue;
+        }
+      }
+
+      i += 1;
+    }
+
+    // El separador original queda oculto pero sigue en el textContent: así no
+    // cambian los ids de bloque ni los offsets de las anotaciones existentes.
+    let out = str;
+    for (let k = ranges.length - 1; k >= 0; k -= 1) {
+      const range = ranges[k];
+      out = out.slice(0, range.start)
+        + `<span class="frac"><span class="frac-num">${range.numerator}</span><span class="frac-slash" aria-hidden="true">${range.gap}</span><span class="frac-den">${range.denominator}</span></span>`
+        + out.slice(range.end);
+    }
+    return out;
+  }
+
   const CLASSES = window.CLASE_INDICE || [];
   const CONTENTS = window.CLASE_CONTENIDOS || {};
   const TAB_LABELS = {
@@ -252,6 +535,7 @@
     initVisuals();
     loadAnnotations(content.id);
     syncTabsStuck();
+    if (window.BoardMode) window.BoardMode.onClassRender(content.id);
   }
 
   function renderPlaceholder(meta) {
@@ -270,6 +554,7 @@
         <a class="open-btn" href="#clase-01">Volver a la clase 1</a>
       </section>
     `;
+    if (window.BoardMode) window.BoardMode.onClassRender(null);
   }
 
   function renderHero(content) {
@@ -317,7 +602,7 @@
       case "formula":
         return `
           <div class="formula-display">
-            <div class="formula-main">${block.main}</div>
+            <div class="formula-main">${formatFractions(block.main)}</div>
             <div class="formula-legend">
               ${block.legend.map(item => `<div><span class="legend-key">${item.key}</span><span>${item.text}</span></div>`).join("")}
             </div>
@@ -349,13 +634,13 @@
               <span class="tag">${block.left.tag}</span>
               <h3>${block.left.title}</h3>
               <p>${block.left.text}</p>
-              <div class="eq">${block.left.eq}</div>
+              <div class="eq">${formatFractions(block.left.eq)}</div>
             </div>
             <div class="compare-card muted">
               <span class="tag">${block.right.tag}</span>
               <h3>${block.right.title}</h3>
               <p>${block.right.text}</p>
-              <div class="eq">${block.right.eq}</div>
+              <div class="eq">${formatFractions(block.right.eq)}</div>
             </div>
           </div>
         `;
@@ -653,7 +938,7 @@
                 <span class="formula-title">${formula.title}</span>
                 <span class="formula-plus" aria-hidden="true">+</span>
               </div>
-              <div class="eq">${formula.eq}</div>
+              <div class="eq">${formatFractions(formula.eq)}</div>
               <p class="formula-note">${formula.note}</p>
               <div class="formula-more" id="formula-more-${content.id}-${index}">
                 <span class="mini-label">Más información</span>
@@ -771,6 +1056,7 @@
     $$(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabId));
     $$(".tab-panel").forEach(panel => panel.classList.toggle("active", panel.id === `panel-${tabId}`));
     els.crumbTab.textContent = TAB_LABELS[tabId];
+    if (window.BoardMode) window.BoardMode.onTabChange(tabId);
     hideToolbar();
     els.popover.classList.remove("show");
     state.commentRange = null;
@@ -1851,7 +2137,7 @@
     });
 
     document.addEventListener("pointerup", event => {
-      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs, .search-modal")) return;
+      if (closestEl(event.target, ".selection-toolbar, .comment-popover, .drawer, .side, .topbar, .tabs, .search-modal, .board-bar, .board-layer")) return;
       if (els.popover.classList.contains("show")) return;
       setTimeout(checkSelection, event.pointerType === "mouse" ? 10 : 260);
     });
@@ -1978,6 +2264,13 @@
   }
 
   // ---------- Start ----------
+
+  window.EcoApp = {
+    switchTab,
+    toast: showToast,
+    getClassId: () => state.content && state.content.id,
+    getTab: () => state.activeTab
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

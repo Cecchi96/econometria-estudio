@@ -13,6 +13,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - **Anotaciones:** se guardan en Supabase y son privadas para cada cuenta.
 - **Buscador global:** busca conceptos y palabras en las 13 clases, muestra la ficha si ya existe, enlaza cada mención y permite guardar notas propias por término.
 - **Comentarios:** botón flotante para enviar sugerencias y una bandeja privada para el administrador.
+- **Modo pizarrón (prueba en Teoría):** se puede escribir y dibujar a mano con lápiz digital, mouse o dedo sobre la clase, con lápiz, resaltador, borrador, colores y deshacer. Las marcas quedan visibles sobre la teoría y, al salir del modo, los laboratorios y enlaces vuelven a responder.
 - **Modo noche:** persistente y responsive.
 
 ## Funcionalidades
@@ -35,6 +36,7 @@ Sitio de estudio para Econometría I, desarrollado como una aplicación estátic
 - Botón flotante “Comentarios” en cada clase, con contexto automático de clase y pestaña.
 - Bandeja privada de comentarios con filtros, búsqueda, estado resuelto y borrado.
 - Modo claro/oscuro, diseño responsive y selección táctil en tablet y celular.
+- Modo pizarrón sobre la teoría: trazos a mano alzada con lápiz, resaltador y borrador; cuatro colores, tres grosores, deshacer/rehacer y borrado total. Las marcas se guardan por clase en el dispositivo y se dibujan sobre los laboratorios interactivos sin bloquearlos cuando el modo está apagado.
 
 ## Stack
 
@@ -54,7 +56,9 @@ assets/
   viz.css               estilos de las visualizaciones interactivas
   feedback.css          estilos del botón flotante y de la bandeja
   search.css            estilos del buscador global
+  board.css             estilos del modo pizarrón
   app.js                render, navegación, conceptos, anotaciones y gráfico
+  board.js              capa de dibujo a mano del modo pizarrón
   viz.js                motor de visualizaciones interactivas
   store.js              adaptador Supabase + fallback local
   termstore.js          notas del buscador sobre la tabla de anotaciones

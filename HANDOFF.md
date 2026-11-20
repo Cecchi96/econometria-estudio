@@ -10,6 +10,7 @@
 - **Clases 5 a 10 completas:** variables ficticias, heterocedasticidad, series de tiempo, autocorrelación, endogeneidad y variables instrumentales, y MC2E. Cada una con práctica, laboratorio de R y kit de repaso.
 - **Mejoras de comprensión:** cada ficha de concepto incluye una explicación en palabras simples; las fichas que lo admiten tienen pestaña de visualización interactiva; cada clase suma una sección de profundización; las fórmulas del repaso se despliegan con información ampliada y se pueden comentar.
 - **Anotaciones ampliadas:** se puede subrayar o comentar en cualquier pestaña, incluidos títulos, fórmulas, tarjetas, tablas y fuentes. Hay cuatro colores (amarillo, verde, celeste y rosa) y la selección funciona también con eventos táctiles en tablet y celular.
+- **Modo pizarrón (prueba en Teoría):** botón “Pizarrón” en la barra superior. Permite escribir y dibujar a mano sobre la clase con lápiz digital, mouse o dedo, usando lápiz, resaltador, borrador, cuatro colores, tres grosores, deshacer/rehacer y borrado total. La capa de tinta queda visible al salir del modo, pero deja pasar los clics para que los laboratorios y enlaces funcionen normalmente. Las marcas se guardan por clase en `localStorage` del dispositivo.
 - **Comentarios:** botón flotante en el cuaderno y bandeja privada en `feedback.html`, con filtros, búsqueda y estado resuelto.
 - **Buscador global:** atajo `Ctrl/Cmd + K`, índice de las 13 clases y búsqueda por concepto, palabra o fórmula. Si el concepto ya tiene ficha, la muestra primero; si no, lista todas las menciones con enlace a la clase, pestaña y fragmento. Cada término admite una nota propia, editable y sincronizada.
 - **App live:** https://econometria-estudio.vercel.app
@@ -24,6 +25,7 @@
 - `content/clase-01.js`, `content/clase-02a.js`, `content/clase-02b.js`, `content/clase-03a.js`, `content/clase-03b.js`, `content/clase-04a.js`, `content/clase-04b.js`, `content/clase-05.js`, `content/clase-06.js`, `content/clase-07.js`, `content/clase-08.js`, `content/clase-09.js` y `content/clase-10.js` contienen el contenido de las clases disponibles.
 - `guia/Guía-TP-Eco-I-2026.html` es la guía de TP integrada, con enlaces profundos por ejercicio.
 - `assets/app.js` renderiza, navega y maneja conceptos, anotaciones globales, gráfico, laboratorios de R y kit de fórmulas.
+- `assets/board.js` monta el modo pizarrón: capa `canvas` fija sobre la columna de lectura, trazos vectoriales, herramientas, historial y persistencia local por clase. `assets/board.css` contiene sus estilos. `app.js` avisa a `BoardMode` cuándo se renderiza una clase o se cambia de pestaña.
 - `assets/viz.js` monta las visualizaciones interactivas; `assets/viz.css` contiene sus estilos. El contenido las invoca con bloques `{ type: "interactive", kind, title, intro, hint }` o con el campo `viz` de una ficha de concepto.
 - `assets/feedback.js` y `assets/feedback.css` agregan el botón flotante y el formulario de comentarios.
 - `assets/search.js` construye un índice de conceptos, teoría, práctica, autoevaluación, repaso y fuentes; maneja el modal, el resaltado y la navegación a cada mención. `assets/search.css` contiene sus estilos.
@@ -53,6 +55,7 @@
 ## Decisiones tomadas
 
 - Anotaciones **privadas por usuario**.
+- El modo pizarrón se probó primero en **Teoría**. Las marcas se guardan en `localStorage` por clase (`eco-board-v1:<clase>:teoria`) y son locales al dispositivo; no usan Supabase en esta etapa. La capa es fija y sigue el rectángulo visible de la lectura para no reservar un canvas gigante por documento.
 - Comentarios **visibles solo para el administrador**. Se descartó el aviso por email para no agregar un servicio externo; la bandeja es la fuente de verdad.
 - La clase 3 se dividió en **03A** (inferencia sobre un parámetro) y **03B** (restricciones, F, LM y asintótica) para separar la práctica individual de los contrastes conjuntos.
 - La clase 4 se dividió en **04A** (escala, beta, formas funcionales y cuadráticas) y **04B** (selección de modelos, RESET, sesgos y predicción) por la misma razón: cada parte tiene su propio laboratorio y su propio kit de repaso.
@@ -80,7 +83,8 @@
 5. Probar el buscador con una cuenta de compañero: búsqueda por concepto, salto a
    una mención de otra clase y nota por término sincronizada entre dos dispositivos.
 6. Revisar la consistencia global de las 13 unidades y actualizar las capturas del README.
-7. Opcional: dominio propio, capturas para el README, licencia.
+7. Probar el modo pizarrón en una tablet con lápiz digital: trazo, palma apoyada, dos dedos para desplazar y borrador. Evaluar si conviene sincronizar las marcas con la cuenta y extender el modo a Práctica, Autoevaluación y Repaso.
+8. Opcional: dominio propio, capturas para el README, licencia.
 
 ## Cómo trabajar
 

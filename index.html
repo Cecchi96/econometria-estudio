@@ -13,10 +13,11 @@
     document.documentElement.setAttribute("data-theme", theme);
   })();
 </script>
-<link rel="stylesheet" href="assets/styles.css?v=25">
+<link rel="stylesheet" href="assets/styles.css?v=27">
 <link rel="stylesheet" href="assets/viz.css?v=23">
 <link rel="stylesheet" href="assets/feedback.css?v=2">
 <link rel="stylesheet" href="assets/search.css?v=4">
+<link rel="stylesheet" href="assets/board.css?v=2">
 </head>
 <body>
 <div class="layout">
@@ -56,6 +57,10 @@
         </button>
         <button class="annotations-btn" id="annotationsBtn" aria-haspopup="dialog" aria-expanded="false">
           Anotaciones <span class="count" id="annotCount">0</span>
+        </button>
+        <button class="board-btn" id="boardBtn" type="button" aria-pressed="false" title="Modo pizarrón (Teoría)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20.5 8.6 19 19 8.6a2.1 2.1 0 0 0-3-3L5.6 16 4 20.5Z"/><path d="m14.5 5.5 4 4"/></svg>
+          <span class="board-btn-label">Pizarrón</span>
         </button>
         <button class="ghost-btn" id="focusBtn" type="button">Modo enfoque</button>
         <button class="theme-btn" id="themeBtn" aria-label="Cambiar a modo noche" title="Modo noche" type="button">☾</button>
@@ -110,6 +115,7 @@
     <li>Abrí “Anotaciones” para volver al fragmento.</li>
     <li>Buscá un concepto o una palabra con <b>Buscar</b> (Ctrl+K).</li>
     <li>En Repaso, desplegá una fórmula para ver más información.</li>
+    <li>Activá <b>Pizarrón</b> para escribir a mano sobre la teoría.</li>
     <li>Mové los sliders de los laboratorios visuales.</li>
   </ul>
 </div>
@@ -131,7 +137,8 @@
 <script src="content/clase-10.js?v=24"></script>
 <script src="assets/store.js?v=23"></script>
 <script src="assets/viz.js?v=23"></script>
-<script src="assets/app.js?v=28"></script>
+<script src="assets/app.js?v=31"></script>
+<script src="assets/board.js?v=2"></script>
 <script src="assets/termstore.js?v=3"></script>
 <script src="assets/search.js?v=7"></script>
 <script src="assets/feedback.js?v=4"></script>

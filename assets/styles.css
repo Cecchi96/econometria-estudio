@@ -271,6 +271,16 @@
     border-radius:2px;
   }
   .formula-main .matrix td{padding:3px 12px;text-align:right;white-space:nowrap}
+  .frac{
+    display:inline-flex;flex-direction:column;align-items:stretch;
+    vertical-align:middle;text-align:center;white-space:nowrap;
+    line-height:1.12;margin:0 .16em;
+  }
+  .frac .frac-num,.frac .frac-den{display:block;white-space:nowrap;text-align:center}
+  .frac .frac-slash{display:none}
+  .frac .frac-num{border-bottom:1.5px solid currentColor;padding:0 .16em .06em}
+  .frac .frac-den{padding:.06em .16em 0}
+  .formula-main .frac .frac{font-size:.92em}
   .formula-legend{
     display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
     border-top:1px solid #ece6d9;padding-top:16px;
